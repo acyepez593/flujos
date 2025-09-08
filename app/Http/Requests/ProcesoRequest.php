@@ -6,7 +6,7 @@ namespace App\Http\Requests;
   
 use Illuminate\Foundation\Http\FormRequest;
   
-class LogConfiguracionValidacionRequest extends FormRequest
+class ProcesoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,11 @@ class LogConfiguracionValidacionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'validacion' => 'required',
-            'habilitar' => 'required'
+            'nombre' => 'required',
+            'descripcion' => 'required',
+            'estatus' => 'required'
+            
+
         ];
     }
 
@@ -37,8 +40,9 @@ class LogConfiguracionValidacionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'validacion.required' => 'El campo :attribute es requerido',
-            'habilitar.required' => 'El campo :attribute es requerido'
+            'nombre.required' => 'El campo :attribute es requerido',
+            'descripcion.required' => 'El campo :attribute es requerido',
+            'estatus.required' => 'El campo :attribute es requerido',
         ];
     }
 }

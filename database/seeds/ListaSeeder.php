@@ -24,7 +24,7 @@ class ListaSeeder extends Seeder
     {
 
         
-        // Tipos
+        /*// Tipos
         $Tipos = ['INGRESO','DEVOLUCIÓN','RE-INGRESO','OBJECIÓN','EXTEMPORANEO'];
         foreach ($Tipos as $value) {
             Tipo::create(['nombre' => $value]);
@@ -1689,6 +1689,6 @@ class ListaSeeder extends Seeder
 
         foreach ($Parroquias as $value) {
             Parroquia::create(['provincia_id' => $value[0],'canton_id' => $value[1],'nombre' => $value[2]]);
-        }
+        }*/
     }
 }

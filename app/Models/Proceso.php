@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
   
-class Oficio extends Authenticatable
+class Proceso extends Authenticatable
 {
     use Notifiable, HasRoles, SoftDeletes;
 
@@ -23,8 +23,7 @@ class Oficio extends Authenticatable
     protected $fillable = [
         'nombre',
         'descripcion',
-        'estatus',
-        'creado_por'
+        'estatus'
     ];
 
 

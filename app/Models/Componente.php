@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
   
-class LogConfiguracionValidacion extends Authenticatable
+class Componente extends Authenticatable
 {
     use Notifiable, HasRoles, SoftDeletes;
 
@@ -17,14 +17,16 @@ class LogConfiguracionValidacion extends Authenticatable
      *
      * @var string
      */
-    protected $table = 'log_configuracion_validacion';
-    protected $guard_name = 'logConfiguracionValidacion';
+    protected $table = 'componentes';
+    protected $guard_name = 'componentes';
   
     protected $fillable = [
-        'validacion',
-        'habilitar',
-
+        'nombre',
+        'descripcion',
+        'configuracion',
+        'estatus',
     ];
+
 
     protected $dates = ['deleted_at'];
 
