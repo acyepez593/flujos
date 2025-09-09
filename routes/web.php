@@ -9,8 +9,10 @@ use App\Http\Controllers\Backend\Auth\LoginController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\RolesController;
 use App\Http\Controllers\Backend\ConfiguracionesCamposReporteController;
+use App\Http\Controllers\Backend\PantallasController;
 use App\Http\Controllers\Backend\ProcesosController;
 use App\Http\Controllers\Backend\ReportesController;
+use App\Http\Controllers\Backend\SeccionPantallasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +37,10 @@ Route::post('/getReporteByFilters','backend\ReportesController@getReporteByFilte
 
 Route::post('/getProcesosByFilters','backend\ProcesosController@getProcesosByFilters')->middleware('auth:admin');
 
+Route::post('/getPantallasByFilters','backend\PantallasController@getPantallasByFilters')->middleware('auth:admin');
+
+Route::post('/getSeccionPantallasByFilters','backend\SeccionPantallasController@getSeccionPantallasByFilters')->middleware('auth:admin');
+
 Route::post('/getConfiguracionesValidacion','backend\ConfiguracionesValidacionController@getConfiguracionesValidacion')->middleware('auth:admin');
 Route::post('/getLogsConfiguracionesValidacion','backend\LogsConfiguracionesValidacionController@getLogsConfiguracionesValidacion')->middleware('auth:admin');
 
@@ -52,6 +58,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::resource('cantones', CantonesController::class);
     Route::resource('parroquias', ParroquiasController::class);*/
     Route::resource('procesos', ProcesosController::class);
+    Route::resource('pantallas', PantallasController::class);
+    Route::resource('seccionPantallas', SeccionPantallasController::class);
     /*Route::resource('configuracionesCamposReporte', ConfiguracionesCamposReporteController::class);*/
     Route::resource('reportes', ReportesController::class);
 

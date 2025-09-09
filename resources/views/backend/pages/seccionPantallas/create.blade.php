@@ -2,7 +2,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-Editar Proceso - Panel Proceso
+Crear Sección Pantalla - Admin Panel
 @endsection
 
 @section('styles')
@@ -15,6 +15,7 @@ Editar Proceso - Panel Proceso
 </style>
 @endsection
 
+
 @section('admin-content')
 
 <!-- page title area start -->
@@ -22,11 +23,11 @@ Editar Proceso - Panel Proceso
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">Editar Proceso</h4>
+                <h4 class="page-title pull-left">Crear Sección Pantalla</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ route('admin.procesos.index') }}">Todos los Procesos</a></li>
-                    <li><span>Editar Proceso - {{ $proceso->nombre }}</span></li>
+                    <li><a href="{{ route('admin.seccionPantallas.index') }}">Todos las Secciones Pantalla</a></li>
+                    <li><span>Crear Sección Pantalla</span></li>
                 </ul>
             </div>
         </div>
@@ -43,38 +44,49 @@ Editar Proceso - Panel Proceso
         <div class="col-12 mt-5">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Editar Proceso - {{ $proceso->nombre }}</h4>
+                    <h4 class="header-title">Crear Nueva Sección Pantalla</h4>
                     @include('backend.layouts.partials.messages')
-
-                    <form action="{{ route('admin.procesos.update', $proceso->id) }}" method="POST" enctype="multipart/form-data">
-                        @method('PUT')
+                    
+                    <form action="{{ route('admin.seccionPantallas.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="pantalla_id">Seleccione una pantalla:</label>
+                                <select id="pantalla_id" name="pantalla_id" class="form-control selectpicker @error('pantalla_id') is-invalid @enderror" data-live-search="true" required>
+                                    @foreach ($pantallas as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('pantalla_id')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="nombre">Nombre</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $proceso->nombre) }}" required>
+                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre') }}" required>
                                     @error('nombre')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
+                            
+                        </div>
+                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="descripcion">Descripción</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" value="{{ old('descripcion', $proceso->descripcion) }}" required>
+                                    <input type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" value="{{ old('descripcion') }}" required>
                                     @error('descripcion')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="ACTIVO" {{ old('estatus', $proceso->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
-                                    <option value="INACTIVO" {{ old('estatus', $proceso->estatus) == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
+                                    <option value="ACTIVO">ACTIVO</option>
+                                    <option value="INACTIVO">INACTIVO</option>
                                 </select>
                                 @error('estatus')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -83,7 +95,7 @@ Editar Proceso - Panel Proceso
                         </div>
                         
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
-                        <a href="{{ route('admin.procesos.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
+                        <a href="{{ route('admin.seccionPantallas.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
             </div>
@@ -94,6 +106,7 @@ Editar Proceso - Panel Proceso
 @endsection
 
 @section('scripts')
+<!-- Start datatable js -->
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
 <script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>

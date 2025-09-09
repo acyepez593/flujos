@@ -6,8 +6,9 @@ namespace App\Http\Controllers\Backend;
     
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ProcesoRequest;
+use App\Http\Requests\PantallaRequest;
 use App\Models\Admin;
+use App\Models\Pantalla;
 use App\Models\Proceso;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
@@ -21,34 +22,34 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class ProcesosController extends Controller
+class PantallasController extends Controller
 {
     public function index(): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['proceso.view']);
+        $this->checkAuthorization(auth()->user(), ['pantalla.view']);
 
         $creadores = Admin::get(["name", "id"]);
         $responsable_id = Auth::id();
 
-        return view('backend.pages.procesos.index', [
+        return view('backend.pages.pantallas.index', [
             'creadores' => $creadores
         ]);
     }
 
     public function create(): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['proceso.create']);
+        $this->checkAuthorization(auth()->user(), ['pantalla.create']);
 
         $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
 
-        return view('backend.pages.procesos.create', [
+        return view('backend.pages.pantallas.create', [
             'responsables' => $creadores
         ]);
     }
 
-    public function store(ProcesoRequest $request): RedirectResponse
+    public function store(PantallaRequest $request): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['proceso.create']);
+        $this->checkAuthorization(auth()->user(), ['pantalla.create']);
         
         $creado_por = Auth::id();
 
@@ -68,37 +69,37 @@ class ProcesosController extends Controller
             $estatus = $request->estatus;
         }
 
-        $proceso = new Proceso();
-        $proceso->nombre = $nombre;
-        $proceso->descripcion = $descripcion;
-        $proceso->estatus = $estatus;
-        $proceso->creado_por = $creado_por;
-        $proceso->save();
+        $pantalla = new Pantalla();
+        $pantalla->nombre = $nombre;
+        $pantalla->descripcion = $descripcion;
+        $pantalla->estatus = $estatus;
+        $pantalla->creado_por = $creado_por;
+        $pantalla->save();
 
-        session()->flash('success', __('Proceso ha sido creado satisfactoriamente. '));
-        return redirect()->route('admin.procesos.index');
+        session()->flash('success', __('Pantalla ha sido creada satisfactoriamente. '));
+        return redirect()->route('admin.pantallas.index');
     }
 
     public function edit(int $id): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['proceso.edit']);
+        $this->checkAuthorization(auth()->user(), ['pantalla.edit']);
 
-        $proceso = Proceso::findOrFail($id);
-        if($proceso->creado_por != Auth::id()){
+        $pantalla = Pantalla::findOrFail($id);
+        if($pantalla->creado_por != Auth::id()){
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
         $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
 
-        return view('backend.pages.procesos.edit', [
-            'proceso' => $proceso,
+        return view('backend.pages.pantallas.edit', [
+            'pantalla' => $pantalla,
             'creadores' => $creadores
         ]);
     }
 
-    public function update(ProcesoRequest $request, int $id): RedirectResponse
+    public function update(PantallaRequest $request, int $id): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['proceso.edit']);
+        $this->checkAuthorization(auth()->user(), ['pantalla.edit']);
 
         if(!$request->nombre || !isset($request->nombre) || empty($request->nombre || is_null($request->nombre))){
             $nombre = "";
@@ -116,39 +117,39 @@ class ProcesosController extends Controller
             $estatus = $request->estatus;
         }
 
-        $proceso = Proceso::findOrFail($id);
-        $proceso->nombre = $nombre;
-        $proceso->descripcion = $descripcion;
-        $proceso->estatus = $estatus;
-        $proceso->save();
+        $pantalla = Pantalla::findOrFail($id);
+        $pantalla->nombre = $nombre;
+        $pantalla->descripcion = $descripcion;
+        $pantalla->estatus = $estatus;
+        $pantalla->save();
 
-        session()->flash('success', 'Proceso ha sido actualizado satisfactoriamente.');
-        return redirect()->route('admin.procesos.index');
+        session()->flash('success', 'Pantalla ha sido actualizada satisfactoriamente.'.$request);
+        return redirect()->route('admin.pantallas.index');
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $this->checkAuthorization(auth()->user(), ['proceso.delete']);
+        $this->checkAuthorization(auth()->user(), ['pantalla.delete']);
 
-        $proceso = Proceso::findOrFail($id);
-        if($proceso->creado_por != Auth::id()){
+        $pantalla = Pantalla::findOrFail($id);
+        if($pantalla->creado_por != Auth::id()){
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
-        $proceso->delete();
+        $pantalla->delete();
 
         $data['status'] = 200;
-        $data['message'] = "Proceso ha sido borrado satisfactoriamente.";
+        $data['message'] = "Pantalla ha sido borrado satisfactoriamente.";
   
         return response()->json($data);
 
     }
 
-    public function getProcesosByFilters(Request $request): JsonResponse
+    public function getPantallasByFilters(Request $request): JsonResponse
     {
-        $this->checkAuthorization(auth()->user(), ['proceso.view']);
+        $this->checkAuthorization(auth()->user(), ['pantalla.view']);
 
-        $procesos = Proceso::where('id',">",0);
+        $pantallas = Pantalla::where('id',">",0);
 
         $filtroNombreSearch = $request->nombre_search;
         $filtroDescripcionSearch = $request->descripcion_search;
@@ -156,19 +157,19 @@ class ProcesosController extends Controller
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
-            $procesos = $procesos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
+            $pantallas = $pantallas->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
         }
         if(isset($filtroDescripcionSearch) && !empty($filtroDescripcionSearch)){
-            $procesos = $procesos->where('descripcion', 'like', '%'.$filtroDescripcionSearch.'%');
+            $pantallas = $pantallas->where('fecha_registro', 'like', '%'.$filtroDescripcionSearch.'%');
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
-            $procesos = $procesos->whereIn('estatus', $filtroEstatus);
+            $pantallas = $pantallas->whereIn('estatus', $filtroEstatus);
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
-            $procesos = $procesos->whereIn('creado_por', $filtroCreadoPorSearch);
+            $pantallas = $pantallas->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
-        $procesos = $procesos->orderBy('id', 'desc')->get();
+        $pantallas = $pantallas->orderBy('id', 'desc')->get();
 
         $creadores = Admin::all();
 
@@ -179,12 +180,12 @@ class ProcesosController extends Controller
 
         $usuario_actual_id = Auth::id();
 
-        foreach($procesos as $proceso){
-            $proceso->creado_por_nombre = array_key_exists($proceso->creado_por, $creadores_temp) ? $creadores_temp[$proceso->creado_por] : "";
-            $proceso->esCreadorRegistro = $usuario_actual_id == $proceso->creado_por ? true : false;
+        foreach($pantallas as $pantalla){
+            $pantalla->creado_por_nombre = array_key_exists($pantalla->creado_por, $creadores_temp) ? $creadores_temp[$pantalla->creado_por] : "";
+            $pantalla->esCreadorRegistro = $usuario_actual_id == $pantalla->creado_por ? true : false;
         }
 
-        $data['procesos'] = $procesos;
+        $data['pantallas'] = $pantallas;
         $data['creadores'] = $creadores;
   
         return response()->json($data);

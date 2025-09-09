@@ -2,7 +2,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-Editar Proceso - Panel Proceso
+Editar Sección Pantalla - Panel Sección Pantalla
 @endsection
 
 @section('styles')
@@ -22,11 +22,11 @@ Editar Proceso - Panel Proceso
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">Editar Proceso</h4>
+                <h4 class="page-title pull-left">Editar Sección Pantalla</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ route('admin.procesos.index') }}">Todos los Procesos</a></li>
-                    <li><span>Editar Proceso - {{ $proceso->nombre }}</span></li>
+                    <li><a href="{{ route('admin.seccionPantallas.index') }}">Todos las Secciones Pantallas</a></li>
+                    <li><span>Editar Sección Pantalla - {{ $seccionPantalla->nombre }}</span></li>
                 </ul>
             </div>
         </div>
@@ -43,27 +43,29 @@ Editar Proceso - Panel Proceso
         <div class="col-12 mt-5">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Editar Proceso - {{ $proceso->nombre }}</h4>
+                    <h4 class="header-title">Editar Sección Pantalla - {{ $seccionPantalla->nombre }}</h4>
                     @include('backend.layouts.partials.messages')
 
-                    <form action="{{ route('admin.procesos.update', $proceso->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.seccionPantallas.update', $seccionPantalla->id) }}" method="POST" enctype="multipart/form-data">
                         @method('PUT')
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="nombre">Nombre</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $proceso->nombre) }}" required>
-                                    @error('nombre')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="pantalla_id">Seleccione un Estatus:</label>
+                                <select id="pantalla_id" name="pantalla_id" class="form-control selectpicker @error('pantalla_id') is-invalid @enderror" data-live-search="true" required>
+                                    @foreach ($pantallas as $key => $value)
+                                        <option value="{{ $key }}" {{ old('pantalla_id', $seccionPantalla->pantalla_id) == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('estatus')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="descripcion">Descripción</label>
+                                <label for="nombre">Nombre</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" value="{{ old('descripcion', $proceso->descripcion) }}" required>
-                                    @error('descripcion')
+                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $seccionPantalla->nombre) }}" required>
+                                    @error('nombre')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -71,10 +73,19 @@ Editar Proceso - Panel Proceso
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="descripcion">Descripción</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" value="{{ old('descripcion', $seccionPantalla->descripcion) }}" required>
+                                    @error('descripcion')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="ACTIVO" {{ old('estatus', $proceso->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
-                                    <option value="INACTIVO" {{ old('estatus', $proceso->estatus) == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
+                                    <option value="ACTIVO" {{ old('estatus', $seccionPantalla->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
+                                    <option value="INACTIVO" {{ old('estatus', $seccionPantalla->estatus) == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
                                 </select>
                                 @error('estatus')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -83,7 +94,7 @@ Editar Proceso - Panel Proceso
                         </div>
                         
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
-                        <a href="{{ route('admin.procesos.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
+                        <a href="{{ route('admin.seccionPantallas.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
             </div>

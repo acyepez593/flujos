@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pantallas', function (Blueprint $table) {
+        Schema::create('seccion_pantallas', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
             $table->string('descripcion');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
+            $table->unsignedBigInteger('pantalla_id');
+            $table->index('pantalla_id');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pantallas');
+        Schema::dropIfExists('seccion_pantallas');
     }
 };

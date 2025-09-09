@@ -6,7 +6,7 @@ namespace App\Http\Requests;
   
 use Illuminate\Foundation\Http\FormRequest;
   
-class ProcesoRequest extends FormRequest
+class SeccionPantallaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,8 @@ class ProcesoRequest extends FormRequest
         return [
             'nombre' => 'required',
             'descripcion' => 'required',
-            'estatus' => 'required'
+            'estatus' => 'required',
+            'pantalla_id' => 'required'
         ];
     }
 
@@ -41,6 +42,7 @@ class ProcesoRequest extends FormRequest
             'nombre.required' => 'El campo :attribute es requerido',
             'descripcion.required' => 'El campo :attribute es requerido',
             'estatus.required' => 'El campo :attribute es requerido',
+            'pantalla_id.required' => 'El campo :attribute es requerido',
         ];
     }
 }

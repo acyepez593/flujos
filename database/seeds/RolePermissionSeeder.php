@@ -87,6 +87,16 @@ class RolePermissionSeeder extends Seeder
                 ]
             ],
             [
+                'group_name' => 'pantalla',
+                'permissions' => [
+                    // pantalla Permissions
+                    'pantalla.create',
+                    'pantalla.view',
+                    'pantalla.edit',
+                    'pantalla.delete',
+                ]
+            ],
+            [
                 'group_name' => 'reporte',
                 'permissions' => [
                     // reporte Permissions

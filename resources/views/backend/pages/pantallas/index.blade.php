@@ -1,7 +1,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-    {{ __('Procesos - Panel de Proceso') }}
+    {{ __('Pantallas - Panel de Pantalla') }}
 @endsection
 
 @section('styles')
@@ -53,10 +53,10 @@
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">{{ __('Procesos') }}</h4>
+                <h4 class="page-title pull-left">{{ __('Pantallas') }}</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li><span>{{ __('Todos los Procesos') }}</span></li>
+                    <li><span>{{ __('Todos los Pantallas') }}</span></li>
                 </ul>
             </div>
         </div>
@@ -116,7 +116,7 @@
                                             </div>
                                         </div>
 
-                                        <button type="button" id="buscarProcesos" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
+                                        <button type="button" id="buscarPantallas" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
                                     </form>
                                 </div>
                             </div>
@@ -125,17 +125,17 @@
                             <div class="card-header" id="headingTwo">
                             <h5 class="mb-0">
                                 <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                                Procesos
+                                Pantallas
                                 </button>
                             </h5>
                             </div>
 
                             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                                 <div class="card-body">
-                                    <h4 class="header-title float-left">{{ __('Procesos') }}</h4>
+                                    <h4 class="header-title float-left">{{ __('Pantallas') }}</h4>
                                     <p class="float-right mb-2" style="padding: 5px;">
-                                        @if (auth()->user()->can('proceso.create'))
-                                            <a class="btn btn-primary text-white" href="{{ route('admin.procesos.create') }}">
+                                        @if (auth()->user()->can('pantalla.create'))
+                                            <a class="btn btn-primary text-white" href="{{ route('admin.pantallas.create') }}">
                                                 {{ __('Crear Nuevo') }}
                                             </a>
                                         @endif
@@ -181,12 +181,12 @@
         let table = "";
         let tableRef = "";
         let tableHeaderRef = "";
-        let procesos = [];
+        let pantallas = [];
         let creadores = [];
 
         $(document).ready(function() {
 
-            $( "#buscarProcesos" ).on( "click", function() {
+            $( "#buscarPantallas" ).on( "click", function() {
                 $("#overlay").fadeIn(300);
                 $('#dataTable').empty();
 
@@ -207,7 +207,7 @@
 
         function loadDataTable(){
             $.ajax({
-                url: "{{url('/getProcesosByFilters')}}",
+                url: "{{url('/getPantallasByFilters')}}",
                 method: "POST",
                 data: {
                     nombre_search: $('#nombre_search').val(),
@@ -222,7 +222,7 @@
 
                     $("#collapseTwo").collapse('show');
                     
-                    procesos = response.procesos;
+                    pantallas = response.pantallas;
                     creadores = response.creadores;
 
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
@@ -239,24 +239,24 @@
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
 
                     let contador = 1;
-                    for (let proceso of procesos) {
+                    for (let pantalla of pantallas) {
                         
-                        let rutaEdit = "{{url()->current()}}"+"/"+proceso.id+"/edit";
-                        let rutaDelete = "{{url()->current()}}"+"/"+proceso.id;
+                        let rutaEdit = "{{url()->current()}}"+"/"+pantalla.id+"/edit";
+                        let rutaDelete = "{{url()->current()}}"+"/"+pantalla.id;
                         let innerHTML = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
-                        htmlEdit +=@if (auth()->user()->can('proceso.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
-                        htmlDelete += @if (auth()->user()->can('proceso.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+proceso.id+')">Borrar</a> <form id="delete-form-'+proceso.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
+                        htmlEdit +=@if (auth()->user()->can('pantalla.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
+                        htmlDelete += @if (auth()->user()->can('pantalla.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+pantalla.id+')">Borrar</a> <form id="delete-form-'+pantalla.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
-                            "<td>"+ proceso.nombre+ "</td>"+
-                            "<td>"+ proceso.descripcion+ "</td>"+
-                            "<td>"+ proceso.estatus+ "</td>"+
-                            "<td>"+ proceso.creado_por_nombre+ "</td>"+
-                            "<td>"+ proceso.created_at+ "</td>";
-                            if(proceso.esCreadorRegistro){
+                            "<td>"+ pantalla.nombre+ "</td>"+
+                            "<td>"+ pantalla.descripcion+ "</td>"+
+                            "<td>"+ pantalla.estatus+ "</td>"+
+                            "<td>"+ pantalla.creado_por_nombre+ "</td>"+
+                            "<td>"+ pantalla.created_at+ "</td>";
+                            if(pantalla.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
@@ -318,7 +318,7 @@
                             },
                             dataType: 'json',
                             success: function (response) {
-                                $( "#buscarProcesos" ).trigger( "click" );
+                                $( "#buscarPantallas" ).trigger( "click" );
                             }
                         });
                     },

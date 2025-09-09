@@ -71,7 +71,24 @@
                             @endif
 
                             @if ($usr->can('proceso.create'))
-                                <li class="{{ Route::is('admin.procesos.create')  ? 'active' : '' }}"><a href="{{ route('admin.procesos.create') }}">Crear Trámite</a></li>
+                                <li class="{{ Route::is('admin.procesos.create')  ? 'active' : '' }}"><a href="{{ route('admin.procesos.create') }}">Crear Proceso</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($usr->can('pantalla.create') || $usr->can('pantalla.view') ||  $usr->can('pantalla.edit') ||  $usr->can('pantalla.delete'))
+                    <li>
+                        <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
+                            Pantallas
+                        </span></a>
+                        <ul class="collapse {{ Route::is('admin.pantallas.create') || Route::is('admin.pantallas.index') || Route::is('admin.pantallas.edit') || Route::is('admin.pantallas.show') ? 'in' : '' }}">
+                            
+                            @if ($usr->can('pantalla.view'))
+                                <li class="{{ Route::is('admin.pantallas.index')  || Route::is('admin.pantallas.edit') ? 'active' : '' }}"><a href="{{ route('admin.pantallas.index') }}">Todas los Pantallas</a></li>
+                            @endif
+
+                            @if ($usr->can('pantalla.create'))
+                                <li class="{{ Route::is('admin.pantallas.create')  ? 'active' : '' }}"><a href="{{ route('admin.pantallas.create') }}">Crear Pantalla</a></li>
                             @endif
                         </ul>
                     </li>

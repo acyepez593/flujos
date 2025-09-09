@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pantallas', function (Blueprint $table) {
+        Schema::create('campos_por_secciones', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('seccion_pantalla_id');
+            $table->index('seccion_pantalla_id');
+            $table->json('configuracion');
             $table->string('nombre');
-            $table->string('descripcion');
-            $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
+            $table->enum('tipo', ['TEXT', 'NUMBER', 'EMAIL', 'DATE'])->default('TEXT');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pantallas');
+        Schema::dropIfExists('campos_por_secciones');
     }
 };

@@ -1,7 +1,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-    {{ __('Procesos - Panel de Proceso') }}
+    {{ __('Sección Pantallas - Panel de Sección Pantalla') }}
 @endsection
 
 @section('styles')
@@ -53,10 +53,10 @@
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">{{ __('Procesos') }}</h4>
+                <h4 class="page-title pull-left">{{ __('Sección Pantallas') }}</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li><span>{{ __('Todos los Procesos') }}</span></li>
+                    <li><span>{{ __('Todas las Secciones Pantallas') }}</span></li>
                 </ul>
             </div>
         </div>
@@ -89,15 +89,24 @@
                                     <form>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
+                                                <label for="pantalla_id_search">Buscar por Pantalla:</label>
+                                                <select id="pantalla_id_search" name="pantalla_id_search" class="form-control selectpicker" data-live-search="true" multiple>
+                                                    <option value="">Seleccione una Pantalla</option>
+                                                    @foreach ($pantallas as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->nombre }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-6 col-sm-12">
                                                 <label for="nombre_search">Buscar por Nombre</label>
                                                 <input type="text" class="form-control" id="nombre_search" name="nombre_search">
                                             </div>
+                                        </div>
+                                        <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="descripcion_search">Buscar por Descripción</label>
                                                 <input type="text" class="form-control" id="descripcion_search" name="descripcion_search">
                                             </div>
-                                        </div>
-                                        <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
@@ -105,10 +114,11 @@
                                                     <option value="INACTIVO">INACTIVO</option>
                                                 </select>
                                             </div>
+                                        </div>
+                                        <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="creado_por_search">Buscar por Creador:</label>
                                                 <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true" multiple>
-                                                    <option value="">Seleccione un Creador</option>
                                                     @foreach ($creadores as $key => $value)
                                                         <option value="{{ $value->id }}" {{ Auth::user()->id == $value->id ? 'selected' : ''}}>{{ $value->name }}</option>
                                                     @endforeach
@@ -116,7 +126,7 @@
                                             </div>
                                         </div>
 
-                                        <button type="button" id="buscarProcesos" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
+                                        <button type="button" id="buscarPantallas" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
                                     </form>
                                 </div>
                             </div>
@@ -125,17 +135,17 @@
                             <div class="card-header" id="headingTwo">
                             <h5 class="mb-0">
                                 <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                                Procesos
+                                Sección Pantallas
                                 </button>
                             </h5>
                             </div>
 
                             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                                 <div class="card-body">
-                                    <h4 class="header-title float-left">{{ __('Procesos') }}</h4>
+                                    <h4 class="header-title float-left">{{ __('Sección Pantallas') }}</h4>
                                     <p class="float-right mb-2" style="padding: 5px;">
-                                        @if (auth()->user()->can('proceso.create'))
-                                            <a class="btn btn-primary text-white" href="{{ route('admin.procesos.create') }}">
+                                        @if (auth()->user()->can('pantalla.create'))
+                                            <a class="btn btn-primary text-white" href="{{ route('admin.seccionPantallas.create') }}">
                                                 {{ __('Crear Nuevo') }}
                                             </a>
                                         @endif
@@ -181,12 +191,12 @@
         let table = "";
         let tableRef = "";
         let tableHeaderRef = "";
-        let procesos = [];
+        let seccionPantallas = [];
         let creadores = [];
 
         $(document).ready(function() {
 
-            $( "#buscarProcesos" ).on( "click", function() {
+            $( "#buscarPantallas" ).on( "click", function() {
                 $("#overlay").fadeIn(300);
                 $('#dataTable').empty();
 
@@ -207,9 +217,10 @@
 
         function loadDataTable(){
             $.ajax({
-                url: "{{url('/getProcesosByFilters')}}",
+                url: "{{url('/getSeccionPantallasByFilters')}}",
                 method: "POST",
                 data: {
+                    pantalla_id_search: JSON.stringify($('#pantalla_id_search').val()),
                     nombre_search: $('#nombre_search').val(),
                     descripcion_search: $('#descripcion_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
@@ -222,13 +233,14 @@
 
                     $("#collapseTwo").collapse('show');
                     
-                    procesos = response.procesos;
+                    seccionPantallas = response.seccionPantallas;
                     creadores = response.creadores;
 
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
 
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
+                        "<th>Pantalla</th>"+
                         "<th>Nombre</th>"+
                         "<th>Descripción</th>"+
                         "<th>Estatus</th>"+
@@ -239,24 +251,25 @@
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
 
                     let contador = 1;
-                    for (let proceso of procesos) {
+                    for (let seccionPantalla of seccionPantallas) {
                         
-                        let rutaEdit = "{{url()->current()}}"+"/"+proceso.id+"/edit";
-                        let rutaDelete = "{{url()->current()}}"+"/"+proceso.id;
+                        let rutaEdit = "{{url()->current()}}"+"/"+seccionPantalla.id+"/edit";
+                        let rutaDelete = "{{url()->current()}}"+"/"+seccionPantalla.id;
                         let innerHTML = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
-                        htmlEdit +=@if (auth()->user()->can('proceso.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
-                        htmlDelete += @if (auth()->user()->can('proceso.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+proceso.id+')">Borrar</a> <form id="delete-form-'+proceso.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
+                        htmlEdit +=@if (auth()->user()->can('pantalla.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
+                        htmlDelete += @if (auth()->user()->can('pantalla.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+seccionPantalla.id+')">Borrar</a> <form id="delete-form-'+seccionPantalla.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
-                            "<td>"+ proceso.nombre+ "</td>"+
-                            "<td>"+ proceso.descripcion+ "</td>"+
-                            "<td>"+ proceso.estatus+ "</td>"+
-                            "<td>"+ proceso.creado_por_nombre+ "</td>"+
-                            "<td>"+ proceso.created_at+ "</td>";
-                            if(proceso.esCreadorRegistro){
+                            "<td>"+ seccionPantalla.pantalla_nombre+ "</td>"+
+                            "<td>"+ seccionPantalla.nombre+ "</td>"+
+                            "<td>"+ seccionPantalla.descripcion+ "</td>"+
+                            "<td>"+ seccionPantalla.estatus+ "</td>"+
+                            "<td>"+ seccionPantalla.creado_por_nombre+ "</td>"+
+                            "<td>"+ seccionPantalla.created_at+ "</td>";
+                            if(seccionPantalla.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
@@ -318,7 +331,7 @@
                             },
                             dataType: 'json',
                             success: function (response) {
-                                $( "#buscarProcesos" ).trigger( "click" );
+                                $( "#buscarSeccionPantallas" ).trigger( "click" );
                             }
                         });
                     },
