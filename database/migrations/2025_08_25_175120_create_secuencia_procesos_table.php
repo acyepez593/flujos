@@ -18,6 +18,9 @@ return new class extends Migration
             $table->unsignedBigInteger('proceso_id');
             $table->index('proceso_id');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
+            $table->json('actores');
+            $table->integer('tiempo_procesamiento')->default(1);
+            $table->json('configuracion');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();

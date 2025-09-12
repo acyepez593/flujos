@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('seccion_pantalla_id');
             $table->index('seccion_pantalla_id');
-            $table->json('configuracion');
             $table->string('nombre');
-            $table->enum('tipo', ['TEXT', 'NUMBER', 'EMAIL', 'DATE'])->default('TEXT');
+            $table->enum('tipo', ['text', 'textarea', 'number', 'email', 'date', 'select', 'custom'])->default('text');
+            $table->json('configuracion');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();
