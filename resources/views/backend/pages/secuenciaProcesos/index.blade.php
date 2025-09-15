@@ -101,7 +101,7 @@
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
-                                                    <option value="ACTIVO">ACTIVO</option>
+                                                    <option value="ACTIVO" selected>ACTIVO</option>
                                                     <option value="INACTIVO">INACTIVO</option>
                                                 </select>
                                             </div>
@@ -153,12 +153,11 @@
 
                             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                                 <div class="card-body">
-                                    <h4 class="header-title float-left">{{ __('Procesos') }}</h4>
+                                    <h4 class="header-title float-left">{{ __('Secuencia Procesos') }}</h4>
                                     <p class="float-right mb-2" style="padding: 5px;">
                                         @if (auth()->user()->can('proceso.create'))
-                                            <a class="btn btn-primary text-white" href="{{ route('admin.secuenciaProcesos.create',proceso_id) }}">
+                                            <a class="btn btn-primary text-white" href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/create">
                                                 {{ __('Crear Nueva') }}
-                                                {{$proceso_id}}
                                             </a>
                                         @endif
                                     </p>
@@ -205,6 +204,7 @@
         let tableHeaderRef = "";
         let secuenciaProcesos = [];
         let creadores = [];
+        let proceso_id = '{{$proceso_id}}';
 
         $(document).ready(function() {
 
@@ -229,7 +229,7 @@
 
         function loadDataTable(){
             $.ajax({
-                url: "{{url('/getProcesosByFilters')}}",
+                url: "{{url('/getSecuenciaProcesosByFilters')}}/{{$proceso_id}}",
                 method: "POST",
                 data: {
                     nombre_search: $('#nombre_search').val(),

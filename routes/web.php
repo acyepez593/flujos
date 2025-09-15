@@ -38,7 +38,7 @@ Route::post('/getReporteByFilters','backend\ReportesController@getReporteByFilte
 
 Route::post('/getProcesosByFilters','backend\ProcesosController@getProcesosByFilters')->middleware('auth:admin');
 
-Route::post('/getSecuenciaProcesosByFilters','backend\SecuenciaProcesosController@getSecuenciaProcesosByFilters')->middleware('auth:admin');
+Route::post('/getSecuenciaProcesosByFilters/{proceso_id}','backend\SecuenciaProcesosController@getSecuenciaProcesosByFilters')->middleware('auth:admin');
 
 Route::post('/getPantallasByFilters','backend\PantallasController@getPantallasByFilters')->middleware('auth:admin');
 
@@ -62,10 +62,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::resource('parroquias', ParroquiasController::class);*/
     Route::resource('procesos', ProcesosController::class);
     Route::get('/secuenciaProcesos/{proceso_id}', [SecuenciaProcesosController::class, 'index']);
+    Route::get('/secuenciaProcesos/{proceso_id}/create', [SecuenciaProcesosController::class, 'create']);
     Route::post('/secuenciaProcesos/{proceso_id}/create', [SecuenciaProcesosController::class, 'store']);
+    Route::get('/secuenciaProcesos/{proceso_id}/{id}/edit', [SecuenciaProcesosController::class, 'edit']);
     Route::put('/secuenciaProcesos/{proceso_id}/{id}/edit', [SecuenciaProcesosController::class, 'update']);
     Route::delete('/secuenciaProcesos/{proceso_id}/{id}/delete', [SecuenciaProcesosController::class, 'destroy']);
-    
+    //Route::resource('secuenciaProcesos/{proceso_id}/', SecuenciaProcesosController::class);
     //Route::resource('secuenciaProcesos', SecuenciaProcesosController::class);
     Route::resource('pantallas', PantallasController::class);
     Route::resource('seccionPantallas', SeccionPantallasController::class);

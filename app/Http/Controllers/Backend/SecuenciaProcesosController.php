@@ -50,7 +50,8 @@ class SecuenciaProcesosController extends Controller
 
         return view('backend.pages.secuenciaProcesos.create', [
             'actores' => $actores,
-            'secuenciaProceso' => $secuenciaProceso
+            'secuenciaProceso' => $secuenciaProceso,
+            'proceso_id' => $proceso_id
         ]);
     }
 
@@ -190,7 +191,7 @@ class SecuenciaProcesosController extends Controller
 
     }
 
-    public function getProcesosByFilters(Request $request, int $proceso_id): JsonResponse
+    public function getSecuenciaProcesosByFilters(Request $request, int $proceso_id): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['proceso.view']);
 
@@ -200,8 +201,8 @@ class SecuenciaProcesosController extends Controller
         $filtroDescripcionSearch = $request->descripcion_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
         $filtroTiempoProcesamiento = $request->tiempo_procesamiento;
-        $filtroActores = json_decode($request->actores, true);
-        $filtroConfiguracion = json_decode($request->configuracion, true);
+        
+        
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
@@ -216,10 +217,12 @@ class SecuenciaProcesosController extends Controller
         if(isset($filtroTiempoProcesamiento) && !empty($filtroTiempoProcesamiento)){
             $secuenciaProcesos = $secuenciaProcesos->where('tiempo_procesamiento', $filtroTiempoProcesamiento);
         }
-        if(isset($filtroActores) && !empty($filtroActores)){
+        if(isset($request->actores) && !empty($request->actores)){
+            $filtroActores = json_decode($request->actores, true);
             $secuenciaProcesos = $secuenciaProcesos->whereIn('actores', $filtroActores);
         }
-        if(isset($filtroConfiguracion) && !empty($filtroConfiguracion)){
+        if(isset($request->configuracion) && !empty($request->configuracion)){
+            $filtroConfiguracion = $request->configuracion;
             $secuenciaProcesos = $secuenciaProcesos->where('configuracion', 'like', '%'.$filtroConfiguracion.'%');
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
