@@ -24,29 +24,37 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SecuenciaProcesosController extends Controller
 {
-    public function index(): Renderable
+    public function index(int $proceso_id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['proceso.view']);
 
+        $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->get();
+
+        $creadores = Admin::get(["name", "id"]);
         $actores = Admin::get(["name", "id"]);
 
         return view('backend.pages.secuenciaProcesos.index', [
-            'actores' => $actores
+            'creadores' => $creadores,
+            'actores' => $actores,
+            'proceso_id' => $proceso_id,
+            'secuenciaProceso' => $secuenciaProceso
         ]);
     }
 
-    public function create(): Renderable
+    public function create(int $proceso_id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['proceso.create']);
 
+        $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->get();
         $actores = Admin::get(["name", "id"])->pluck('nombre','id');
 
         return view('backend.pages.secuenciaProcesos.create', [
-            'actores' => $actores
+            'actores' => $actores,
+            'secuenciaProceso' => $secuenciaProceso
         ]);
     }
 
-    public function store(SecuenciaProcesoRequest $request): RedirectResponse
+    public function store(SecuenciaProcesoRequest $request, $proceso_id): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['proceso.create']);
         
@@ -84,6 +92,7 @@ class SecuenciaProcesosController extends Controller
         }
 
         $secuenciaProceso = new SecuenciaProceso();
+        $secuenciaProceso->proceso_id = $proceso_id;
         $secuenciaProceso->nombre = $nombre;
         $secuenciaProceso->descripcion = $descripcion;
         $secuenciaProceso->estatus = $estatus;
@@ -97,12 +106,12 @@ class SecuenciaProcesosController extends Controller
         return redirect()->route('admin.secuenciaProcesos.index');
     }
 
-    public function edit(int $id): Renderable
+    public function edit(int $proceso_id, int $id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['proceso.edit']);
 
         $secuenciaProceso = SecuenciaProceso::findOrFail($id);
-        if($secuenciaProceso->creado_por != Auth::id()){
+        if($secuenciaProceso->creado_por != Auth::id() || $secuenciaProceso->proceso_id != $proceso_id){
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
@@ -114,7 +123,7 @@ class SecuenciaProcesosController extends Controller
         ]);
     }
 
-    public function update(SecuenciaProcesoRequest $request, int $id): RedirectResponse
+    public function update(SecuenciaProcesoRequest $request, int $proceso_id, int $id): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['proceso.edit']);
 
@@ -150,6 +159,7 @@ class SecuenciaProcesosController extends Controller
         }
 
         $proceso = Proceso::findOrFail($id);
+        $proceso->proceso_id = $proceso_id;
         $proceso->nombre = $nombre;
         $proceso->descripcion = $descripcion;
         $proceso->estatus = $estatus;
@@ -162,12 +172,12 @@ class SecuenciaProcesosController extends Controller
         return redirect()->route('admin.secuenciaProcesos.index');
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(int $proceso_id, int $id): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['proceso.delete']);
 
         $secuenciaProceso = SecuenciaProceso::findOrFail($id);
-        if($secuenciaProceso->creado_por != Auth::id()){
+        if($secuenciaProceso->creado_por != Auth::id() || $secuenciaProceso->proceso_id != $proceso_id){
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
@@ -180,11 +190,11 @@ class SecuenciaProcesosController extends Controller
 
     }
 
-    public function getProcesosByFilters(Request $request): JsonResponse
+    public function getProcesosByFilters(Request $request, int $proceso_id): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['proceso.view']);
 
-        $secuenciaProcesos = SecuenciaProceso::where('id',">",0);
+        $secuenciaProcesos = SecuenciaProceso::where('proceso_id',$proceso_id);
 
         $filtroNombreSearch = $request->nombre_search;
         $filtroDescripcionSearch = $request->descripcion_search;
@@ -204,13 +214,13 @@ class SecuenciaProcesosController extends Controller
             $secuenciaProcesos = $secuenciaProcesos->whereIn('estatus', $filtroEstatus);
         }
         if(isset($filtroTiempoProcesamiento) && !empty($filtroTiempoProcesamiento)){
-            $secuenciaProcesos = $secuenciaProcesos->whereIn('tiempo_procesamiento', $filtroTiempoProcesamiento);
+            $secuenciaProcesos = $secuenciaProcesos->where('tiempo_procesamiento', $filtroTiempoProcesamiento);
         }
         if(isset($filtroActores) && !empty($filtroActores)){
             $secuenciaProcesos = $secuenciaProcesos->whereIn('actores', $filtroActores);
         }
         if(isset($filtroConfiguracion) && !empty($filtroConfiguracion)){
-            $secuenciaProcesos = $secuenciaProcesos->whereIn('configuracion', $filtroConfiguracion);
+            $secuenciaProcesos = $secuenciaProcesos->where('configuracion', 'like', '%'.$filtroConfiguracion.'%');
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
             $secuenciaProcesos = $secuenciaProcesos->whereIn('creado_por', $filtroCreadoPorSearch);
@@ -222,13 +232,14 @@ class SecuenciaProcesosController extends Controller
 
         $actores_temp = [];
         foreach($actores as $actor){
-            $creadores_temp[$actor->id] = $actor->name;
+            $actores_temp[$actor->id] = $actor->name;
         }
 
         $usuario_actual_id = Auth::id();
 
         foreach($secuenciaProcesos as $secuenciaProceso){
-            $secuenciaProceso->creado_por_nombre = array_key_exists($secuenciaProceso->creado_por, $creadores_temp) ? $creadores_temp[$secuenciaProceso->creado_por] : "";
+            $secuenciaProceso->creado_por_nombre = array_key_exists($secuenciaProceso->creado_por, $actores_temp) ? $actores_temp[$secuenciaProceso->creado_por] : "";
+            $secuenciaProceso->actores_nombre = array_key_exists($secuenciaProceso->actores, $actores_temp) ? $actores_temp[$secuenciaProceso->actores] : "";
             $secuenciaProceso->esCreadorRegistro = $usuario_actual_id == $secuenciaProceso->creado_por ? true : false;
         }
 

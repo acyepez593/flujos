@@ -13,6 +13,7 @@ use App\Http\Controllers\Backend\PantallasController;
 use App\Http\Controllers\Backend\ProcesosController;
 use App\Http\Controllers\Backend\ReportesController;
 use App\Http\Controllers\Backend\SeccionPantallasController;
+use App\Http\Controllers\Backend\SecuenciaProcesosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,8 @@ Route::post('/getReporteByFilters','backend\ReportesController@getReporteByFilte
 
 Route::post('/getProcesosByFilters','backend\ProcesosController@getProcesosByFilters')->middleware('auth:admin');
 
+Route::post('/getSecuenciaProcesosByFilters','backend\SecuenciaProcesosController@getSecuenciaProcesosByFilters')->middleware('auth:admin');
+
 Route::post('/getPantallasByFilters','backend\PantallasController@getPantallasByFilters')->middleware('auth:admin');
 
 Route::post('/getSeccionPantallasByFilters','backend\SeccionPantallasController@getSeccionPantallasByFilters')->middleware('auth:admin');
@@ -58,6 +61,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::resource('cantones', CantonesController::class);
     Route::resource('parroquias', ParroquiasController::class);*/
     Route::resource('procesos', ProcesosController::class);
+    Route::get('/secuenciaProcesos/{proceso_id}', [SecuenciaProcesosController::class, 'index']);
+    Route::post('/secuenciaProcesos/{proceso_id}/create', [SecuenciaProcesosController::class, 'store']);
+    Route::put('/secuenciaProcesos/{proceso_id}/{id}/edit', [SecuenciaProcesosController::class, 'update']);
+    Route::delete('/secuenciaProcesos/{proceso_id}/{id}/delete', [SecuenciaProcesosController::class, 'destroy']);
+    
+    //Route::resource('secuenciaProcesos', SecuenciaProcesosController::class);
     Route::resource('pantallas', PantallasController::class);
     Route::resource('seccionPantallas', SeccionPantallasController::class);
     /*Route::resource('configuracionesCamposReporte', ConfiguracionesCamposReporteController::class);*/
