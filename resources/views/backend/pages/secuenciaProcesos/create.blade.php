@@ -47,7 +47,7 @@ Crear Secuencia Proceso - Admin Panel
                     <h4 class="header-title">Crear Nueva Secuencia Proceso</h4>
                     @include('backend.layouts.partials.messages')
                     
-                    <form action="{{ route('admin.procesos.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.secuenciaProcesos.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
@@ -113,7 +113,7 @@ Crear Secuencia Proceso - Admin Panel
                         </div>
                         
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
-                        <a href="{{ route('admin.procesos.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
+                        <a href="{{ route('admin.secuenciaProcesos.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
             </div>

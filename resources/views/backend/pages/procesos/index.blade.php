@@ -248,7 +248,8 @@
                         
                         let rutaEdit = "{{url()->current()}}"+"/"+proceso.id+"/edit";
                         let rutaDelete = "{{url()->current()}}"+"/"+proceso.id;
-                        let rutaConfig = "{{url('admin')}}"+"/secuenciaProcesos/"+proceso.id;
+                        let rutaConfigCamposs = "{{url('admin')}}"+"/secuenciaProcesos/"+proceso.id;
+                        let rutaConfigSecuencia = "{{url('admin')}}"+"/secuenciaProcesos/"+proceso.id;
                         let innerHTML = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
@@ -256,7 +257,7 @@
                         
                         htmlEdit +=@if (auth()->user()->can('proceso.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
                         htmlDelete += @if (auth()->user()->can('proceso.delete')) '<a class="icon-margin" title="Borrar" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+proceso.id+')"><i class="fa fa-trash fa-2x"></i></a> <form id="delete-form-'+proceso.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
-                        htmlConfig +=@if (auth()->user()->can('proceso.edit')) '<a class="icon-margin" title="Confirugar" href="'+rutaConfig+'"><i class="fa fa-cog fa-2x"></i></a>' @else '' @endif;
+                        htmlConfigSecuencia +=@if (auth()->user()->can('proceso.edit')) '<a class="icon-margin" title="Confirugar" href="'+rutaConfigSecuencia+'"><i class="fa fa-cog fa-2x"></i></a>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
@@ -266,7 +267,7 @@
                             "<td>"+ proceso.creado_por_nombre+ "</td>"+
                             "<td>"+ proceso.created_at+ "</td>";
                             if(proceso.esCreadorRegistro){
-                                innerHTML +="<td>" + htmlEdit + htmlConfig + htmlDelete + "</td>";
+                                innerHTML +="<td>" + htmlEdit + htmlConfigSecuencia + htmlDelete + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
                             }

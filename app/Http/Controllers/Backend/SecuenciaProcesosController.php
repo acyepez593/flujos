@@ -46,16 +46,16 @@ class SecuenciaProcesosController extends Controller
         $this->checkAuthorization(auth()->user(), ['proceso.create']);
 
         $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->get();
-        $actores = Admin::get(["name", "id"])->pluck('nombre','id');
+        $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.create', [
             'actores' => $actores,
-            'secuenciaProceso' => $secuenciaProceso,
-            'proceso_id' => $proceso_id
+            'proceso_id' => $proceso_id,
+            'secuenciaProceso' => $secuenciaProceso
         ]);
     }
 
-    public function store(SecuenciaProcesoRequest $request, $proceso_id): RedirectResponse
+    public function store(SecuenciaProcesoRequest $request, int $proceso_id): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['proceso.create']);
         
@@ -116,7 +116,7 @@ class SecuenciaProcesosController extends Controller
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
-        $actores = Admin::get(["name", "id"])->pluck('nombre','id');
+        $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.edit', [
             'secuenciaProceso' => $secuenciaProceso,
