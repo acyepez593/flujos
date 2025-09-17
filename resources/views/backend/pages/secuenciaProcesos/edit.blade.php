@@ -46,7 +46,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                     <h4 class="header-title">Editar Secuencia Proceso - {{ $secuenciaProceso->nombre }}</h4>
                     @include('backend.layouts.partials.messages')
 
-                    <form action="{{ route('admin.secuenciaProcesos.update', $secuenciaProceso->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/update" method="POST" enctype="multipart/form-data">
                         @method('PUT')
                         @csrf
                         <div class="form-row">

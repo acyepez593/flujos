@@ -1,7 +1,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-    {{ __('Procesos - Panel de Proceso') }}
+    {{ __('Campos por Proceso - Panel de Campos por Proceso') }}
 @endsection
 
 @section('styles')
@@ -43,9 +43,6 @@
         .is-hide{
             display:none;
         }
-        .icon-margin{
-            margin: 5px;
-        }
     </style>
 @endsection
 
@@ -56,10 +53,10 @@
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">{{ __('Procesos') }}</h4>
+                <h4 class="page-title pull-left">{{ __('Campos por Proceso') }}</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li><span>{{ __('Todos los Procesos') }}</span></li>
+                    <li><span>{{ __('Todos los Campos por Proceso') }}</span></li>
                 </ul>
             </div>
         </div>
@@ -96,15 +93,24 @@
                                                 <input type="text" class="form-control" id="nombre_search" name="nombre_search">
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="descripcion_search">Buscar por Descripción</label>
-                                                <input type="text" class="form-control" id="descripcion_search" name="descripcion_search">
+                                                <label for="seccion_campo_search">Buscar por Sección del Campo:</label>
+                                                <select id="seccion_campo_search" name="seccion_campo_search" class="form-control selectpicker" data-live-search="true" multiple>
+                                                    <option value="RECEPCION" selected>RECEPCION</option>
+                                                    <option value="SINIESTRO">SINIESTRO</option>
+                                                    <option value="VEHICULO">VEHICULO</option>
+                                                    <option value="RECLAMANTE">RECLAMANTE</option>
+                                                    <option value="BENEFICIARIOS">BENEFICIARIOS</option>
+                                                    <option value="SINIESTRO">SINIESTRO</option>
+                                                    <option value="MEDICA">MEDICA</option>
+                                                    <option value="FINANCIERO">FINANCIERO</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
-                                                    <option value="ACTIVO">ACTIVO</option>
+                                                    <option value="ACTIVO" selected>ACTIVO</option>
                                                     <option value="INACTIVO">INACTIVO</option>
                                                 </select>
                                             </div>
@@ -119,7 +125,7 @@
                                             </div>
                                         </div>
 
-                                        <button type="button" id="buscarProcesos" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
+                                        <button type="button" id="buscarCamposPorProcesos" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
                                     </form>
                                 </div>
                             </div>
@@ -128,17 +134,17 @@
                             <div class="card-header" id="headingTwo">
                             <h5 class="mb-0">
                                 <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                                Procesos
+                                Campos por Proceso
                                 </button>
                             </h5>
                             </div>
 
                             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                                 <div class="card-body">
-                                    <h4 class="header-title float-left">{{ __('Procesos') }}</h4>
+                                    <h4 class="header-title float-left">{{ __('Campos por Proceso') }}</h4>
                                     <p class="float-right mb-2" style="padding: 5px;">
-                                        @if (auth()->user()->can('proceso.create'))
-                                            <a class="btn btn-primary text-white" href="{{ route('admin.procesos.create') }}">
+                                        @if (auth()->user()->can('pantalla.create'))
+                                            <a class="btn btn-primary text-white" href="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}/create">
                                                 {{ __('Crear Nuevo') }}
                                             </a>
                                         @endif
@@ -184,12 +190,12 @@
         let table = "";
         let tableRef = "";
         let tableHeaderRef = "";
-        let procesos = [];
+        let camposPorProcesos = [];
         let creadores = [];
 
         $(document).ready(function() {
 
-            $( "#buscarProcesos" ).on( "click", function() {
+            $( "#buscarCamposPorProcesos" ).on( "click", function() {
                 $("#overlay").fadeIn(300);
                 $('#dataTable').empty();
 
@@ -206,18 +212,16 @@
                 format: "yyyy-mm-dd"
             });
 
-            //$('[data-toggle="tooltip"]').tooltip();
-
         });
 
         function loadDataTable(){
             $.ajax({
-                url: "{{url('/getProcesosByFilters')}}",
+                url: "{{url('/getCamposPorProcesosByFilters')}}/{{$proceso_id}}",
                 method: "POST",
                 data: {
-                    nombre_search: $('#nombre_search').val(),
-                    descripcion_search: $('#descripcion_search').val(),
-                    estatus_search: JSON.stringify($('#estatus_search').val()),
+                    nombre_search:$('#nombre_search').val(),
+                    seccion_campo_search:  JSON.stringify($('#seccion_campo_search').val()),
+                    estatus_search:  JSON.stringify($('#estatus_search').val()),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
                     _token: '{{csrf_token()}}'
                 },
@@ -227,7 +231,7 @@
 
                     $("#collapseTwo").collapse('show');
                     
-                    procesos = response.procesos;
+                    camposPorProcesos = response.camposPorProcesos;
                     creadores = response.creadores;
 
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
@@ -235,41 +239,34 @@
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
                         "<th>Nombre</th>"+
-                        "<th>Descripción</th>"+
+                        "<th>Seccion Campo</th>"+
                         "<th>Estatus</th>"+
                         "<th>Creador Por</th>"+
-                        "<th>Fecha de Creación</th>"+
+                        "<th>Fecha Creación</th>"+
                         "<th>Acción</th>";
 
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
 
                     let contador = 1;
-                    for (let proceso of procesos) {
+                    for (let camposPorProceso of camposPorProcesos) {
                         
-                        let rutaEdit = "{{url()->current()}}"+"/"+proceso.id+"/edit";
-                        let rutaDelete = "{{url()->current()}}"+"/"+proceso.id;
-                        let rutaConfigCampos = "{{url('admin')}}"+"/camposPorProcesos/"+proceso.id;
-                        let rutaConfigSecuencia = "{{url('admin')}}"+"/secuenciaProcesos/"+proceso.id;
+                        let rutaEdit = "{{url()->current()}}"+"/"+camposPorProceso.id+"/edit";
+                        let rutaDelete = "{{url()->current()}}"+"/"+camposPorProceso.id;
                         let innerHTML = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
-                        let htmlConfigCampos = "";
-                        let htmlConfigSecuencia = "";
-                        
-                        htmlEdit +=@if (auth()->user()->can('proceso.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
-                        htmlDelete += @if (auth()->user()->can('proceso.delete')) '<a class="icon-margin" title="Borrar" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+proceso.id+')"><i class="fa fa-trash fa-2x"></i></a> <form id="delete-form-'+proceso.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
-                        htmlConfigCampos +=@if (auth()->user()->can('proceso.edit')) '<a class="icon-margin" title="Confirugar campos" href="'+rutaConfigCampos+'"><i class="fa fa-tasks fa-2x"></i></a>' @else '' @endif;
-                        htmlConfigSecuencia +=@if (auth()->user()->can('proceso.edit')) '<a class="icon-margin" title="Confirugar secuencia" href="'+rutaConfigSecuencia+'"><i class="fa fa-cog fa-2x"></i></a>' @else '' @endif;
+                        htmlEdit +=@if (auth()->user()->can('pantalla.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
+                        htmlDelete += @if (auth()->user()->can('pantalla.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+camposPorProceso.id+')">Borrar</a> <form id="delete-form-'+camposPorProceso.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
-                            "<td>"+ proceso.nombre+ "</td>"+
-                            "<td>"+ proceso.descripcion+ "</td>"+
-                            "<td>"+ proceso.estatus+ "</td>"+
-                            "<td>"+ proceso.creado_por_nombre+ "</td>"+
-                            "<td>"+ proceso.created_at+ "</td>";
-                            if(proceso.esCreadorRegistro){
-                                innerHTML +="<td>" + htmlEdit + htmlConfigCampos + htmlConfigSecuencia + htmlDelete + "</td>";
+                            "<td>"+ camposPorProceso.nombre+ "</td>"+
+                            "<td>"+ camposPorProceso.seccion_campo+ "</td>"+
+                            "<td>"+ camposPorProceso.estatus+ "</td>"+
+                            "<td>"+ camposPorProceso.creado_por_nombre+ "</td>"+
+                            "<td>"+ camposPorProceso.created_at+ "</td>";
+                            if(camposPorProceso.esCreadorRegistro){
+                                innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
                             }
@@ -303,12 +300,13 @@
                         destroy: true,
                         paging: true,
                         searching: true,
-                        autoWidth: false,
+                        autoWidth: true,
                         responsive: false,
                     });
-
-                    //$('[data-toggle="tooltip"]').tooltip();
                     
+                },
+                error: function(jqXHR, textoEstado, errorEncontrado) {
+                    console.error('Error en la solicitud, por favor vuelva a intentar.');
                 }
             });
         }
@@ -321,7 +319,7 @@
                     confirm: function () {
                         $("#overlay").fadeIn(300);
                         $.ajax({
-                            url: "{{url()->current()}}"+"/"+id,
+                            url: "{{url()->current()}}"+"/"+id+"/delete",
                             method: "POST",
                             data: {
                                 _method: 'DELETE',
@@ -329,7 +327,7 @@
                             },
                             dataType: 'json',
                             success: function (response) {
-                                $( "#buscarProcesos" ).trigger( "click" );
+                                $( "#buscarCamposPorProcesos" ).trigger( "click" );
                             }
                         });
                     },

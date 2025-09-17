@@ -26,7 +26,7 @@ Crear Secuencia Proceso - Admin Panel
                 <h4 class="page-title pull-left">Crear Secuencia Proceso</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ route('admin.procesos.index') }}">Todas las Secuencias Procesos</a></li>
+                    <li><a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/index">Todas las Secuencias Procesos</a></li>
                     <li><span>Crear Secuencia Proceso</span></li>
                 </ul>
             </div>
@@ -47,7 +47,7 @@ Crear Secuencia Proceso - Admin Panel
                     <h4 class="header-title">Crear Nueva Secuencia Proceso</h4>
                     @include('backend.layouts.partials.messages')
                     
-                    <form action="{{ route('admin.secuenciaProcesos.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/store" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
@@ -104,16 +104,37 @@ Crear Secuencia Proceso - Admin Panel
                                 @enderror
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="configuracion">Configuración</label>
-                                <textarea class="form-control" id="configuracion" name="configuracion" rows="3">{{ old('configuracion') }}</textarea>
-                                @error('configuracion')
+                                <label for="requiere_evaluacion">Requiere evaluación?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="requiere_evaluacion">
+                                    <label class="custom-control-label" for="requiere_evaluacion"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="variable_condicional">Pregunta Evaluación</label>
+                                <input type="text" class="form-control int-number @error('condicional') is-invalid @enderror" id="condicional" name="condicional" value="{{ old('condicional') }}" required>
+                                @error('condicional')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="siguiente_secuencia_camino_si">Seleccione la siguiente secuencia:</label>
+                                <select id="siguiente_secuencia_camino_si" name="actores" class="form-control selectpicker @error('actores') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="">Seleccione una secuencia</option>
+                                    @foreach ($actores as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('siguiente_actividad')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
-                        <a href="{{ route('admin.secuenciaProcesos.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
+                        <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/index" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
             </div>

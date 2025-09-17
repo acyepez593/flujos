@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('proceso_id');
             $table->index('proceso_id');
             $table->string('nombre');
-            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIO']);
+            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIO', 'MEDICA', 'FINANCIERO']);
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');

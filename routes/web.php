@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\AdminsController;
 use App\Http\Controllers\Backend\Auth\ForgotPasswordController;
 use App\Http\Controllers\Backend\Auth\LoginController;
+use App\Http\Controllers\Backend\CamposPorProcesosController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\RolesController;
 use App\Http\Controllers\Backend\ConfiguracionesCamposReporteController;
@@ -40,6 +41,8 @@ Route::post('/getProcesosByFilters','backend\ProcesosController@getProcesosByFil
 
 Route::post('/getSecuenciaProcesosByFilters/{proceso_id}','backend\SecuenciaProcesosController@getSecuenciaProcesosByFilters')->middleware('auth:admin');
 
+Route::post('/getCamposPorProcesosByFilters/{proceso_id}','backend\CamposPorProcesosController@getCamposPorProcesosByFilters')->middleware('auth:admin');
+
 Route::post('/getPantallasByFilters','backend\PantallasController@getPantallasByFilters')->middleware('auth:admin');
 
 Route::post('/getSeccionPantallasByFilters','backend\SeccionPantallasController@getSeccionPantallasByFilters')->middleware('auth:admin');
@@ -68,7 +71,13 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::put('/secuenciaProcesos/{proceso_id}/{id}/edit', [SecuenciaProcesosController::class, 'update']);
     Route::delete('/secuenciaProcesos/{proceso_id}/{id}/delete', [SecuenciaProcesosController::class, 'destroy']);
     //Route::resource('secuenciaProcesos/{proceso_id}/', SecuenciaProcesosController::class);
-    //Route::resource('secuenciaProcesos', SecuenciaProcesosController::class);
+
+    Route::get('/camposPorProcesos/{proceso_id}', [CamposPorProcesosController::class, 'index']);
+    Route::get('/camposPorProcesos/{proceso_id}/create', [CamposPorProcesosController::class, 'create']);
+    Route::post('/camposPorProcesos/{proceso_id}/create', [CamposPorProcesosController::class, 'store']);
+    Route::get('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'edit']);
+    Route::put('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'update']);
+    Route::delete('/camposPorProcesos/{proceso_id}/{id}/delete', [CamposPorProcesosController::class, 'destroy']);
     Route::resource('pantallas', PantallasController::class);
     Route::resource('seccionPantallas', SeccionPantallasController::class);
     /*Route::resource('configuracionesCamposReporte', ConfiguracionesCamposReporteController::class);*/

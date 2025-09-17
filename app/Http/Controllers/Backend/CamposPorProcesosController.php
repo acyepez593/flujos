@@ -7,10 +7,8 @@ namespace App\Http\Controllers\Backend;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CamposPorProcesoRequest;
-use App\Http\Requests\ProcesoRequest;
 use App\Models\Admin;
 use App\Models\CamposPorProceso;
-use App\Models\Proceso;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +31,7 @@ class CamposPorProcesosController extends Controller
         $creadores = Admin::get(["name", "id"]);
         $responsable_id = Auth::id();
 
-        return view('backend.pages.procesos.index', [
+        return view('backend.pages.camposPorProcesos.index', [
             'creadores' => $creadores,
             'proceso_id' => $proceso_id,
             'camposPorProcesos' => $camposPorProcesos
@@ -85,22 +83,23 @@ class CamposPorProcesosController extends Controller
         $camposPorProceso->save();
 
         session()->flash('success', __('El Campo del Proceso ha sido creado satisfactoriamente. '));
-        return redirect()->route('admin.camposPorProcesos.index');
+        return redirect('admin/camposPorProcesos/'.$proceso_id);
     }
 
     public function edit(int $proceso_id, int $id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['proceso.edit']);
 
-        $camposPorProcesos = CamposPorProceso::findOrFail($id);
-        if($camposPorProcesos->creado_por != Auth::id() || $camposPorProcesos->proceso_id != $proceso_id){
+        $campoPorSeccion = CamposPorProceso::findOrFail($id);
+        if($campoPorSeccion->creado_por != Auth::id() || $campoPorSeccion->proceso_id != $proceso_id){
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
         $creadores = Admin::get(["name", "id"])->pluck('name','id');
 
-        return view('backend.pages.procesos.edit', [
-            'camposPorProcesos' => $camposPorProcesos,
+        return view('backend.pages.camposPorProcesos.edit', [
+            'campoPorSeccion' => $campoPorSeccion,
+            'proceso_id' => $proceso_id,
             'creadores' => $creadores
         ]);
     }
@@ -132,7 +131,7 @@ class CamposPorProcesosController extends Controller
         $camposPorProceso->save();
 
         session()->flash('success', 'Campo del Proceso ha sido actualizado satisfactoriamente.');
-        return redirect()->route('admin.procesos.index');
+        return redirect('admin/camposPorProcesos/'.$proceso_id);
     }
 
     public function destroy(int $proceso_id, int $id): JsonResponse
@@ -140,7 +139,7 @@ class CamposPorProcesosController extends Controller
         $this->checkAuthorization(auth()->user(), ['proceso.delete']);
 
         $camposPorProceso = CamposPorProceso::findOrFail($id);
-        if($camposPorProceso->creado_por != Auth::id( || $camposPorProceso->proceso_id != $proceso_id)){
+        if($camposPorProceso->creado_por != Auth::id() || $camposPorProceso->proceso_id != $proceso_id){
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
@@ -153,31 +152,31 @@ class CamposPorProcesosController extends Controller
 
     }
 
-    public function getCamposPorProcesosByFilters(Request $request): JsonResponse
+    public function getCamposPorProcesosByFilters(Request $request, int $proceso_id): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['proceso.view']);
 
-        $procesos = CamposPorProceso::where('id',">",0);
+        $camposPorProcesos = CamposPorProceso::where('proceso_id', $proceso_id);
 
         $filtroNombreSearch = $request->nombre_search;
-        $filtroDescripcionSearch = $request->descripcion_search;
+        $filtroSeccionCampoSearch = json_decode($request->seccion_campo_search, true);
         $filtroEstatus = json_decode($request->estatus_search, true);
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
-            $procesos = $procesos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
+            $camposPorProcesos = $camposPorProcesos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
         }
-        if(isset($filtroDescripcionSearch) && !empty($filtroDescripcionSearch)){
-            $procesos = $procesos->where('descripcion', 'like', '%'.$filtroDescripcionSearch.'%');
+        if(isset($filtroSeccionCampoSearch) && !empty($filtroSeccionCampoSearch)){
+            $camposPorProcesos = $camposPorProcesos->whereIn('seccion_campo', $filtroSeccionCampoSearch);
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
-            $procesos = $procesos->whereIn('estatus', $filtroEstatus);
+            $camposPorProcesos = $camposPorProcesos->whereIn('estatus', $filtroEstatus);
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
-            $procesos = $procesos->whereIn('creado_por', $filtroCreadoPorSearch);
+            $camposPorProcesos = $camposPorProcesos->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
-        $procesos = $procesos->orderBy('id', 'desc')->get();
+        $camposPorProcesos = $camposPorProcesos->orderBy('id', 'desc')->get();
 
         $creadores = Admin::all();
 
@@ -188,12 +187,12 @@ class CamposPorProcesosController extends Controller
 
         $usuario_actual_id = Auth::id();
 
-        foreach($procesos as $proceso){
-            $proceso->creado_por_nombre = array_key_exists($proceso->creado_por, $creadores_temp) ? $creadores_temp[$proceso->creado_por] : "";
-            $proceso->esCreadorRegistro = $usuario_actual_id == $proceso->creado_por ? true : false;
+        foreach($camposPorProcesos as $camposPorProceso){
+            $camposPorProceso->creado_por_nombre = array_key_exists($camposPorProceso->creado_por, $creadores_temp) ? $creadores_temp[$camposPorProceso->creado_por] : "";
+            $camposPorProceso->esCreadorRegistro = $usuario_actual_id == $camposPorProceso->creado_por ? true : false;
         }
 
-        $data['procesos'] = $procesos;
+        $data['camposPorProcesos'] = $camposPorProcesos;
         $data['creadores'] = $creadores;
   
         return response()->json($data);

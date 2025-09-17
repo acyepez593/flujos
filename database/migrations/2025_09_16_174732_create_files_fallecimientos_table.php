@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('files_fallecimientos', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('secuencia_proceso_id');
             $table->index('secuencia_proceso_id');
-            $table->foreignId('expediente_fallecimiento_id')->constrained('expedientes_fallecimientos');
+            $table->foreignId('tramite_id')->constrained('tramites');
             $table->softDeletes();
             $table->timestamps();
         });

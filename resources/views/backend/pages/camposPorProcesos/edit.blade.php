@@ -2,7 +2,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-Editar Campos por Secciòn - Panel Campos por Sección
+Editar Campos por Sección - Panel Campos por Sección
 @endsection
 
 @section('styles')
@@ -25,7 +25,7 @@ Editar Campos por Secciòn - Panel Campos por Sección
                 <h4 class="page-title pull-left">Editar Sección Pantalla</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ route('admin.seccionPantallas.index') }}">Todos los Campos por Secciones</a></li>
+                    <li><a href="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}">Todos los Campos por Secciones</a></li>
                     <li><span>Editar Campos por Sección - {{ $campoPorSeccion->nombre }}</span></li>
                 </ul>
             </div>
@@ -46,21 +46,10 @@ Editar Campos por Secciòn - Panel Campos por Sección
                     <h4 class="header-title">Editar Campo por Sección - {{ $campoPorSeccion->nombre }}</h4>
                     @include('backend.layouts.partials.messages')
 
-                    <form action="{{ route('admin.camposPorSecciones.update', $campoPorSeccion->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}/{{$campoPorSeccion->id}}/edit" method="POST" enctype="multipart/form-data">
                         @method('PUT')
                         @csrf
                         <div class="form-row">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="pantalla_id">Seleccione un Estatus:</label>
-                                <select id="pantalla_id" name="pantalla_id" class="form-control selectpicker @error('pantalla_id') is-invalid @enderror" data-live-search="true" required>
-                                    @foreach ($seccionPantallas as $key => $value)
-                                        <option value="{{ $key }}" {{ old('seccion_pantalla_id', $campoPorSeccion->pantalla_id) == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('estatus')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="nombre">Nombre</label>
                                 <div class="input-group mb-3">
@@ -70,36 +59,37 @@ Editar Campos por Secciòn - Panel Campos por Sección
                                     @enderror
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="tipo">Seleccione un Tipo:</label>
-                                <select id="tipo" name="tipo" class="form-control selectpicker @error('tipo') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="text" {{ old('tipo', $campoPorSeccion->tipo) == 'text' ? 'selected' : '' }}>TEXTO</option>
-                                    <option value="textarea" {{ old('tipo', $campoPorSeccion->tipo) == 'textarea' ? 'selected' : '' }}>ÁREA DE TEXTO</option>
-                                    <option value="number" {{ old('tipo', $campoPorSeccion->tipo) == 'number' ? 'selected' : '' }}>NUMÉRICO</option>
-                                    <option value="email" {{ old('tipo', $campoPorSeccion->tipo) == 'email' ? 'selected' : '' }}>EMAIL</option>
-                                    <option value="date" {{ old('tipo', $campoPorSeccion->tipo) == 'date' ? 'selected' : '' }}>FECHA</option>
-                                    <option value="select" {{ old('tipo', $campoPorSeccion->tipo) == 'select' ? 'selected' : '' }}>SELECCIÓN</option>
-                                    <option value="custom" {{ old('tipo', $campoPorSeccion->tipo) == 'custom' ? 'selected' : '' }}>PERSONALIZADO</option>
+                                <label for="seccion_campo">Seleccione la Sección del campo:</label>
+                                <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="RECEPCION" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'RECEPCION' ? 'selected' : '' }}>RECEPCION</option>
+                                    <option value="SINIESTRO" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'SINIESTRO' ? 'selected' : '' }}>SINIESTRO</option>
+                                    <option value="VEHICULO" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'VEHICULO' ? 'selected' : '' }}>VEHICULO</option>
+                                    <option value="RECLAMANTE" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'RECLAMANTE' ? 'selected' : '' }}>RECLAMANTE</option>
+                                    <option value="BENEFICIARIOS" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'BENEFICIARIOS' ? 'selected' : '' }}>BENEFICIARIOS</option>
+                                    <option value="MEDICA" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'MEDICA' ? 'selected' : '' }}>MEDICA</option>
+                                    <option value="FINANCIERO" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'FINANCIERO' ? 'selected' : '' }}>FINANCIERO</option>
                                 </select>
-                                @error('tipo')
+                                @error('seccion_campo')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="configuracion">Descripción</label>
-                                <div class="input-group mb-3">
-                                <textarea id="configuracion" name="configuracion" class="form-control @error('configuracion') is-invalid @enderror" rows="5" cols="40" required></textarea>
-                                    @error('configuracion')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="estatus">Seleccione un Estatus:</label>
+                                <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="ACTIVO" {{ old('estatus', $campoPorSeccion->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
+                                    <option value="INACTIVO" {{ old('estatus', $campoPorSeccion->estatus) == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
+                                </select>
+                                @error('estatus')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
-                        <a href="{{ route('admin.seccionPantallas.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
+                        <a href="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
             </div>

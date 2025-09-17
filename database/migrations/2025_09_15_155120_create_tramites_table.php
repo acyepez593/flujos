@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('expedientes', function (Blueprint $table) {
+        Schema::create('tramites', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('proceso_id');
             $table->index('proceso_id');
             $table->unsignedBigInteger('secuencia_proceso_id');
             $table->index('secuencia_proceso_id');
-            $table->unsignedBigInteger('funcionario_id');
+            $table->unsignedBigInteger('funcionario_actual_id');
             $table->index('funcionario_actual_id');
             $table->json('datos');
             $table->enum('estatus', ['INGRESADO', 'EN PROCESO DAP', 'EN PROCESO AUDITORIA', 'EN PROCESO FINANCIERO', 'PAGADO'])->default('INGRESADO');
@@ -89,6 +89,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('expedientes');
+        Schema::dropIfExists('tramites');
     }
 };
