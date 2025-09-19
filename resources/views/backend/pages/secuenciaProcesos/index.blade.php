@@ -116,7 +116,7 @@
                                                 <select id="actores_search" name="actores_search" class="form-control selectpicker" data-live-search="true">
                                                     <option value="">Seleccione un Actor</option>
                                                     @foreach ($actores as $key => $value)
-                                                        <option value="{{ $key }}">{{ $value }}</option>
+                                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -259,7 +259,6 @@
                         "<th>Estatus</th>"+
                         "<th>Tiempo Procesamiento</th>"+
                         "<th>Actores</th>"+
-                        "<th>Configuración</th>"+
                         "<th>Creador Por</th>"+
                         "<th>Acción</th>";
 
@@ -283,8 +282,6 @@
                             "<td>"+ secuenciaProceso.estatus+ "</td>"+
                             "<td>"+ secuenciaProceso.tiempo_procesamiento+ "</td>"+
                             "<td>"+ secuenciaProceso.actores_nombre+ "</td>"+
-                            "<td>"+ secuenciaProceso.estatus+ "</td>"+
-                            "<td>"+ secuenciaProceso.configuracion+ "</td>"+
                             "<td>"+ secuenciaProceso.created_at+ "</td>";
                             if(secuenciaProceso.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
@@ -340,7 +337,7 @@
                     confirm: function () {
                         $("#overlay").fadeIn(300);
                         $.ajax({
-                            url: "{{url()->current()}}"+"/"+id,
+                            url: "{{url()->current()}}"+"/"+id+"/delete",
                             method: "POST",
                             data: {
                                 _method: 'DELETE',

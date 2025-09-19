@@ -25,6 +25,7 @@ class CamposPorProcesoRequest extends FormRequest
     {
         return [
             'nombre' => 'required',
+            'variable' => 'required',
             'seccion_campo' => 'required',
             'estatus' => 'required'
         ];

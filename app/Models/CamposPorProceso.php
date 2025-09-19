@@ -22,6 +22,7 @@ class CamposPorProceso extends Authenticatable
   
     protected $fillable = [
         'nombre',
+        'variable',
         'seccion_campo',
         'estatus'
     ];

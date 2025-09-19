@@ -93,20 +93,25 @@
                                                 <input type="text" class="form-control" id="nombre_search" name="nombre_search">
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
+                                                <label for="variable_search">Buscar por Variable</label>
+                                                <input type="text" class="form-control" id="variable_search" name="variable_search">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
                                                 <label for="seccion_campo_search">Buscar por Sección del Campo:</label>
                                                 <select id="seccion_campo_search" name="seccion_campo_search" class="form-control selectpicker" data-live-search="true" multiple>
-                                                    <option value="RECEPCION" selected>RECEPCION</option>
+                                                    <option value="" selected>TODOS</option>    
+                                                    <option value="RECEPCION">RECEPCION</option>
                                                     <option value="SINIESTRO">SINIESTRO</option>
+                                                    <option value="VICTIMA">VICTIMA</option>
                                                     <option value="VEHICULO">VEHICULO</option>
                                                     <option value="RECLAMANTE">RECLAMANTE</option>
                                                     <option value="BENEFICIARIOS">BENEFICIARIOS</option>
-                                                    <option value="SINIESTRO">SINIESTRO</option>
                                                     <option value="MEDICA">MEDICA</option>
                                                     <option value="FINANCIERO">FINANCIERO</option>
                                                 </select>
                                             </div>
-                                        </div>
-                                        <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
@@ -114,6 +119,8 @@
                                                     <option value="INACTIVO">INACTIVO</option>
                                                 </select>
                                             </div>
+                                        </div>
+                                        <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="creado_por_search">Buscar por Creador:</label>
                                                 <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true" multiple>
@@ -239,6 +246,7 @@
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
                         "<th>Nombre</th>"+
+                        "<th>Variable</th>"+
                         "<th>Seccion Campo</th>"+
                         "<th>Estatus</th>"+
                         "<th>Creador Por</th>"+
@@ -261,6 +269,7 @@
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
                             "<td>"+ camposPorProceso.nombre+ "</td>"+
+                            "<td>"+ camposPorProceso.variable+ "</td>"+
                             "<td>"+ camposPorProceso.seccion_campo+ "</td>"+
                             "<td>"+ camposPorProceso.estatus+ "</td>"+
                             "<td>"+ camposPorProceso.creado_por_nombre+ "</td>"+

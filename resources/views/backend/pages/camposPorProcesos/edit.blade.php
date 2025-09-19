@@ -26,7 +26,7 @@ Editar Campos por Sección - Panel Campos por Sección
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                     <li><a href="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}">Todos los Campos por Secciones</a></li>
-                    <li><span>Editar Campos por Sección - {{ $campoPorSeccion->nombre }}</span></li>
+                    <li><span>Editar Campos por Sección - {{ $camposPorProceso->nombre }}</span></li>
                 </ul>
             </div>
         </div>
@@ -43,44 +43,54 @@ Editar Campos por Sección - Panel Campos por Sección
         <div class="col-12 mt-5">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Editar Campo por Sección - {{ $campoPorSeccion->nombre }}</h4>
+                    <h4 class="header-title">Editar Campo por Sección - {{ $camposPorProceso->nombre }}</h4>
                     @include('backend.layouts.partials.messages')
 
-                    <form action="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}/{{$campoPorSeccion->id}}/edit" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}/{{$camposPorProceso->id}}/edit" method="POST" enctype="multipart/form-data">
                         @method('PUT')
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="nombre">Nombre</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $campoPorSeccion->nombre) }}" required>
+                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $camposPorProceso->nombre) }}" required>
                                     @error('nombre')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="variable">Variable</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control @error('variable') is-invalid @enderror" id="variable" name="variable" value="{{ old('variable', $camposPorProceso->variable) }}" required>
+                                    @error('variable')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="seccion_campo">Seleccione la Sección del campo:</label>
                                 <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="RECEPCION" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'RECEPCION' ? 'selected' : '' }}>RECEPCION</option>
-                                    <option value="SINIESTRO" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'SINIESTRO' ? 'selected' : '' }}>SINIESTRO</option>
-                                    <option value="VEHICULO" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'VEHICULO' ? 'selected' : '' }}>VEHICULO</option>
-                                    <option value="RECLAMANTE" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'RECLAMANTE' ? 'selected' : '' }}>RECLAMANTE</option>
-                                    <option value="BENEFICIARIOS" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'BENEFICIARIOS' ? 'selected' : '' }}>BENEFICIARIOS</option>
-                                    <option value="MEDICA" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'MEDICA' ? 'selected' : '' }}>MEDICA</option>
-                                    <option value="FINANCIERO" {{ old('seccion_campo', $campoPorSeccion->seccion_campo) == 'FINANCIERO' ? 'selected' : '' }}>FINANCIERO</option>
+                                    <option value="RECEPCION" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'RECEPCION' ? 'selected' : '' }}>RECEPCION</option>
+                                    <option value="SINIESTRO" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'SINIESTRO' ? 'selected' : '' }}>SINIESTRO</option>
+                                    <option value="VICTIMA" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'VICTIMA' ? 'selected' : '' }}>VICTIMA</option>
+                                    <option value="VEHICULO" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'VEHICULO' ? 'selected' : '' }}>VEHICULO</option>
+                                    <option value="RECLAMANTE" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'RECLAMANTE' ? 'selected' : '' }}>RECLAMANTE</option>
+                                    <option value="BENEFICIARIOS" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'BENEFICIARIOS' ? 'selected' : '' }}>BENEFICIARIOS</option>
+                                    <option value="MEDICA" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'MEDICA' ? 'selected' : '' }}>MEDICA</option>
+                                    <option value="FINANCIERO" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'FINANCIERO' ? 'selected' : '' }}>FINANCIERO</option>
                                 </select>
                                 @error('seccion_campo')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="ACTIVO" {{ old('estatus', $campoPorSeccion->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
-                                    <option value="INACTIVO" {{ old('estatus', $campoPorSeccion->estatus) == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
+                                    <option value="ACTIVO" {{ old('estatus', $camposPorProceso->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
+                                    <option value="INACTIVO" {{ old('estatus', $camposPorProceso->estatus) == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
                                 </select>
                                 @error('estatus')
                                     <div class="alert alert-danger">{{ $message }}</div>

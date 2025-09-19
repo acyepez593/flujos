@@ -40,7 +40,7 @@ class AdminsController extends Controller
         $admin->name = $request->name;
         $admin->username = $request->username;
         $admin->email = $request->email;
-        $admin->initials = $request->initials;
+        //$admin->initials = $request->initials;
         $admin->password = Hash::make($request->password);
         $admin->save();
 
@@ -70,7 +70,7 @@ class AdminsController extends Controller
         $admin = Admin::findOrFail($id);
         $admin->name = $request->name;
         $admin->email = $request->email;
-        $admin->initials = $request->initials;
+        //$admin->initials = $request->initials;
         $admin->username = $request->username;
         if ($request->password) {
             $admin->password = Hash::make($request->password);

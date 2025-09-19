@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SecuenciaProcesoRequest;
 use App\Models\Admin;
+use App\Models\CamposPorProceso;
 use App\Models\Proceso;
 use App\Models\SecuenciaProceso;
 use Carbon\Carbon;
@@ -46,12 +47,16 @@ class SecuenciaProcesosController extends Controller
         $this->checkAuthorization(auth()->user(), ['proceso.create']);
 
         $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->get();
+        $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
+        $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.create', [
             'actores' => $actores,
             'proceso_id' => $proceso_id,
-            'secuenciaProceso' => $secuenciaProceso
+            'secuenciaProceso' => $secuenciaProceso,
+            'listaActividades' => $listaActividades,
+            'campos' => $campos
         ]);
     }
 
@@ -104,7 +109,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->save();
 
         session()->flash('success', __('Secuencia Proceso ha sido creado satisfactoriamente. '));
-        return redirect()->route('admin.secuenciaProcesos.index');
+        return redirect('admin/secuenciaProcesos/'.$proceso_id);
     }
 
     public function edit(int $proceso_id, int $id): Renderable
@@ -116,11 +121,18 @@ class SecuenciaProcesosController extends Controller
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
+        $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->where('id','<>',$id)->get(["nombre", "id"])->pluck('nombre','id');
+        $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
+        $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "variable", "seccion_campo"]);
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.edit', [
+            'actores' => $actores,
             'secuenciaProceso' => $secuenciaProceso,
-            'actores' => $actores
+            'proceso_id' => $proceso_id,
+            'listaActividades' => $listaActividades,
+            'listaCampos' => $listaCampos,
+            'campos' => $campos
         ]);
     }
 
@@ -159,18 +171,17 @@ class SecuenciaProcesosController extends Controller
             $configuracion = $request->configuracion;
         }
 
-        $proceso = Proceso::findOrFail($id);
-        $proceso->proceso_id = $proceso_id;
-        $proceso->nombre = $nombre;
-        $proceso->descripcion = $descripcion;
-        $proceso->estatus = $estatus;
-        $proceso->tiempo_procesamiento = $tiempo_procesamiento;
-        $proceso->actores = $actores;
-        $proceso->configuracion = $configuracion;
-        $proceso->save();
+        $secuenciaProceso = SecuenciaProceso::findOrFail($id);
+        $secuenciaProceso->nombre = $nombre;
+        $secuenciaProceso->descripcion = $descripcion;
+        $secuenciaProceso->estatus = $estatus;
+        $secuenciaProceso->tiempo_procesamiento = $tiempo_procesamiento;
+        $secuenciaProceso->actores = $actores;
+        $secuenciaProceso->configuracion = $configuracion;
+        $secuenciaProceso->save();
 
         session()->flash('success', 'Secuencia Proceso ha sido actualizado satisfactoriamente.');
-        return redirect()->route('admin.secuenciaProcesos.index');
+        return redirect('admin/secuenciaProcesos/'.$proceso_id);
     }
 
     public function destroy(int $proceso_id, int $id): JsonResponse
@@ -200,9 +211,7 @@ class SecuenciaProcesosController extends Controller
         $filtroNombreSearch = $request->nombre_search;
         $filtroDescripcionSearch = $request->descripcion_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
-        $filtroTiempoProcesamiento = $request->tiempo_procesamiento;
-        
-        
+        $filtroTiempoProcesamiento = $request->tiempo_procesamiento_search;
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
@@ -229,7 +238,7 @@ class SecuenciaProcesosController extends Controller
             $secuenciaProcesos = $secuenciaProcesos->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
-        $secuenciaProcesos = $secuenciaProcesos->orderBy('id', 'desc')->get();
+        $secuenciaProcesos = $secuenciaProcesos->orderBy('id', 'asc')->get();
 
         $actores = Admin::all();
 

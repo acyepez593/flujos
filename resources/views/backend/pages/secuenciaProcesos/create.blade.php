@@ -12,6 +12,89 @@ Crear Secuencia Proceso - Admin Panel
     .form-check-label {
         text-transform: capitalize;
     }
+    .input-sm {
+        padding: 5px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    .custom-control {
+        position: relative;
+        z-index: 1;
+        display: block;
+        min-height: 1.5rem;
+        padding-left: 1.5rem;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .custom-switch {
+        padding-left: 2.25rem;
+    }
+    .custom-control-input {
+        position: absolute;
+        left: 0;
+        z-index: -1;
+        width: 1rem;
+        height: 1.25rem;
+        opacity: 0;
+    }
+    .custom-control-label {
+        position: relative;
+        margin-bottom: 0;
+        vertical-align: top;
+    }
+    .custom-control-input:checked~.custom-control-label::before {
+        color: #fff;
+        border-color: #007bff;
+        background-color: #007bff;
+    }
+    .custom-switch .custom-control-label::before {
+        left: -2.25rem;
+        width: 1.75rem;
+        pointer-events: all;
+        border-radius: .5rem;
+    }
+    .custom-control-label::before, .custom-file-label, .custom-select {
+        transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    .custom-control-label::before {
+        position: absolute;
+        top: .25rem;
+        left: -1.5rem;
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        pointer-events: none;
+        content: "";
+        background-color: #fff;
+        border: 1px solid #adb5bd;
+    }
+    .custom-switch .custom-control-input:checked~.custom-control-label::after {
+        background-color: #fff;
+        -webkit-transform: translateX(.75rem);
+        transform: translateX(.75rem);
+    }
+    .custom-switch .custom-control-label::after {
+        top: calc(.25rem + 2px);
+        left: calc(-2.25rem + 2px);
+        width: calc(1rem - 4px);
+        height: calc(1rem - 4px);
+        background-color: #adb5bd;
+        border-radius: .5rem;
+        transition: background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, -webkit-transform .15s ease-in-out;
+        transition: transform .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        transition: transform .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, -webkit-transform .15s ease-in-out;
+    }
+    .custom-control-label::after {
+        position: absolute;
+        top: .25rem;
+        left: -1.5rem;
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        content: "";
+        background: 50% / 50% 50% no-repeat;
+    }
 </style>
 @endsection
 
@@ -26,7 +109,7 @@ Crear Secuencia Proceso - Admin Panel
                 <h4 class="page-title pull-left">Crear Secuencia Proceso</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/index">Todas las Secuencias Procesos</a></li>
+                    <li><a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}"">Todas las Secuencias Procesos</a></li>
                     <li><span>Crear Secuencia Proceso</span></li>
                 </ul>
             </div>
@@ -47,7 +130,7 @@ Crear Secuencia Proceso - Admin Panel
                     <h4 class="header-title">Crear Nueva Secuencia Proceso</h4>
                     @include('backend.layouts.partials.messages')
                     
-                    <form action="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/store" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
@@ -111,30 +194,71 @@ Crear Secuencia Proceso - Admin Panel
                                 </div>
                             </div>
                         </div>
-                        <div class="form-row">
+                        <div class="form-row campos_con_evaluacion">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="variable_condicional">Pregunta Evaluación</label>
-                                <input type="text" class="form-control int-number @error('condicional') is-invalid @enderror" id="condicional" name="condicional" value="{{ old('condicional') }}" required>
-                                @error('condicional')
+                                <label for="pregunta_evaluacion">Pregunta Evaluación</label>
+                                <input type="text" class="form-control @error('pregunta_evaluacion') is-invalid @enderror" onchange="generarConfiguracionObjeto('pregunta_evaluacion',this.value)" id="pregunta_evaluacion" name="pregunta_evaluacion" value="{{ old('pregunta_evaluacion') }}">
+                                @error('pregunta_evaluacion')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="siguiente_secuencia_camino_si">Seleccione la siguiente secuencia:</label>
-                                <select id="siguiente_secuencia_camino_si" name="actores" class="form-control selectpicker @error('actores') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="">Seleccione una secuencia</option>
-                                    @foreach ($actores as $key => $value)
+                                <label for="variable_evaluacion">Seleccione la variable a evaluar</label>
+                                <select id="variable_evaluacion" onchange="generarConfiguracionObjeto('variable_evaluacion',this.value)" name="variable_evaluacion" class="form-control selectpicker @error('variable_evaluacion') is-invalid @enderror" data-live-search="true">
+                                    <option value="">Seleccione la variable a evaluar</option>
+                                    @foreach ($campos as $key => $value)
                                         <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
                                 </select>
-                                @error('siguiente_actividad')
+                                @error('variable_evaluacion')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-row campos_con_evaluacion">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="camino_evaluacion_verdadero">Secuencia en caso de evaluación verdadera</label>
+                                <select id="camino_evaluacion_verdadero" onchange="generarConfiguracionObjeto('camino_evaluacion_verdadero',this.value)" name="camino_evaluacion_verdadero" class="form-control selectpicker @error('camino_evaluacion_verdadero') is-invalid @enderror" data-live-search="true">
+                                    <option value="">Secuencia en caso de evaluación verdadera</option>
+                                    @foreach ($listaActividades as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('camino_evaluacion_verdadero')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="camino_evaluacion_falso">Secuencia en caso de evaluación falsa</label>
+                                <select id="camino_evaluacion_falso" onchange="generarConfiguracionObjeto('camino_evaluacion_falso',this.value)" name="camino_evaluacion_falso" class="form-control selectpicker @error('camino_evaluacion_falso') is-invalid @enderror" data-live-search="true">
+                                    <option value="">Secuencia en caso de evaluación falsa</option>
+                                    @foreach ($listaActividades as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('camino_evaluacion_falso')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-row campos_sin_evaluacion">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="camino_sin_evaluacion">Seleccione la siguiente secuencia</label>
+                                <select id="camino_sin_evaluacion" onchange="generarConfiguracionObjeto('camino_sin_evaluacion',this.value)" name="camino_sin_evaluacion" class="form-control selectpicker @error('camino_sin_evaluacion') is-invalid @enderror" data-live-search="true">
+                                    <option value="">Seleccione la siguiente secuencia</option>
+                                    @foreach ($listaActividades as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('camino_sin_evaluacion')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         
+                        <input type="hidden" id="configuracion" name="configuracion">
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
-                        <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/index" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
+                        <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
             </div>
@@ -156,9 +280,37 @@ Crear Secuencia Proceso - Admin Panel
     $(document).ready(function() {
         $('.select2').select2();
 
+        $('.campos_con_evaluacion').hide();
+
         $(document).on("input", ".int-number", function (e) {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
+
+        $('#requiere_evaluacion').change(function() {
+            if(this.checked){
+                $('.campos_con_evaluacion').show();
+                $('.campos_sin_evaluacion').hide();
+            }else{
+                $('.campos_con_evaluacion').hide();
+                $('.campos_sin_evaluacion').show();
+            }
+            generarConfiguracionObjeto('requiere_evaluacion',this.checked);
+        });
+
+        $('#requiere_evaluacion').change();
     })
+
+    let objeto = {
+        requiere_evaluacion: false,
+        pregunta_evaluacion: "",
+        variable_evaluacion: "",
+        camino_evaluacion_verdadero: "",
+        camino_evaluacion_falso: "",
+        camino_sin_evaluacion: ""
+    }
+    function generarConfiguracionObjeto(campo,valor){
+        objeto[campo] = valor;
+        $('#configuracion').val(JSON.stringify(objeto));
+    }
 </script>
 @endsection

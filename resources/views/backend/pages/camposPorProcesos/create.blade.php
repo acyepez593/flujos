@@ -60,10 +60,22 @@ Crear Campo por Proceso - Admin Panel
                                 </div>
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="variable">Variable</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control @error('variable') is-invalid @enderror" id="variable" name="variable" value="{{ old('variable') }}" required>
+                                    @error('variable')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="seccion_campo">Seleccione la Sección del campo:</label>
                                 <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
                                     <option value="RECEPCION">RECEPCION</option>
                                     <option value="SINIESTRO">SINIESTRO</option>
+                                    <option value="VICTIMA">VICTIMA</option>
                                     <option value="VEHICULO">VEHICULO</option>
                                     <option value="RECLAMANTE">RECLAMANTE</option>
                                     <option value="BENEFICIARIOS">BENEFICIARIOS</option>
@@ -74,8 +86,6 @@ Crear Campo por Proceso - Admin Panel
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>

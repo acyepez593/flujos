@@ -63,6 +63,11 @@ class CamposPorProcesosController extends Controller
         }else{
             $nombre = $request->nombre;
         }
+        if(!$request->variable || !isset($request->variable) || empty($request->variable || is_null($request->variable))){
+            $variable = "";
+        }else{
+            $variable = $request->variable;
+        }
         if(!$request->seccion_campo || !isset($request->seccion_campo) || empty($request->seccion_campo) || is_null($request->seccion_campo)){
             $seccion_campo = "";
         }else{
@@ -77,6 +82,7 @@ class CamposPorProcesosController extends Controller
         $camposPorProceso = new CamposPorProceso();
         $camposPorProceso->proceso_id = $proceso_id;
         $camposPorProceso->nombre = $nombre;
+        $camposPorProceso->variable = $variable;
         $camposPorProceso->seccion_campo = $seccion_campo;
         $camposPorProceso->estatus = $estatus;
         $camposPorProceso->creado_por = $creado_por;
@@ -90,15 +96,15 @@ class CamposPorProcesosController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['proceso.edit']);
 
-        $campoPorSeccion = CamposPorProceso::findOrFail($id);
-        if($campoPorSeccion->creado_por != Auth::id() || $campoPorSeccion->proceso_id != $proceso_id){
+        $camposPorProceso = CamposPorProceso::findOrFail($id);
+        if($camposPorProceso->creado_por != Auth::id() || $camposPorProceso->proceso_id != $proceso_id){
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
         $creadores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.camposPorProcesos.edit', [
-            'campoPorSeccion' => $campoPorSeccion,
+            'camposPorProceso' => $camposPorProceso,
             'proceso_id' => $proceso_id,
             'creadores' => $creadores
         ]);
@@ -113,6 +119,11 @@ class CamposPorProcesosController extends Controller
         }else{
             $nombre = $request->nombre;
         }
+        if(!$request->variable || !isset($request->variable) || empty($request->variable || is_null($request->variable))){
+            $variable = "";
+        }else{
+            $variable = $request->variable;
+        }
         if(!$request->seccion_campo || !isset($request->seccion_campo) || empty($request->seccion_campo) || is_null($request->seccion_campo)){
             $seccion_campo = "";
         }else{
@@ -126,6 +137,7 @@ class CamposPorProcesosController extends Controller
 
         $camposPorProceso = CamposPorProceso::findOrFail($id);
         $camposPorProceso->nombre = $nombre;
+        $camposPorProceso->variable = $variable;
         $camposPorProceso->seccion_campo = $seccion_campo;
         $camposPorProceso->estatus = $estatus;
         $camposPorProceso->save();
@@ -165,6 +177,9 @@ class CamposPorProcesosController extends Controller
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
             $camposPorProcesos = $camposPorProcesos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
+        }
+        if(isset($filtroVariableSearch) && !empty($filtroVariableSearch)){
+            $camposPorProcesos = $camposPorProcesos->where('variable', 'like', '%'.$filtroVariableSearch.'%');
         }
         if(isset($filtroSeccionCampoSearch) && !empty($filtroSeccionCampoSearch)){
             $camposPorProcesos = $camposPorProcesos->whereIn('seccion_campo', $filtroSeccionCampoSearch);

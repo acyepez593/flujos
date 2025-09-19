@@ -88,7 +88,7 @@ Crear Campo por Sección - Admin Panel
                                 @enderror
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="configuracion">Descripción</label>
+                                <label for="configuracion">Configuracion</label>
                                 <div class="input-group mb-3">
                                 <textarea id="configuracion" name="configuracion" class="form-control @error('configuracion') is-invalid @enderror" rows="5" cols="40" required></textarea>
                                     @error('configuracion')
