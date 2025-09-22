@@ -127,6 +127,10 @@
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
+                                                <label for="configuracion_campos_search">Buscar por Configuración Campos</label>
+                                                <input type="text" class="form-control" id="configuracion_campos_search" name="configuracion_campos_search">
+                                            </div>
+                                            <div class="form-group col-md-6 col-sm-12">
                                                 <label for="creado_por_search">Buscar por Creador:</label>
                                                 <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="">Seleccione un Creador</option>
@@ -238,6 +242,7 @@
                     tiempo_procesamiento_search: $('#tiempo_procesamiento_search').val(),
                     actores_search: JSON.stringify($('#actores_search').val()),
                     configuracion_search: JSON.stringify($('#configuracion_search').val()),
+                    configuracion_campos_search: JSON.stringify($('#configuracion_campos_search').val()),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
                     _token: '{{csrf_token()}}'
                 },

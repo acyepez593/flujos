@@ -262,12 +262,13 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                         
                         <div class="data-tables">
                             
-                            <table id="configuracion_campos" class="text-center">
+                            <table id="configuracion_campos_table" class="table text-center">
                                 <thead class="bg-light text-capitalize">
                                     <th>Sección Campo</th>
                                     <th>Nombre Campo</th>
                                     <th>Variable</th>
                                     <th>Editable</th>
+                                    <th>Visible</th>
                                 </thead>
                                 <tbody>
                                 
@@ -275,9 +276,8 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             </table>
                         </div>
                         
-                        
-                        
                         <input type="hidden" id="configuracion" name="configuracion">
+                        <input type="hidden" id="configuracion_campos" name="configuracion_campos">
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
@@ -316,21 +316,32 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         });
 
         $('#requiere_evaluacion').change();
+        $('#configuracion_campos').val(JSON.stringify(listaCampos));
 
-        tableRef = document.getElementById('configuracion_campos').getElementsByTagName('tbody')[0];
+        tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
 
         for (let campo of listaCampos) {
+            debugger;
             let innerHTML = "";
             innerHTML += 
                 "<td>"+ campo.seccion_campo+ "</td>"+
                 "<td>"+ campo.nombre+ "</td>"+
-                "<td>"+ campo.variable+ "</td>"+
-                "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='defaultCheck1'></td>";
+                "<td>"+ campo.variable+ "</td>";
+                if(campo.editable == true){
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble' checked></td>";
+                }else{
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble'></td>";
+                }
+                if(campo.visible == true){
+                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_visible' checked></td>";
+                }else{
+                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_visible'></td>";
+                }
 
                 tableRef.insertRow().innerHTML = innerHTML;
         }
 
-        /*table = $('#configuracion_campos').DataTable( {
+        /*table = $('#configuracion_campos_table').DataTable( {
                         scrollX: true,
                         orderCellsTop: true,
                         fixedHeader: true,
@@ -356,13 +367,21 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     let listaCampos = '{{$listaCampos}}';
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
-    for (let campo of listaCampos) {
-        campo.editable = false;
-    }
-    console.log(listaCampos);
+
     function generarConfiguracionObjeto(campo,valor){
         objeto[campo] = valor;
         $('#configuracion').val(JSON.stringify(objeto));
+    }
+
+    function generarConfiguracionCamposObjeto(id,obj){
+        let campo = listaCampos.find(campo => campo.id === id);
+        if(obj.id == id + '_editable'){
+            campo.editable = obj.checked;
+        }else{
+            campo.visible = obj.checked;
+        }
+        
+        $('#configuracion_campos').val(JSON.stringify(listaCampos));
     }
 </script>
 @endsection

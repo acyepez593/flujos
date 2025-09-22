@@ -21,6 +21,7 @@ return new class extends Migration
             $table->json('actores');
             $table->integer('tiempo_procesamiento')->default(1);
             $table->json('configuracion');
+            $table->json('configuracion_campos');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();

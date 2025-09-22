@@ -255,8 +255,29 @@ Crear Secuencia Proceso - Admin Panel
                                 @enderror
                             </div>
                         </div>
+
+                        <div class="clearfix"></div>
+
+                        <h4 class="header-title">Configuración de campos</h4>
+                        
+                        <div class="data-tables">
+                            
+                            <table id="configuracion_campos_table" class="table text-center">
+                                <thead class="bg-light text-capitalize">
+                                    <th>Sección Campo</th>
+                                    <th>Nombre Campo</th>
+                                    <th>Variable</th>
+                                    <th>Editable</th>
+                                    <th>Visible</th>
+                                </thead>
+                                <tbody>
+                                
+                                </tbody>
+                            </table>
+                        </div>
                         
                         <input type="hidden" id="configuracion" name="configuracion">
+                        <input type="hidden" id="configuracion_campos" name="configuracion_campos">
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
@@ -298,7 +319,35 @@ Crear Secuencia Proceso - Admin Panel
         });
 
         $('#requiere_evaluacion').change();
+
+        tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
+
+        for (let campo of listaCampos) {
+            let innerHTML = "";
+            innerHTML += 
+                "<td>"+ campo.seccion_campo+ "</td>"+
+                "<td>"+ campo.nombre+ "</td>"+
+                "<td>"+ campo.variable+ "</td>"+
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>"+
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.visible+ "' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
+
+                tableRef.insertRow().innerHTML = innerHTML;
+        }
+
+        /*table = $('#configuracion_campos_table').DataTable( {
+                        scrollX: true,
+                        orderCellsTop: true,
+                        fixedHeader: true,
+                        destroy: true,
+                        paging: true,
+                        searching: true,
+                        autoWidth: true,
+                        responsive: false,
+                    });*/
     })
+
+    let table = "";
+    let tableRef = "";
 
     let objeto = {
         requiere_evaluacion: false,
@@ -308,9 +357,28 @@ Crear Secuencia Proceso - Admin Panel
         camino_evaluacion_falso: "",
         camino_sin_evaluacion: ""
     }
+    let listaCampos = '{{$listaCampos}}';
+    listaCampos = listaCampos.replace(/&quot;/g, '"');
+    listaCampos = JSON.parse(listaCampos);
+    for (let campo of listaCampos) {
+        campo.editable = false;
+        campo.visible = false;
+    }
+
     function generarConfiguracionObjeto(campo,valor){
         objeto[campo] = valor;
         $('#configuracion').val(JSON.stringify(objeto));
+    }
+
+    function generarConfiguracionCamposObjeto(id,obj){
+        let campo = listaCampos.find(campo => campo.id === id);
+        if(obj.id == id + '_editable'){
+            campo.editable = obj.checked;
+        }else{
+            campo.visible = obj.checked;
+        }
+        
+        $('#configuracion_campos').val(JSON.stringify(listaCampos));
     }
 </script>
 @endsection

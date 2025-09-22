@@ -49,6 +49,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->get();
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
+        $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "nombre", "variable", "seccion_campo"]);
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.create', [
@@ -56,6 +57,7 @@ class SecuenciaProcesosController extends Controller
             'proceso_id' => $proceso_id,
             'secuenciaProceso' => $secuenciaProceso,
             'listaActividades' => $listaActividades,
+            'listaCampos' => $listaCampos,
             'campos' => $campos
         ]);
     }
@@ -96,6 +98,11 @@ class SecuenciaProcesosController extends Controller
         }else{
             $configuracion = $request->configuracion;
         }
+        if(!$request->configuracion_campos || !isset($request->configuracion_campos) || empty($request->configuracion_campos) || is_null($request->configuracion_campos)){
+            $configuracion_campos = "";
+        }else{
+            $configuracion_campos = $request->configuracion_campos;
+        }
 
         $secuenciaProceso = new SecuenciaProceso();
         $secuenciaProceso->proceso_id = $proceso_id;
@@ -105,6 +112,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->tiempo_procesamiento = $tiempo_procesamiento;
         $secuenciaProceso->actores = $actores;
         $secuenciaProceso->configuracion = $configuracion;
+        $secuenciaProceso->configuracion_campos = $configuracion_campos;
         $secuenciaProceso->creado_por = $creado_por;
         $secuenciaProceso->save();
 
@@ -123,7 +131,7 @@ class SecuenciaProcesosController extends Controller
 
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->where('id','<>',$id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
-        $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "variable", "seccion_campo"]);
+        $listaCampos = $secuenciaProceso->configuracion_campos;
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.edit', [
@@ -170,6 +178,11 @@ class SecuenciaProcesosController extends Controller
         }else{
             $configuracion = $request->configuracion;
         }
+        if(!$request->configuracion_campos || !isset($request->configuracion_campos) || empty($request->configuracion_campos) || is_null($request->configuracion_campos)){
+            $configuracion_campos = "";
+        }else{
+            $configuracion_campos = $request->configuracion_campos;
+        }
 
         $secuenciaProceso = SecuenciaProceso::findOrFail($id);
         $secuenciaProceso->nombre = $nombre;
@@ -178,6 +191,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->tiempo_procesamiento = $tiempo_procesamiento;
         $secuenciaProceso->actores = $actores;
         $secuenciaProceso->configuracion = $configuracion;
+        $secuenciaProceso->configuracion_campos = $configuracion_campos;
         $secuenciaProceso->save();
 
         session()->flash('success', 'Secuencia Proceso ha sido actualizado satisfactoriamente.');
@@ -233,6 +247,10 @@ class SecuenciaProcesosController extends Controller
         if(isset($request->configuracion) && !empty($request->configuracion)){
             $filtroConfiguracion = $request->configuracion;
             $secuenciaProcesos = $secuenciaProcesos->where('configuracion', 'like', '%'.$filtroConfiguracion.'%');
+        }
+        if(isset($request->configuracion_campos) && !empty($request->configuracion_campos)){
+            $filtroConfiguracionCampos = $request->configuracion_campos;
+            $secuenciaProcesos = $secuenciaProcesos->where('configuracion_campos', 'like', '%'.$filtroConfiguracionCampos.'%');
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
             $secuenciaProcesos = $secuenciaProcesos->whereIn('creado_por', $filtroCreadoPorSearch);

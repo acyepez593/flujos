@@ -26,7 +26,8 @@ class SecuenciaProceso extends Authenticatable
         'estatus',
         'tiempo_procesamiento',
         'actores',
-        'configuracion'
+        'configuracion',
+        'configuracion_campos'
     ];
 
 
