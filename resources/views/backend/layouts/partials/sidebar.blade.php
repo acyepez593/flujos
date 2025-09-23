@@ -76,19 +76,36 @@
                         </ul>
                     </li>
                     @endif
-                    @if ($usr->can('pantalla.create') || $usr->can('pantalla.view') ||  $usr->can('pantalla.edit') ||  $usr->can('pantalla.delete'))
+                    @if ($usr->can('catalogo.create') || $usr->can('catalogo.view') ||  $usr->can('catalogo.edit') ||  $usr->can('catalogo.delete'))
                     <li>
                         <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
-                            Pantallas
+                            Tipos Catálogos
                         </span></a>
-                        <ul class="collapse {{ Route::is('admin.pantallas.create') || Route::is('admin.pantallas.index') || Route::is('admin.pantallas.edit') || Route::is('admin.pantallas.show') ? 'in' : '' }}">
+                        <ul class="collapse {{ Route::is('admin.tipoCatalogos.create') || Route::is('admin.tipoCatalogos.index') || Route::is('admin.tipoCatalogos.edit') || Route::is('admin.tipoCatalogos.show') ? 'in' : '' }}">
                             
-                            @if ($usr->can('pantalla.view'))
-                                <li class="{{ Route::is('admin.pantallas.index')  || Route::is('admin.pantallas.edit') ? 'active' : '' }}"><a href="{{ route('admin.pantallas.index') }}">Todas los Pantallas</a></li>
+                            @if ($usr->can('catalogo.view'))
+                                <li class="{{ Route::is('admin.tipoCatalogos.index')  || Route::is('admin.tipoCatalogos.edit') ? 'active' : '' }}"><a href="{{ route('admin.tipoCatalogos.index') }}">Todos los Tipos Catálogos</a></li>
                             @endif
 
-                            @if ($usr->can('pantalla.create'))
-                                <li class="{{ Route::is('admin.pantallas.create')  ? 'active' : '' }}"><a href="{{ route('admin.pantallas.create') }}">Crear Pantalla</a></li>
+                            @if ($usr->can('catalogo.create'))
+                                <li class="{{ Route::is('admin.tipoCatalogos.create')  ? 'active' : '' }}"><a href="{{ route('admin.tipoCatalogos.create') }}">Crear Tipo Catálogo</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($usr->can('catalogo.create') || $usr->can('catalogo.view') ||  $usr->can('catalogo.edit') ||  $usr->can('catalogo.delete'))
+                    <li>
+                        <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
+                            Catálogos
+                        </span></a>
+                        <ul class="collapse {{ Route::is('admin.catalogos.create') || Route::is('admin.catalogos.index') || Route::is('admin.catalogos.edit') || Route::is('admin.catalogos.show') ? 'in' : '' }}">
+                            
+                            @if ($usr->can('catalogo.view'))
+                                <li class="{{ Route::is('admin.catalogos.index')  || Route::is('admin.catalogos.edit') ? 'active' : '' }}"><a href="{{ route('admin.catalogos.index') }}">Todos los Tipos Catálogos</a></li>
+                            @endif
+
+                            @if ($usr->can('catalogo.create'))
+                                <li class="{{ Route::is('admin.catalogos.create')  ? 'active' : '' }}"><a href="{{ route('admin.catalogos.create') }}">Crear Catálogo</a></li>
                             @endif
                         </ul>
                     </li>

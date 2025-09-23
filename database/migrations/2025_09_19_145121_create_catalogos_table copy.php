@@ -16,8 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('tipo_catalogo_id');
             $table->index('tipo_catalogo_id');
             $table->string('nombre');
-            $table->unsignedBigInteger('padre_id')->nullable();;
-            $table->index('padre_id');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');

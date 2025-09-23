@@ -7,6 +7,7 @@ use App\Http\Controllers\Backend\AdminsController;
 use App\Http\Controllers\Backend\Auth\ForgotPasswordController;
 use App\Http\Controllers\Backend\Auth\LoginController;
 use App\Http\Controllers\Backend\CamposPorProcesosController;
+use App\Http\Controllers\Backend\CatalogosController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\RolesController;
 use App\Http\Controllers\Backend\ConfiguracionesCamposReporteController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Backend\ProcesosController;
 use App\Http\Controllers\Backend\ReportesController;
 use App\Http\Controllers\Backend\SeccionPantallasController;
 use App\Http\Controllers\Backend\SecuenciaProcesosController;
+use App\Http\Controllers\Backend\TipoCatalogosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,7 +45,8 @@ Route::post('/getSecuenciaProcesosByFilters/{proceso_id}','backend\SecuenciaProc
 
 Route::post('/getCamposPorProcesosByFilters/{proceso_id}','backend\CamposPorProcesosController@getCamposPorProcesosByFilters')->middleware('auth:admin');
 
-Route::post('/getPantallasByFilters','backend\PantallasController@getPantallasByFilters')->middleware('auth:admin');
+Route::post('/getTipoCatalogosByFilters','backend\TipoCatalogosController@getTipoCatalogosByFilters')->middleware('auth:admin');
+Route::post('/getCatalogosByFilters','backend\CatalogosController@getCatalogosByFilters')->middleware('auth:admin');
 
 Route::post('/getSeccionPantallasByFilters','backend\SeccionPantallasController@getSeccionPantallasByFilters')->middleware('auth:admin');
 
@@ -78,6 +81,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'edit']);
     Route::put('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'update']);
     Route::delete('/camposPorProcesos/{proceso_id}/{id}/delete', [CamposPorProcesosController::class, 'destroy']);
+    Route::resource('tipoCatalogos', TipoCatalogosController::class);
+    Route::resource('catalogos', CatalogosController::class);
     Route::resource('pantallas', PantallasController::class);
     Route::resource('seccionPantallas', SeccionPantallasController::class);
     /*Route::resource('configuracionesCamposReporte', ConfiguracionesCamposReporteController::class);*/

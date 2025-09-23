@@ -2,7 +2,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-Editar Secuencia Proceso - Panel Secuencia Proceso
+Crear Trámite - Admin Panel
 @endsection
 
 @section('styles')
@@ -98,6 +98,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 </style>
 @endsection
 
+
 @section('admin-content')
 
 <!-- page title area start -->
@@ -105,11 +106,11 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">Editar Secuencia Proceso</h4>
+                <h4 class="page-title pull-left">Crear Trámite</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}">Todos las Secuencias Procesos</a></li>
-                    <li><span>Editar Proceso - {{ $secuenciaProceso->nombre }}</span></li>
+                    <li><a href="{{ route('admin.procesos.index') }}">Todas mis Trámites</a></li>
+                    <li><span>Crear Trámite</span></li>
                 </ul>
             </div>
         </div>
@@ -126,17 +127,16 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         <div class="col-12 mt-5">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Editar Secuencia Proceso - {{ $secuenciaProceso->nombre }}</h4>
+                    <h4 class="header-title">Crear Nuevo Trámite</h4>
                     @include('backend.layouts.partials.messages')
-
-                    <form action="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/{{$secuenciaProceso->id}}/edit" method="POST" enctype="multipart/form-data">
-                        @method('PUT')
+                    
+                    <form action="{{ url('admin') }}/tramites/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="nombre">Nombre</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $secuenciaProceso->nombre) }}" required>
+                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre') }}" required>
                                     @error('nombre')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
@@ -145,7 +145,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="descripcion">Descripción</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" value="{{ old('descripcion', $secuenciaProceso->descripcion) }}" required>
+                                    <input type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" value="{{ old('descripcion') }}" required>
                                     @error('descripcion')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
@@ -156,8 +156,8 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="ACTIVO" {{ old('estatus', $secuenciaProceso->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
-                                    <option value="INACTIVO" {{ old('estatus', $secuenciaProceso->estatus) == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
+                                    <option value="ACTIVO">ACTIVO</option>
+                                    <option value="INACTIVO">INACTIVO</option>
                                 </select>
                                 @error('estatus')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -166,7 +166,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="tiempo_procesamiento">Tiempo procesamiento</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control int-number @error('tiempo_procesamiento') is-invalid @enderror" id="tiempo_procesamiento" name="tiempo_procesamiento" value="{{ old('tiempo_procesamiento', $secuenciaProceso->tiempo_procesamiento) }}" required>
+                                    <input type="text" class="form-control int-number @error('tiempo_procesamiento') is-invalid @enderror" id="tiempo_procesamiento" name="tiempo_procesamiento" value="{{ old('tiempo_procesamiento') }}" required>
                                     @error('tiempo_procesamiento')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
@@ -179,7 +179,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                 <select id="actores" name="actores" class="form-control selectpicker @error('actores') is-invalid @enderror" data-live-search="true" required>
                                     <option value="">Seleccione un Actor</option>
                                     @foreach ($actores as $key => $value)
-                                        <option value="{{ $key }}" {{ old('actores', $secuenciaProceso->actores) == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                        <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
                                 </select>
                                 @error('actores')
@@ -267,7 +267,6 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                     <th>Sección Campo</th>
                                     <th>Nombre Campo</th>
                                     <th>Variable</th>
-                                    <th>Requerido</th>
                                     <th>Editable</th>
                                     <th>Visible</th>
                                 </thead>
@@ -291,6 +290,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 @endsection
 
 @section('scripts')
+<!-- Start datatable js -->
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
 <script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
@@ -300,6 +300,8 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 <script>
     $(document).ready(function() {
         $('.select2').select2();
+
+        $('.campos_con_evaluacion').hide();
 
         $(document).on("input", ".int-number", function (e) {
             this.value = this.value.replace(/[^0-9]/g, '');
@@ -317,7 +319,6 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         });
 
         $('#requiere_evaluacion').change();
-        $('#configuracion_campos').val(JSON.stringify(listaCampos));
 
         tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
 
@@ -326,22 +327,9 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             innerHTML += 
                 "<td>"+ campo.seccion_campo+ "</td>"+
                 "<td>"+ campo.nombre+ "</td>"+
-                "<td>"+ campo.variable+ "</td>";
-                if(campo.requerido == true){
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
-                }else{
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
-                }
-                if(campo.editable == true){
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
-                }else{
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
-                }
-                if(campo.visible == true){
-                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
-                }else{
-                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
-                }
+                "<td>"+ campo.variable+ "</td>"+
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>"+
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.visible+ "' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
 
                 tableRef.insertRow().innerHTML = innerHTML;
         }
@@ -361,35 +349,32 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     let table = "";
     let tableRef = "";
 
-    let configuraciones = '{{$secuenciaProceso->configuracion}}';
-    configuraciones = configuraciones.replace(/&quot;/g, '"');
-    configuraciones = JSON.parse(configuraciones);
-
-    for (let prop in configuraciones) {
-        console.log(`${prop}: ${configuraciones[prop]}`);
-        setearConfiguracionObjeto(prop,configuraciones[prop]);
+    let objeto = {
+        requiere_evaluacion: false,
+        pregunta_evaluacion: "",
+        variable_evaluacion: "",
+        camino_evaluacion_verdadero: "",
+        camino_evaluacion_falso: "",
+        camino_sin_evaluacion: ""
     }
-
     let listaCampos = '{{$listaCampos}}';
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
-
-    function generarConfiguracionObjeto(campo,valor){
-        configuraciones[campo] = valor;
-        $('#configuracion').val(JSON.stringify(configuraciones));
+    for (let campo of listaCampos) {
+        campo.editable = false;
+        campo.visible = false;
     }
 
-    function setearConfiguracionObjeto(campo,valor){
-        $('#'+campo).val(valor);
+    function generarConfiguracionObjeto(campo,valor){
+        objeto[campo] = valor;
+        $('#configuracion').val(JSON.stringify(objeto));
     }
 
     function generarConfiguracionCamposObjeto(id,obj){
         let campo = listaCampos.find(campo => campo.id === id);
-        if(obj.id == id + '_requerido'){
-            campo.requerido = obj.checked;
-        }if(obj.id == id + '_editable'){
+        if(obj.id == id + '_editable'){
             campo.editable = obj.checked;
-        }if(obj.id == id + '_visible'){
+        }else{
             campo.visible = obj.checked;
         }
         

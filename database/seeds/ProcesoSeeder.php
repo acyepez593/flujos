@@ -12,13 +12,14 @@ class ProcesoSeeder extends Seeder
     {
 
         // Procesos
-        $procesos = json_decode("[
-            {'nombre_flujo': 'FALLECIMIENTOS', 'descripcion': 'Flujo de Fallecimientos','creado_por': '1' },
-            {'nombre_flujo': 'FUNERARIOS', 'descripcion': 'Flujo de Funerarios','creado_por': '1' },
-            {'nombre_flujo': 'DISCAPACIDAD', 'descripcion': 'Flujo de Discapacidad','creado_por': '1' }
-        ]",true);
-        foreach ($procesos as $proceso) {
-            Proceso::create(['nombre' => $proceso['nombre_flujo'], 'descripcion' => $procesos['descripcion'], 'creado_por' => $procesos['creado_por']]);
+        $Procesos = [
+            ['FALLECIMIENTOS','Flujo de Fallecimientos', 'ACTIVO', 1],
+            ['FUNERARIOS','Flujo de Funerarios', 'ACTIVO', 1],
+            ['DISCAPACIDAD','Flujo de Discapacidad', 'ACTIVO', 1]
+        ];
+
+        foreach ($Procesos as $value) {
+            Proceso::create(['nombre' => $value[0], 'descripcion' => $value[1],'estatus' => $value[2], 'creado_por' => $value[3]]);
         }
         
     }

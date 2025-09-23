@@ -40,8 +40,6 @@ class TramitesController extends Controller
     public function create(int $proceso_id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['tramite.create']);
-
-        $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
         
         $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->first();
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
@@ -49,7 +47,6 @@ class TramitesController extends Controller
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.tramites.create', [
-            'responsables' => $creadores,
             'campos' => $campos,
             'listaCampos' => $listaCampos
         ]);

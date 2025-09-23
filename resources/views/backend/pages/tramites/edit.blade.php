@@ -267,7 +267,6 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                     <th>Sección Campo</th>
                                     <th>Nombre Campo</th>
                                     <th>Variable</th>
-                                    <th>Requerido</th>
                                     <th>Editable</th>
                                     <th>Visible</th>
                                 </thead>
@@ -327,11 +326,6 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                 "<td>"+ campo.seccion_campo+ "</td>"+
                 "<td>"+ campo.nombre+ "</td>"+
                 "<td>"+ campo.variable+ "</td>";
-                if(campo.requerido == true){
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
-                }else{
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
-                }
                 if(campo.editable == true){
                     innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
                 }else{
@@ -385,11 +379,9 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 
     function generarConfiguracionCamposObjeto(id,obj){
         let campo = listaCampos.find(campo => campo.id === id);
-        if(obj.id == id + '_requerido'){
-            campo.requerido = obj.checked;
-        }if(obj.id == id + '_editable'){
+        if(obj.id == id + '_editable'){
             campo.editable = obj.checked;
-        }if(obj.id == id + '_visible'){
+        }else{
             campo.visible = obj.checked;
         }
         

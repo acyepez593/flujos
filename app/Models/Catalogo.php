@@ -23,7 +23,6 @@ class Catalogo extends Authenticatable
     protected $fillable = [
         'tipo_catalogo_id',
         'nombre',
-        'padre_id',
         'estatus'
     ];
 

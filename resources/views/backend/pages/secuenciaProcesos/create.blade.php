@@ -109,7 +109,7 @@ Crear Secuencia Proceso - Admin Panel
                 <h4 class="page-title pull-left">Crear Secuencia Proceso</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}"">Todas las Secuencias Procesos</a></li>
+                    <li><a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}">Todas las Secuencias Procesos</a></li>
                     <li><span>Crear Secuencia Proceso</span></li>
                 </ul>
             </div>
@@ -267,6 +267,7 @@ Crear Secuencia Proceso - Admin Panel
                                     <th>Sección Campo</th>
                                     <th>Nombre Campo</th>
                                     <th>Variable</th>
+                                    <th>Requerido</th>
                                     <th>Editable</th>
                                     <th>Visible</th>
                                 </thead>
@@ -328,6 +329,7 @@ Crear Secuencia Proceso - Admin Panel
                 "<td>"+ campo.seccion_campo+ "</td>"+
                 "<td>"+ campo.nombre+ "</td>"+
                 "<td>"+ campo.variable+ "</td>"+
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>"+
                 "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>"+
                 "<td><input class='form-check-input' type='checkbox' value='"+ campo.visible+ "' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
 
@@ -361,6 +363,7 @@ Crear Secuencia Proceso - Admin Panel
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
     for (let campo of listaCampos) {
+        campo.requerido = false;
         campo.editable = false;
         campo.visible = false;
     }
@@ -372,9 +375,11 @@ Crear Secuencia Proceso - Admin Panel
 
     function generarConfiguracionCamposObjeto(id,obj){
         let campo = listaCampos.find(campo => campo.id === id);
-        if(obj.id == id + '_editable'){
+        if(obj.id == id + '_requerido'){
+            campo.requerido = obj.checked;
+        }if(obj.id == id + '_editable'){
             campo.editable = obj.checked;
-        }else{
+        }if(obj.id == id + '_visible'){
             campo.visible = obj.checked;
         }
         

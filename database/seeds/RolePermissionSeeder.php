@@ -87,6 +87,16 @@ class RolePermissionSeeder extends Seeder
                 ]
             ],
             [
+                'group_name' => 'catalogo',
+                'permissions' => [
+                    // catalogo Permissions
+                    'catalogo.create',
+                    'catalogo.view',
+                    'catalogo.edit',
+                    'catalogo.delete',
+                ]
+            ],
+            [
                 'group_name' => 'pantalla',
                 'permissions' => [
                     // pantalla Permissions
