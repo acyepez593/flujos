@@ -51,6 +51,23 @@ Editar Campos por Sección - Panel Campos por Sección
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="tipo_campo">Seleccione la Sección del campo:</label>
+                                <select id="tipo_campo" name="tipo_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="text" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'text' ? 'selected' : '' }}>TEXTO</option>
+                                    <option value="textarea" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'textarea' ? 'selected' : '' }}>ÁREA DE TEXTO</option>
+                                    <option value="hidden" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'hidden' ? 'selected' : '' }}>OCULTO</option>
+                                    <option value="email" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'email' ? 'selected' : '' }}>EMAIL</option>
+                                    <option value="number" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'number' ? 'selected' : '' }}>NUMÉRICO</option>
+                                    <option value="date" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'date' ? 'selected' : '' }}>FECHA</option>
+                                    <option value="datetime" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'datetime' ? 'selected' : '' }}>FECHA Y HORA</option>
+                                    <option value="file" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'file' ? 'selected' : '' }}>ARCHIVO</option>
+                                    <option value="select" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'select' ? 'selected' : '' }}>SELECCIONABLE</option>
+                                </select>
+                                @error('tipo_campo')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="nombre">Nombre</label>
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $camposPorProceso->nombre) }}" required>
@@ -59,6 +76,8 @@ Editar Campos por Sección - Panel Campos por Sección
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="variable">Variable</label>
                                 <div class="input-group mb-3">
@@ -68,8 +87,6 @@ Editar Campos por Sección - Panel Campos por Sección
                                     @enderror
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="seccion_campo">Seleccione la Sección del campo:</label>
                                 <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
@@ -86,6 +103,8 @@ Editar Campos por Sección - Panel Campos por Sección
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>

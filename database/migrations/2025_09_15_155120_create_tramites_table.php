@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('tramites', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('proceso_id');
-            $table->index('proceso_id');
+            /*$table->unsignedBigInteger('proceso_id');
+            $table->index('proceso_id');*/
+            $table->foreignId('proceso_id')->constrained('procesos');
             $table->unsignedBigInteger('secuencia_proceso_id');
             $table->index('secuencia_proceso_id');
-            $table->unsignedBigInteger('funcionario_actual_id');
-            $table->index('funcionario_actual_id');
+            /*$table->unsignedBigInteger('funcionario_actual_id');
+            $table->index('funcionario_actual_id');*/
+            $table->foreignId('funcionario_actual_id')->constrained('admins');
             $table->json('datos');
             $table->enum('estatus', ['INGRESADO', 'EN PROCESO DAP', 'EN PROCESO AUDITORIA', 'EN PROCESO FINANCIERO', 'PAGADO'])->default('INGRESADO');
             $table->unsignedBigInteger('creado_por');

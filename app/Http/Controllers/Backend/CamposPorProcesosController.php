@@ -58,6 +58,11 @@ class CamposPorProcesosController extends Controller
         
         $creado_por = Auth::id();
 
+        if(!$request->tipo_campo || !isset($request->tipo_campo) || empty($request->tipo_campo) || is_null($request->tipo_campo)){
+            $tipo_campo = "";
+        }else{
+            $tipo_campo = $request->tipo_campo;
+        }
         if(!$request->nombre || !isset($request->nombre) || empty($request->nombre || is_null($request->nombre))){
             $nombre = "";
         }else{
@@ -81,6 +86,7 @@ class CamposPorProcesosController extends Controller
 
         $camposPorProceso = new CamposPorProceso();
         $camposPorProceso->proceso_id = $proceso_id;
+        $camposPorProceso->tipo_campo = $tipo_campo;
         $camposPorProceso->nombre = $nombre;
         $camposPorProceso->variable = $variable;
         $camposPorProceso->seccion_campo = $seccion_campo;
@@ -114,6 +120,11 @@ class CamposPorProcesosController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['proceso.edit']);
 
+        if(!$request->tipo_campo || !isset($request->tipo_campo) || empty($request->tipo_campo) || is_null($request->tipo_campo)){
+            $tipo_campo = "";
+        }else{
+            $tipo_campo = $request->tipo_campo;
+        }
         if(!$request->nombre || !isset($request->nombre) || empty($request->nombre || is_null($request->nombre))){
             $nombre = "";
         }else{
@@ -136,6 +147,7 @@ class CamposPorProcesosController extends Controller
         }
 
         $camposPorProceso = CamposPorProceso::findOrFail($id);
+        $camposPorProceso->tipo_campo = $tipo_campo;
         $camposPorProceso->nombre = $nombre;
         $camposPorProceso->variable = $variable;
         $camposPorProceso->seccion_campo = $seccion_campo;
@@ -170,11 +182,15 @@ class CamposPorProcesosController extends Controller
 
         $camposPorProcesos = CamposPorProceso::where('proceso_id', $proceso_id);
 
+        $filtroTipoCampoSearch = json_decode($request->tipo_campo_search, true);
         $filtroNombreSearch = $request->nombre_search;
         $filtroSeccionCampoSearch = json_decode($request->seccion_campo_search, true);
         $filtroEstatus = json_decode($request->estatus_search, true);
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
+        if(isset($filtroTipoCampoSearch) && !empty($filtroTipoCampoSearch)){
+            $camposPorProcesos = $camposPorProcesos->whereIn('tipo_campo', $filtroTipoCampoSearch);
+        }
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
             $camposPorProcesos = $camposPorProcesos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
         }
@@ -191,7 +207,7 @@ class CamposPorProcesosController extends Controller
             $camposPorProcesos = $camposPorProcesos->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
-        $camposPorProcesos = $camposPorProcesos->orderBy('id', 'desc')->get();
+        $camposPorProcesos = $camposPorProcesos->orderBy('id', 'asc')->get();
 
         $creadores = Admin::all();
 

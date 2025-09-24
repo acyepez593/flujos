@@ -95,6 +95,9 @@ Crear Secuencia Proceso - Admin Panel
         content: "";
         background: 50% / 50% 50% no-repeat;
     }
+    .icon-margin {
+        cursor: pointer;
+    }
 </style>
 @endsection
 
@@ -264,12 +267,14 @@ Crear Secuencia Proceso - Admin Panel
                             
                             <table id="configuracion_campos_table" class="table text-center">
                                 <thead class="bg-light text-capitalize">
+                                    <th>Tipo Campo</th>
                                     <th>Sección Campo</th>
                                     <th>Nombre Campo</th>
                                     <th>Variable</th>
                                     <th>Requerido</th>
                                     <th>Editable</th>
                                     <th>Visible</th>
+                                    <th>Acción</th>
                                 </thead>
                                 <tbody>
                                 
@@ -282,6 +287,65 @@ Crear Secuencia Proceso - Admin Panel
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
+                    <!-- Modal Actualizar campo tipo texto -->
+                    <div class="modal fade" id="modalActualizarCampoTipoTexto" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Texto</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_label">Label</label>
+                                        <input type="text" class="form-control" id="text_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_value">Value</label>
+                                        <input type="text" class="form-control" id="text_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="text_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="text_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_class">Class</label>
+                                        <input type="text" class="form-control" id="text_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_name">Name</label>
+                                        <input type="text" class="form-control" id="text_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_min_legth">Min Length</label>
+                                        <input type="text" class="form-control" id="text_field_min_legth" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_max_legth">Max Length</label>
+                                        <input type="text" class="form-control" id="text_field_max_legth" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampo" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -326,30 +390,47 @@ Crear Secuencia Proceso - Admin Panel
         for (let campo of listaCampos) {
             let innerHTML = "";
             innerHTML += 
+                "<td>"+ campo.tipo_campo+ "</td>"+
                 "<td>"+ campo.seccion_campo+ "</td>"+
                 "<td>"+ campo.nombre+ "</td>"+
                 "<td>"+ campo.variable+ "</td>"+
                 "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>"+
                 "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>"+
-                "<td><input class='form-check-input' type='checkbox' value='"+ campo.visible+ "' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.visible+ "' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>"+
+                "<td><div class='icon-margin' title='Confirugar Campo' onclick='getField(" + campo.id + ")'><i class='fa fa-cog fa-2x'></i></div></td>";
 
                 tableRef.insertRow().innerHTML = innerHTML;
         }
 
-        /*table = $('#configuracion_campos_table').DataTable( {
-                        scrollX: true,
-                        orderCellsTop: true,
-                        fixedHeader: true,
-                        destroy: true,
-                        paging: true,
-                        searching: true,
-                        autoWidth: true,
-                        responsive: false,
-                    });*/
+        $("#actualizarConfiguracionDetalladaCampo").click(function() {
+            $("#modalActualizarCampoTipoTexto").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#modalActualizarCampoTipoTexto').modal('hide');
+        });
+
+        table = $('#configuracion_campos_table').DataTable( {
+            scrollX: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            destroy: true,
+            paging: true,
+            searching: true,
+            autoWidth: true,
+            responsive: false,
+        });
     })
 
     let table = "";
     let tableRef = "";
+
+    let detalle_configuracion = {};
+    let conf = {};
 
     let objeto = {
         requiere_evaluacion: false,
@@ -359,6 +440,7 @@ Crear Secuencia Proceso - Admin Panel
         camino_evaluacion_falso: "",
         camino_sin_evaluacion: ""
     }
+
     let listaCampos = '{{$listaCampos}}';
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
@@ -366,6 +448,40 @@ Crear Secuencia Proceso - Admin Panel
         campo.requerido = false;
         campo.editable = false;
         campo.visible = false;
+        campo.configuracion = {};
+    }
+
+    let campo_id="";
+
+    function getField(id){
+        let campo = listaCampos.find(campo => campo.id === id);
+        switch (campo.tipo_campo) {
+            case "text":
+                campo_id = id;
+                $("#modalActualizarCampoTipoTexto").find("input").each(function(index, element) {
+                    var valorInput = $(this).val();
+                    conf[element.id] = "";
+                    $('#'+element.id).val("");
+                });
+
+                $('#text_field_label').val(campo.nombre);
+                $('#text_field_name').val(campo.variable);
+                $('#text_field_class').val('form-control');
+                $('#modalActualizarCampoTipoTexto').modal('show');
+                conf = {
+                    text_field_id: id,
+                    text_field_label: campo.nombre,
+                    text_field_value: "",
+                    text_field_helper_text: "",
+                    text_field_placeholder: "",
+                    text_field_class: "form-control",
+                    text_field_name: campo.variable,
+                    text_field_min_legth: "",
+                    text_field_max_legth: ""
+                };
+
+                break;
+        }
     }
 
     function generarConfiguracionObjeto(campo,valor){
@@ -384,6 +500,11 @@ Crear Secuencia Proceso - Admin Panel
         }
         
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
+    }
+
+    function generarDetalleConfiguracionCampos(){
+        /*conf[id] = obj.value;
+        campo.configuracion = conf;*/
     }
 </script>
 @endsection

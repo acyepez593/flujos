@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('campos_por_procesos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('proceso_id');
-            $table->index('proceso_id');
+            /*$table->unsignedBigInteger('proceso_id');
+            $table->index('proceso_id');*/
+            $table->enum('tipo_campo', ['text','textarea','hidden','email','number','date','datetime','file','select'])->default('text');
+            $table->foreignId('proceso_id')->constrained('procesos');
             $table->string('nombre');
             $table->string('variable');
             $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIO', 'MEDICA', 'FINANCIERO']);

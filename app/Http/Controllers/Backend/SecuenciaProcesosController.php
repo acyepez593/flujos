@@ -49,7 +49,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->get();
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
-        $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "nombre", "variable", "seccion_campo"]);
+        $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.create', [

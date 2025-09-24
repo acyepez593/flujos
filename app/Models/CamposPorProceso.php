@@ -21,6 +21,7 @@ class CamposPorProceso extends Authenticatable
     protected $guard_name = 'campos_por_procesos';
   
     protected $fillable = [
+        'tipo_campo',
         'nombre',
         'variable',
         'seccion_campo',

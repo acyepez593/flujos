@@ -168,7 +168,7 @@ class ProcesosController extends Controller
             $procesos = $procesos->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
-        $procesos = $procesos->orderBy('id', 'desc')->get();
+        $procesos = $procesos->orderBy('id', 'asc')->get();
 
         $creadores = Admin::all();
 

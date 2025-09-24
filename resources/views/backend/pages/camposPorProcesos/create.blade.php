@@ -49,6 +49,23 @@ Crear Campo por Proceso - Admin Panel
                     
                     <form action="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
+                        <div class="form-group col-md-6 col-sm-12">
+                            <label for="seccion_campo">Seleccione el Tipo de Campo:</label>
+                            <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
+                                <option value="text">TEXTO</option>
+                                <option value="textarea">ÁREA DE TEXTO</option>
+                                <option value="hidden">OCULTO</option>
+                                <option value="email">EMAIL</option>
+                                <option value="number">NUMÉRICO</option>
+                                <option value="date">FECHA</option>
+                                <option value="datetime">FECHA Y HORA</option>
+                                <option value="file">ARCHIVO</option>
+                                <option value="select">SELECCIONABLE</option>
+                            </select>
+                            @error('seccion_campo')
+                                <div class="alert alert-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="nombre">Nombre</label>
@@ -59,6 +76,8 @@ Crear Campo por Proceso - Admin Panel
                                     @enderror
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="variable">Variable</label>
                                 <div class="input-group mb-3">
@@ -68,8 +87,6 @@ Crear Campo por Proceso - Admin Panel
                                     @enderror
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="seccion_campo">Seleccione la Sección del campo:</label>
                                 <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
@@ -86,6 +103,8 @@ Crear Campo por Proceso - Admin Panel
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>

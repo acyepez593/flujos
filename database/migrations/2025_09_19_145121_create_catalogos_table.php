@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('catalogos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tipo_catalogo_id');
-            $table->index('tipo_catalogo_id');
+            /*$table->unsignedBigInteger('tipo_catalogo_id');
+            $table->index('tipo_catalogo_id');*/
+            $table->foreignId('tipo_catalogo_id')->constrained('tipo_catalogos');
             $table->string('nombre');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
             $table->unsignedBigInteger('creado_por');

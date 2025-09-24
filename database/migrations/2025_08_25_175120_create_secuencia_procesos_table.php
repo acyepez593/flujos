@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->string('descripcion');
-            $table->unsignedBigInteger('proceso_id');
-            $table->index('proceso_id');
+            /*$table->unsignedBigInteger('proceso_id');
+            $table->index('proceso_id');*/
+            $table->foreignId('proceso_id')->constrained('procesos');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
             $table->json('actores');
             $table->integer('tiempo_procesamiento')->default(1);

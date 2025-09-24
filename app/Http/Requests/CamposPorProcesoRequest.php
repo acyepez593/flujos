@@ -24,6 +24,7 @@ class CamposPorProcesoRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'tipo_campo' => 'required',
             'nombre' => 'required',
             'variable' => 'required',
             'seccion_campo' => 'required',
@@ -39,6 +40,7 @@ class CamposPorProcesoRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'tipo_campo.required' => 'El campo :attribute es requerido',
             'nombre.required' => 'El campo :attribute es requerido',
             'seccion_campo.required' => 'El campo :attribute es requerido',
             'estatus.required' => 'El campo :attribute es requerido',
