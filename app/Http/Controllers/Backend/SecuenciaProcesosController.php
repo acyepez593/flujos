@@ -11,6 +11,7 @@ use App\Models\Admin;
 use App\Models\CamposPorProceso;
 use App\Models\Proceso;
 use App\Models\SecuenciaProceso;
+use App\Models\TipoCatalogo;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
@@ -50,6 +51,7 @@ class SecuenciaProcesosController extends Controller
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
+        $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.create', [
@@ -58,6 +60,7 @@ class SecuenciaProcesosController extends Controller
             'secuenciaProceso' => $secuenciaProceso,
             'listaActividades' => $listaActividades,
             'listaCampos' => $listaCampos,
+            'tiposCatalogos' => $tiposCatalogos,
             'campos' => $campos
         ]);
     }

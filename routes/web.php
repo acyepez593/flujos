@@ -47,6 +47,7 @@ Route::post('/getCamposPorProcesosByFilters/{proceso_id}','backend\CamposPorProc
 
 Route::post('/getTipoCatalogosByFilters','backend\TipoCatalogosController@getTipoCatalogosByFilters')->middleware('auth:admin');
 Route::post('/getCatalogosByFilters','backend\CatalogosController@getCatalogosByFilters')->middleware('auth:admin');
+Route::post('/getCatalogoByTipoCatalogoId','backend\CatalogosController@getCatalogoByTipoCatalogoId')->middleware('auth:admin');
 
 Route::post('/getSeccionPantallasByFilters','backend\SeccionPantallasController@getSeccionPantallasByFilters')->middleware('auth:admin');
 

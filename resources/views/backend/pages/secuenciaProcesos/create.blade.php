@@ -331,17 +331,317 @@ Crear Secuencia Proceso - Admin Panel
                                 <div class="form-row">
                                     <div class="form-group col-md-6 col-sm-12">
                                         <label for="text_field_min_legth">Min Length</label>
-                                        <input type="text" class="form-control" id="text_field_min_legth" value="">
+                                        <input type="number" minlength="1" class="form-control" id="text_field_min_legth" value="">
                                     </div>
                                     <div class="form-group col-md-6 col-sm-12">
                                         <label for="text_field_max_legth">Max Length</label>
-                                        <input type="text" class="form-control" id="text_field_max_legth" value="">
+                                        <input type="number" minlength="1" class="form-control" id="text_field_max_legth" value="">
                                     </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                <button type="button" id="actualizarConfiguracionDetalladaCampo" class="btn btn-primary">Actualizar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoTexto" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo fecha -->
+                    <div class="modal fade" id="modalActualizarCampoTipoFecha" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Fecha</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_label">Label</label>
+                                        <input type="text" class="form-control" id="date_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_value">Value</label>
+                                        <input type="date" class="form-control" id="date_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="date_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="date_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_class">Class</label>
+                                        <input type="text" class="form-control" id="date_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_name">Name</label>
+                                        <input type="text" class="form-control" id="date_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_min_legth">Min</label>
+                                        <input type="number" minlength="1" class="form-control" id="date_field_min_legth" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_max_legth">Max</label>
+                                        <input type="number" minlength="1" class="form-control" id="date_field_max_legth" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoFecha" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo numérico -->
+                    <div class="modal fade" id="modalActualizarCampoTipoNumerico" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Numérico</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_label">Label</label>
+                                        <input type="text" class="form-control" id="number_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_value">Value</label>
+                                        <input type="number" class="form-control" id="number_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="number_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="number_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_class">Class</label>
+                                        <input type="text" class="form-control" id="number_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_name">Name</label>
+                                        <input type="text" class="form-control" id="number_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_min">Min</label>
+                                        <input type="number" minlength="1" class="form-control" id="number_field_min" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_max">Max</label>
+                                        <input type="number" minlength="1" class="form-control" id="number_field_max" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_step">Step</label>
+                                        <input type="number" minlength="1" class="form-control" id="number_field_step" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoNumerico" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo email -->
+                    <div class="modal fade" id="modalActualizarCampoTipoEmail" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Numérico</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_label">Label</label>
+                                        <input type="text" class="form-control" id="email_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_value">Value</label>
+                                        <input type="email" class="form-control" id="email_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="email_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="email_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_class">Class</label>
+                                        <input type="text" class="form-control" id="email_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_name">Name</label>
+                                        <input type="text" class="form-control" id="email_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_max_legth">Max Legth</label>
+                                        <input type="number" minlength="1" class="form-control" id="email_field_max_legth" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoEmail" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo file -->
+                    <div class="modal fade" id="modalActualizarCampoTipoFile" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Archivo</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_label">Label</label>
+                                        <input type="text" class="form-control" id="file_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="file_field_helper_text" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="file_field_placeholder" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_class">Class</label>
+                                        <input type="text" class="form-control" id="file_field_class" value="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_name">Name</label>
+                                        <input type="text" class="form-control" id="file_field_name" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_multiple_file_upload">Premitir multiples archivos:</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="file_field_multiple_file_upload">
+                                            <label class="custom-control-label" for="file_field_multiple_file_upload"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoFile" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo select -->
+                    <div class="modal fade" id="modalActualizarCampoTipoSelect" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Seleccionable</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_label">Label</label>
+                                        <input type="text" class="form-control" id="select_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_tipo_catalogo">Seleccione un Tipo de Catálogo:</label>
+                                        <select id="select_field_tipo_catalogo" name="select_field_tipo_catalogo" class="form-control selectpicker" data-live-search="true">
+                                            <option value="">Seleccione un Tipo de Catálogo:</option>
+                                            @foreach ($tiposCatalogos as $key => $value)
+                                                <option value="{{ $key }}">{{ $value }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_default_value">Default Value</label>
+                                        <select id="select_field_default_value" name="select_field_default_value" class="form-control selectpicker" data-live-search="true">
+                                            
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="select_field_helper_text" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="select_field_placeholder" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_class">Class</label>
+                                        <input type="text" class="form-control" id="select_field_class" value="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_name">Name</label>
+                                        <input type="text" class="form-control" id="select_field_name" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_multiple_selection">Permitir selección múltiple:</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="select_field_multiple_selection">
+                                            <label class="custom-control-label" for="select_field_multiple_selection"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoSelect" class="btn btn-primary">Actualizar</button>
                             </div>
                             </div>
                         </div>
@@ -402,7 +702,7 @@ Crear Secuencia Proceso - Admin Panel
                 tableRef.insertRow().innerHTML = innerHTML;
         }
 
-        $("#actualizarConfiguracionDetalladaCampo").click(function() {
+        $("#actualizarConfiguracionDetalladaCampoTexto").click(function() {
             $("#modalActualizarCampoTipoTexto").find("input").each(function(index, element) {
                 var valorInput = $(this).val();
                 conf[element.id] = valorInput;
@@ -414,6 +714,76 @@ Crear Secuencia Proceso - Admin Panel
             $('#modalActualizarCampoTipoTexto').modal('hide');
         });
 
+        $("#actualizarConfiguracionDetalladaCampoFecha").click(function() {
+            $("#modalActualizarCampoTipoFecha").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#modalActualizarCampoTipoFecha').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoNumerico").click(function() {
+            $("#modalActualizarCampoTipoNumerico").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#modalActualizarCampoTipoNumerico').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoEmail").click(function() {
+            $("#modalActualizarCampoTipoEmail").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#modalActualizarCampoTipoEmail').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoFile").click(function() {
+            $("#modalActualizarCampoTipoFile").find("input").each(function(index, element) {
+                if(element.id == 'file_field_multiple_file_upload'){
+                    var valorInput = element.checked;
+                }else{
+                    var valorInput = $(this).val();
+                }
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#modalActualizarCampoTipoFile').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoSelect").click(function() {
+            $("#modalActualizarCampoTipoSelect").find("input, select").each(function(index, element) {
+                if(element.id == 'select_field_multiple_selection'){
+                    var valorInput = element.checked;
+                }else{
+                    var valorInput = $(this).val();
+                }
+                if(valorInput != ""){
+                    conf[element.id] = valorInput;
+                }
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#modalActualizarCampoTipoSelect').modal('hide');
+        });
+
         table = $('#configuracion_campos_table').DataTable( {
             scrollX: true,
             orderCellsTop: true,
@@ -423,6 +793,42 @@ Crear Secuencia Proceso - Admin Panel
             searching: true,
             autoWidth: true,
             responsive: false,
+        });
+
+        $('#select_field_tipo_catalogo').on('change', function () {
+            let tipo_catalogo_id = $('#select_field_tipo_catalogo').val();
+            let selected = '';
+            //$('#select_field_default_value.selectpicker').selectpicker('destroy');
+            $("#select_field_default_value").html('');
+            $.ajax({
+                url: "{{url('/getCatalogoByTipoCatalogoId')}}",
+                type: "POST",
+                data: {
+                    tipo_catalogo_id: tipo_catalogo_id,
+                    _token: '{{csrf_token()}}'
+                },
+                dataType: 'json',
+                success: function (response) {
+                    //$('#select_field_default_value').html('<option value="">Seleccione un valor por defecto:</option>');
+                    $.each(response.catalogos, function (key, value) {
+                        if(value.id == select_field_default_value){
+                            selected = ' selected';
+                        }
+                        $("#select_field_default_value").append('<option value="' + value
+                            .id + '">' + value.nombre + '</option>');
+                    });
+
+                    
+                    //$('#select_field_default_value.selectpicker').selectpicker();
+                    //$('#select_field_default_value').val(2).trigger('change');
+                    $('#select_field_default_value.selectpicker').selectpicker('render');
+                    $("#select_field_default_value.selectpicker").selectpicker('val', select_field_default_value);
+                    //$('#select_field_default_value.selectpicker').selectpicker('render');
+                    $('.selectpicker').selectpicker('refresh');
+                    
+                }
+            });
+            $('.selectpicker').selectpicker('refresh');
         });
     })
 
@@ -449,27 +855,10 @@ Crear Secuencia Proceso - Admin Panel
         campo.editable = false;
         campo.visible = false;
         campo.configuracion = {};
-    }
-
-    let campo_id="";
-
-    function getField(id){
-        let campo = listaCampos.find(campo => campo.id === id);
         switch (campo.tipo_campo) {
             case "text":
-                campo_id = id;
-                $("#modalActualizarCampoTipoTexto").find("input").each(function(index, element) {
-                    var valorInput = $(this).val();
-                    conf[element.id] = "";
-                    $('#'+element.id).val("");
-                });
-
-                $('#text_field_label').val(campo.nombre);
-                $('#text_field_name').val(campo.variable);
-                $('#text_field_class').val('form-control');
-                $('#modalActualizarCampoTipoTexto').modal('show');
-                conf = {
-                    text_field_id: id,
+                campo.configuracion = {
+                    text_field_id: campo.id,
                     text_field_label: campo.nombre,
                     text_field_value: "",
                     text_field_helper_text: "",
@@ -479,7 +868,165 @@ Crear Secuencia Proceso - Admin Panel
                     text_field_min_legth: "",
                     text_field_max_legth: ""
                 };
+            break;
+            case "date":
+                campo.configuracion = {
+                    date_field_id: campo.id,
+                    date_field_label: campo.nombre,
+                    date_field_value: "",
+                    date_field_helper_text: "",
+                    date_field_placeholder: "",
+                    date_field_class: "form-control",
+                    date_field_name: campo.variable,
+                    date_field_min_legth: "",
+                    date_field_max_legth: ""
+                };
+            break;
+            case "number":
+                campo.configuracion = {
+                    number_field_id: campo.id,
+                    number_field_label: campo.nombre,
+                    number_field_value: "",
+                    number_field_helper_text: "",
+                    number_field_placeholder: "",
+                    number_field_class: "form-control",
+                    number_field_name: campo.variable,
+                    number_field_min: "",
+                    number_field_max: "",
+                    number_field_step: "",
+                };
+            break;
+            case "email":
+                campo.configuracion = {
+                    email_field_id: campo.id,
+                    email_field_label: campo.nombre,
+                    email_field_value: "",
+                    email_field_helper_text: "",
+                    email_field_placeholder: "",
+                    email_field_class: "form-control",
+                    email_field_name: campo.variable,
+                    email_field_max_legth: ""
+                };
+            break;
+            case "file":
+                campo.configuracion = {
+                    file_field_id: campo.id,
+                    file_field_label: campo.nombre,
+                    file_field_helper_text: "",
+                    file_field_placeholder: "",
+                    file_field_class: "form-control",
+                    file_field_name: campo.variable,
+                    file_field_multiple_file_upload: false
+                };
+            break;
+            case "select":
+                campo.configuracion = {
+                    select_field_id: campo.id,
+                    select_field_tipo_catalogo: "",
+                    select_field_default_value: "",
+                    select_field_label: campo.nombre,
+                    select_field_helper_text: "",
+                    select_field_placeholder: "",
+                    select_field_class: "form-control",
+                    select_field_name: campo.variable,
+                    select_field_multiple_selection: false
+                };
+            break;
+        }
+        
+    }
 
+    let campo_id = "";
+    let select_field_default_value = "";
+
+    function getField(id){
+        campo_id = id;
+        let campo = listaCampos.find(campo => campo.id === id);
+        switch (campo.tipo_campo) {
+            case "text":
+                $("#modalActualizarCampoTipoTexto").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoTexto').modal('show');
+                break;
+            case "date":
+                $("#modalActualizarCampoTipoFecha").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoFecha').modal('show');
+                break;
+            case "number":
+                $("#modalActualizarCampoTipoNumerico").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoNumerico').modal('show');
+                break;
+            case "email":
+                $("#modalActualizarCampoTipoEmail").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoEmail').modal('show');
+                break;
+            case "file":
+                $("#modalActualizarCampoTipoFile").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    if(element.id == 'file_field_multiple_file_upload'){
+                        $('#'+element.id).prop("checked", campo.configuracion[element.id]);
+                    }else{
+                        $('#'+element.id).val(campo.configuracion[element.id]);
+                    }
+                });
+                $('#modalActualizarCampoTipoFile').modal('show');
+                break;
+            case "select":
+                $("#modalActualizarCampoTipoSelect").find("input, select").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    if(element.id == 'select_field_multiple_selection'){
+                        $('#'+element.id).prop("checked", campo.configuracion[element.id]);
+                    }else if(element.id == 'select_field_tipo_catalogo'){
+                        $('#'+element.id).val(campo.configuracion[element.id]).trigger('change');
+                    }else if(element.id == 'select_field_default_value'){
+                        select_field_default_value = campo.configuracion[element.id];
+                        $('#'+element.id).val(campo.configuracion[element.id]).trigger('change');
+                        /*$("#select_field_default_value").html('');
+                        $.ajax({
+                            url: "{{url('/getCatalogoByTipoCatalogoId')}}",
+                            type: "POST",
+                            data: {
+                                tipo_catalogo_id: $('#select_field_tipo_catalogo').val(),
+                                _token: '{{csrf_token()}}'
+                            },
+                            dataType: 'json',
+                            success: function (response) {
+                                //$('#select_field_default_value').html('<option value="">Seleccione un valor por defecto:</option>');
+                                $.each(response.catalogos, function (key, value) {
+                                    if(value.id == select_field_default_value){
+                                        selected = ' selected';
+                                    }
+                                    $("#select_field_default_value").append('<option value="' + value
+                                        .id + '">' + value.nombre + '</option>');
+                                });
+
+                                
+                                //$('#select_field_default_value.selectpicker').selectpicker();
+                                //$('#select_field_default_value').val(2).trigger('change');
+                                //$('#select_field_default_value.selectpicker').selectpicker('render');
+                                $("#select_field_default_value.selectpicker").selectpicker('val', select_field_default_value);
+                                //$('#select_field_default_value.selectpicker').selectpicker('render');
+                                $('.selectpicker').selectpicker('refresh');
+                                
+                            }
+                        });*/
+                    }else{
+                        $('#'+element.id).val(campo.configuracion[element.id]);
+                    }
+                });
+                $('#select_field_default_value.selectpicker').selectpicker('refresh');
+                $('#modalActualizarCampoTipoSelect').modal('show');
                 break;
         }
     }
@@ -502,9 +1049,5 @@ Crear Secuencia Proceso - Admin Panel
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
     }
 
-    function generarDetalleConfiguracionCampos(){
-        /*conf[id] = obj.value;
-        campo.configuracion = conf;*/
-    }
 </script>
 @endsection

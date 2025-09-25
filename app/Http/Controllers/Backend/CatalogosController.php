@@ -206,4 +206,17 @@ class CatalogosController extends Controller
         return response()->json($data);
     }
 
+    public function getCatalogoByTipoCatalogoId(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['catalogo.view']);
+
+        $filtroTipoCatalogoId = $request->tipo_catalogo_id;
+        if(isset($filtroTipoCatalogoId) && !empty($filtroTipoCatalogoId)){
+            $catalogos = Catalogo::where('tipo_catalogo_id', $filtroTipoCatalogoId)->get(["nombre", "id"]);
+        }
+
+        $data['catalogos'] = $catalogos;
+        return response()->json($data);
+    }
+
 }
