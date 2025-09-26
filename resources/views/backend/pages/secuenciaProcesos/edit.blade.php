@@ -264,12 +264,14 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             
                             <table id="configuracion_campos_table" class="table text-center">
                                 <thead class="bg-light text-capitalize">
+                                    <th>Tipo Campo</th>
                                     <th>Sección Campo</th>
                                     <th>Nombre Campo</th>
                                     <th>Variable</th>
                                     <th>Requerido</th>
                                     <th>Editable</th>
                                     <th>Visible</th>
+                                    <th>Acción</th>
                                 </thead>
                                 <tbody>
                                 
@@ -282,6 +284,365 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
+                    <!-- Modal Actualizar campo tipo texto -->
+                    <div class="modal fade" id="modalActualizarCampoTipoTexto" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Texto</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_label">Label</label>
+                                        <input type="text" class="form-control" id="text_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_value">Value</label>
+                                        <input type="text" class="form-control" id="text_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="text_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="text_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_class">Class</label>
+                                        <input type="text" class="form-control" id="text_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_name">Name</label>
+                                        <input type="text" class="form-control" id="text_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_min_legth">Min Length</label>
+                                        <input type="number" minlength="1" class="form-control" id="text_field_min_legth" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="text_field_max_legth">Max Length</label>
+                                        <input type="number" minlength="1" class="form-control" id="text_field_max_legth" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoTexto" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo fecha -->
+                    <div class="modal fade" id="modalActualizarCampoTipoFecha" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Fecha</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_label">Label</label>
+                                        <input type="text" class="form-control" id="date_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_value">Value</label>
+                                        <input type="date" class="form-control" id="date_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="date_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="date_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_class">Class</label>
+                                        <input type="text" class="form-control" id="date_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_name">Name</label>
+                                        <input type="text" class="form-control" id="date_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_min_legth">Min</label>
+                                        <input type="number" minlength="1" class="form-control" id="date_field_min_legth" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="date_field_max_legth">Max</label>
+                                        <input type="number" minlength="1" class="form-control" id="date_field_max_legth" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoFecha" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo numérico -->
+                    <div class="modal fade" id="modalActualizarCampoTipoNumerico" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Numérico</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_label">Label</label>
+                                        <input type="text" class="form-control" id="number_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_value">Value</label>
+                                        <input type="number" class="form-control" id="number_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="number_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="number_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_class">Class</label>
+                                        <input type="text" class="form-control" id="number_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_name">Name</label>
+                                        <input type="text" class="form-control" id="number_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_min">Min</label>
+                                        <input type="number" minlength="1" class="form-control" id="number_field_min" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_max">Max</label>
+                                        <input type="number" minlength="1" class="form-control" id="number_field_max" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="number_field_step">Step</label>
+                                        <input type="number" minlength="1" class="form-control" id="number_field_step" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoNumerico" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo email -->
+                    <div class="modal fade" id="modalActualizarCampoTipoEmail" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Numérico</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_label">Label</label>
+                                        <input type="text" class="form-control" id="email_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_value">Value</label>
+                                        <input type="email" class="form-control" id="email_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="email_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="email_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_class">Class</label>
+                                        <input type="text" class="form-control" id="email_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_name">Name</label>
+                                        <input type="text" class="form-control" id="email_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="email_field_max_legth">Max Legth</label>
+                                        <input type="number" minlength="1" class="form-control" id="email_field_max_legth" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoEmail" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo file -->
+                    <div class="modal fade" id="modalActualizarCampoTipoFile" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Archivo</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_label">Label</label>
+                                        <input type="text" class="form-control" id="file_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="file_field_helper_text" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="file_field_placeholder" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_class">Class</label>
+                                        <input type="text" class="form-control" id="file_field_class" value="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_name">Name</label>
+                                        <input type="text" class="form-control" id="file_field_name" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="file_field_multiple_file_upload">Premitir multiples archivos:</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="file_field_multiple_file_upload">
+                                            <label class="custom-control-label" for="file_field_multiple_file_upload"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoFile" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal Actualizar campo tipo select -->
+                    <div class="modal fade" id="modalActualizarCampoTipoSelect" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Seleccionable</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_label">Label</label>
+                                        <input type="text" class="form-control" id="select_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_tipo_catalogo">Seleccione un Tipo de Catálogo:</label>
+                                        <select id="select_field_tipo_catalogo" name="select_field_tipo_catalogo" class="form-control selectpicker" data-live-search="true">
+                                            <option value="">Seleccione un Tipo de Catálogo:</option>
+                                            @foreach ($tiposCatalogos as $key => $value)
+                                                <option value="{{ $key }}">{{ $value }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_default_value">Default Value</label>
+                                        <select id="select_field_default_value" name="select_field_default_value" class="form-control selectpicker" data-live-search="true">
+                                            
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="select_field_helper_text" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="select_field_placeholder" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_class">Class</label>
+                                        <input type="text" class="form-control" id="select_field_class" value="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_name">Name</label>
+                                        <input type="text" class="form-control" id="select_field_name" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="select_field_multiple_selection">Permitir selección múltiple:</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="select_field_multiple_selection">
+                                            <label class="custom-control-label" for="select_field_multiple_selection"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoSelect" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -324,42 +685,174 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         for (let campo of listaCampos) {
             let innerHTML = "";
             innerHTML += 
+                "<td>"+ campo.tipo_campo+ "</td>"+
                 "<td>"+ campo.seccion_campo+ "</td>"+
                 "<td>"+ campo.nombre+ "</td>"+
                 "<td>"+ campo.variable+ "</td>";
                 if(campo.requerido == true){
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
                 }else{
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
                 }
                 if(campo.editable == true){
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
                 }else{
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
                 }
                 if(campo.visible == true){
-                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
+                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
                 }else{
-                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
+                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
                 }
+
+                innerHTML += "<td><div class='icon-margin' title='Confirugar Campo' onclick='getField(" + campo.id + ")'><i class='fa fa-cog fa-2x'></i></div></td>";
 
                 tableRef.insertRow().innerHTML = innerHTML;
         }
 
-        /*table = $('#configuracion_campos_table').DataTable( {
-                        scrollX: true,
-                        orderCellsTop: true,
-                        fixedHeader: true,
-                        destroy: true,
-                        paging: true,
-                        searching: true,
-                        autoWidth: true,
-                        responsive: false,
-                    });*/
+        $("#actualizarConfiguracionDetalladaCampoTexto").click(function() {
+            $("#modalActualizarCampoTipoTexto").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#configuracion_campos').val(JSON.stringify(listaCampos));
+            $('#modalActualizarCampoTipoTexto').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoFecha").click(function() {
+            $("#modalActualizarCampoTipoFecha").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#configuracion_campos').val(JSON.stringify(listaCampos));
+            $('#modalActualizarCampoTipoFecha').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoNumerico").click(function() {
+            $("#modalActualizarCampoTipoNumerico").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#configuracion_campos').val(JSON.stringify(listaCampos));
+            $('#modalActualizarCampoTipoNumerico').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoEmail").click(function() {
+            $("#modalActualizarCampoTipoEmail").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#configuracion_campos').val(JSON.stringify(listaCampos));
+            $('#modalActualizarCampoTipoEmail').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoFile").click(function() {
+            $("#modalActualizarCampoTipoFile").find("input").each(function(index, element) {
+                if(element.id == 'file_field_multiple_file_upload'){
+                    var valorInput = element.checked;
+                }else{
+                    var valorInput = $(this).val();
+                }
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#configuracion_campos').val(JSON.stringify(listaCampos));
+            $('#modalActualizarCampoTipoFile').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoSelect").click(function() {
+            $("#modalActualizarCampoTipoSelect").find("input, select").each(function(index, element) {
+                if(element.id == 'select_field_multiple_selection'){
+                    var valorInput = element.checked;
+                }else{
+                    var valorInput = $(this).val();
+                }
+                if(valorInput != ""){
+                    conf[element.id] = valorInput;
+                }
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#configuracion_campos').val(JSON.stringify(listaCampos));
+            $('#modalActualizarCampoTipoSelect').modal('hide');
+        });
+
+        table = $('#configuracion_campos_table').DataTable( {
+            scrollX: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            destroy: true,
+            paging: true,
+            searching: true,
+            autoWidth: true,
+            responsive: false,
+        });
+
+        $('#select_field_tipo_catalogo').on('change', function () {
+            let tipo_catalogo_id = $('#select_field_tipo_catalogo').val();
+            let selected = '';
+
+            $("#select_field_default_value").empty();
+            $("#select_field_default_value").html('');
+            $('#select_field_default_value').selectpicker('destroy');
+            $('#select_field_default_value').addClass( "selectpicker" );
+
+            if(tipo_catalogo_id != ""){
+                
+                $.ajax({
+                    url: "{{url('/getCatalogoByTipoCatalogoId')}}",
+                    type: "POST",
+                    data: {
+                        tipo_catalogo_id: tipo_catalogo_id,
+                        _token: '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        //$('#select_field_default_value').html('<option value="">Seleccione un valor por defecto:</option>');
+                        $.each(response.catalogos, function (key, value) {
+                            if(value.id == select_field_default_value){
+                                selected = ' selected';
+                            }
+                            $("#select_field_default_value").append('<option value="' + value
+                                .id + '">' + value.nombre + '</option>');
+                        });
+
+                        $("#select_field_default_value").selectpicker('val', select_field_default_value);
+                        $('#select_field_default_value').selectpicker('render');
+                        $('#select_field_default_value').selectpicker('refresh');
+                        $('#modalActualizarCampoTipoSelect').modal('show');
+                        
+                    }
+                });
+            }
+            $('#modalActualizarCampoTipoSelect').modal('show');
+        });
     })
 
     let table = "";
     let tableRef = "";
+    let conf = {};
 
     let configuraciones = '{{$secuenciaProceso->configuracion}}';
     configuraciones = configuraciones.replace(/&quot;/g, '"');
@@ -373,6 +866,73 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     let listaCampos = '{{$listaCampos}}';
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
+
+    let campo_id = "";
+    let select_field_default_value = "";
+    let select_field_tipo_catalogo = "";
+
+    function getField(id){
+        campo_id = id;
+        let campo = listaCampos.find(campo => campo.id === id);
+        switch (campo.tipo_campo) {
+            case "text":
+                $("#modalActualizarCampoTipoTexto").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoTexto').modal('show');
+                break;
+            case "date":
+                $("#modalActualizarCampoTipoFecha").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoFecha').modal('show');
+                break;
+            case "number":
+                $("#modalActualizarCampoTipoNumerico").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoNumerico').modal('show');
+                break;
+            case "email":
+                $("#modalActualizarCampoTipoEmail").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoEmail').modal('show');
+                break;
+            case "file":
+                $("#modalActualizarCampoTipoFile").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    if(element.id == 'file_field_multiple_file_upload'){
+                        $('#'+element.id).prop("checked", campo.configuracion[element.id]);
+                    }else{
+                        $('#'+element.id).val(campo.configuracion[element.id]);
+                    }
+                });
+                $('#modalActualizarCampoTipoFile').modal('show');
+                break;
+            case "select":
+                $("#modalActualizarCampoTipoSelect").find("input, select").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    if(element.id == 'select_field_multiple_selection'){
+                        $('#'+element.id).prop("checked", campo.configuracion[element.id]);
+                    }else if(element.id == 'select_field_tipo_catalogo'){
+                        $('#'+element.id).val(campo.configuracion[element.id]).trigger('change');
+                        select_field_tipo_catalogo = campo.configuracion[element.id];
+                    }else if(element.id == 'select_field_default_value'){
+                        select_field_default_value = campo.configuracion[element.id];
+                        $('#'+element.id).val(campo.configuracion[element.id]);//.trigger('change');
+                    }else{
+                        $('#'+element.id).val(campo.configuracion[element.id]);
+                    }
+                });
+                
+                break;
+        }
+    }
 
     function generarConfiguracionObjeto(campo,valor){
         configuraciones[campo] = valor;

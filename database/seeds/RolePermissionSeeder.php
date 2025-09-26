@@ -87,6 +87,16 @@ class RolePermissionSeeder extends Seeder
                 ]
             ],
             [
+                'group_name' => 'tramite',
+                'permissions' => [
+                    // tramite Permissions
+                    'tramite.create',
+                    'tramite.view',
+                    'tramite.edit',
+                    'tramite.delete',
+                ]
+            ],
+            [
                 'group_name' => 'catalogo',
                 'permissions' => [
                     // catalogo Permissions

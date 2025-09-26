@@ -135,6 +135,7 @@ class SecuenciaProcesosController extends Controller
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->where('id','<>',$id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $listaCampos = $secuenciaProceso->configuracion_campos;
+        $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.edit', [
@@ -143,6 +144,7 @@ class SecuenciaProcesosController extends Controller
             'proceso_id' => $proceso_id,
             'listaActividades' => $listaActividades,
             'listaCampos' => $listaCampos,
+            'tiposCatalogos' => $tiposCatalogos,
             'campos' => $campos
         ]);
     }

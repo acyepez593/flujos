@@ -9,8 +9,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TramiteRequest;
 use App\Models\Admin;
 use App\Models\CamposPorProceso;
+use App\Models\Catalogo;
 use App\Models\Proceso;
 use App\Models\SecuenciaProceso;
+use App\Models\TipoCatalogo;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
@@ -40,15 +42,22 @@ class TramitesController extends Controller
     public function create(int $proceso_id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['tramite.create']);
-        
-        $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->first();
+
+        $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
+        $configuracionSecuencia = $secuenciaProceso->configuracion;
         $listaCampos = $secuenciaProceso->configuracion_campos;
-        $actores = Admin::get(["name", "id"])->pluck('name','id');
+        $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
+        $catalogos = Catalogo::get(["nombre", "id"])->pluck('nombre','id');
 
         return view('backend.pages.tramites.create', [
+            'secuenciaProceso' => $secuenciaProceso,
             'campos' => $campos,
-            'listaCampos' => $listaCampos
+            'configuracionSecuencia' => $configuracionSecuencia,
+            'listaCampos' => $listaCampos,
+            'tiposCatalogos' => $tiposCatalogos,
+            'catalogos' => $catalogos,
+            'proceso_id' => $proceso_id
         ]);
     }
 

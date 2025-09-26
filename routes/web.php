@@ -17,6 +17,7 @@ use App\Http\Controllers\Backend\ReportesController;
 use App\Http\Controllers\Backend\SeccionPantallasController;
 use App\Http\Controllers\Backend\SecuenciaProcesosController;
 use App\Http\Controllers\Backend\TipoCatalogosController;
+use App\Http\Controllers\Backend\TramitesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +69,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::resource('cantones', CantonesController::class);
     Route::resource('parroquias', ParroquiasController::class);*/
     Route::resource('procesos', ProcesosController::class);
+
     Route::get('/secuenciaProcesos/{proceso_id}', [SecuenciaProcesosController::class, 'index']);
     Route::get('/secuenciaProcesos/{proceso_id}/create', [SecuenciaProcesosController::class, 'create']);
     Route::post('/secuenciaProcesos/{proceso_id}/create', [SecuenciaProcesosController::class, 'store']);
@@ -82,6 +84,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'edit']);
     Route::put('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'update']);
     Route::delete('/camposPorProcesos/{proceso_id}/{id}/delete', [CamposPorProcesosController::class, 'destroy']);
+
+    Route::get('/tramites/{proceso_id}/create', [TramitesController::class, 'create']);
+
     Route::resource('tipoCatalogos', TipoCatalogosController::class);
     Route::resource('catalogos', CatalogosController::class);
     Route::resource('pantallas', PantallasController::class);

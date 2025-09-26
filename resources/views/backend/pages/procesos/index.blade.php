@@ -250,7 +250,9 @@
                         let rutaDelete = "{{url()->current()}}"+"/"+proceso.id;
                         let rutaConfigCampos = "{{url('admin')}}"+"/camposPorProcesos/"+proceso.id;
                         let rutaConfigSecuencia = "{{url('admin')}}"+"/secuenciaProcesos/"+proceso.id;
+                        let rutaIniciarTramite = "{{url('admin')}}"+"/tramites/"+proceso.id+"/create";
                         let innerHTML = "";
+                        let htmlIniciarTramite = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
                         let htmlConfigCampos = "";
@@ -260,6 +262,7 @@
                         htmlDelete += @if (auth()->user()->can('proceso.delete')) '<a class="icon-margin" title="Borrar" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+proceso.id+')"><i class="fa fa-trash fa-2x"></i></a> <form id="delete-form-'+proceso.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
                         htmlConfigCampos +=@if (auth()->user()->can('proceso.edit')) '<a class="icon-margin" title="Confirugar campos" href="'+rutaConfigCampos+'"><i class="fa fa-tasks fa-2x"></i></a>' @else '' @endif;
                         htmlConfigSecuencia +=@if (auth()->user()->can('proceso.edit')) '<a class="icon-margin" title="Confirugar secuencia" href="'+rutaConfigSecuencia+'"><i class="fa fa-cog fa-2x"></i></a>' @else '' @endif;
+                        htmlIniciarTramite +=@if (auth()->user()->can('tramite.create')) '<a class="icon-margin" title="Iniciar Trámite" href="'+rutaIniciarTramite+'"><i class="fa fa-play fa-2x"></i></a>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
@@ -269,7 +272,7 @@
                             "<td>"+ proceso.creado_por_nombre+ "</td>"+
                             "<td>"+ proceso.created_at+ "</td>";
                             if(proceso.esCreadorRegistro){
-                                innerHTML +="<td>" + htmlEdit + htmlConfigCampos + htmlConfigSecuencia + htmlDelete + "</td>";
+                                innerHTML +="<td>" + htmlIniciarTramite + htmlEdit + htmlConfigCampos + htmlConfigSecuencia + htmlDelete + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
                             }

@@ -130,6 +130,11 @@ Crear Trámite - Admin Panel
                     <h4 class="header-title">Crear Nuevo Trámite</h4>
                     @include('backend.layouts.partials.messages')
                     
+                    <div id="creacionTramite" class="">
+                        
+                        
+                    </div>
+
                     <form action="{{ url('admin') }}/tramites/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-row">
@@ -152,132 +157,7 @@ Crear Trámite - Admin Panel
                                 </div>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="estatus">Seleccione un Estatus:</label>
-                                <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="ACTIVO">ACTIVO</option>
-                                    <option value="INACTIVO">INACTIVO</option>
-                                </select>
-                                @error('estatus')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="tiempo_procesamiento">Tiempo procesamiento</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control int-number @error('tiempo_procesamiento') is-invalid @enderror" id="tiempo_procesamiento" name="tiempo_procesamiento" value="{{ old('tiempo_procesamiento') }}" required>
-                                    @error('tiempo_procesamiento')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="actores">Seleccione un Actor:</label>
-                                <select id="actores" name="actores" class="form-control selectpicker @error('actores') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="">Seleccione un Actor</option>
-                                    @foreach ($actores as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('actores')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="requiere_evaluacion">Requiere evaluación?:</label>
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="requiere_evaluacion">
-                                    <label class="custom-control-label" for="requiere_evaluacion"></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row campos_con_evaluacion">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="pregunta_evaluacion">Pregunta Evaluación</label>
-                                <input type="text" class="form-control @error('pregunta_evaluacion') is-invalid @enderror" onchange="generarConfiguracionObjeto('pregunta_evaluacion',this.value)" id="pregunta_evaluacion" name="pregunta_evaluacion" value="{{ old('pregunta_evaluacion') }}">
-                                @error('pregunta_evaluacion')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="variable_evaluacion">Seleccione la variable a evaluar</label>
-                                <select id="variable_evaluacion" onchange="generarConfiguracionObjeto('variable_evaluacion',this.value)" name="variable_evaluacion" class="form-control selectpicker @error('variable_evaluacion') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Seleccione la variable a evaluar</option>
-                                    @foreach ($campos as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('variable_evaluacion')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="form-row campos_con_evaluacion">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_evaluacion_verdadero">Secuencia en caso de evaluación verdadera</label>
-                                <select id="camino_evaluacion_verdadero" onchange="generarConfiguracionObjeto('camino_evaluacion_verdadero',this.value)" name="camino_evaluacion_verdadero" class="form-control selectpicker @error('camino_evaluacion_verdadero') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Secuencia en caso de evaluación verdadera</option>
-                                    @foreach ($listaActividades as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('camino_evaluacion_verdadero')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_evaluacion_falso">Secuencia en caso de evaluación falsa</label>
-                                <select id="camino_evaluacion_falso" onchange="generarConfiguracionObjeto('camino_evaluacion_falso',this.value)" name="camino_evaluacion_falso" class="form-control selectpicker @error('camino_evaluacion_falso') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Secuencia en caso de evaluación falsa</option>
-                                    @foreach ($listaActividades as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('camino_evaluacion_falso')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="form-row campos_sin_evaluacion">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_sin_evaluacion">Seleccione la siguiente secuencia</label>
-                                <select id="camino_sin_evaluacion" onchange="generarConfiguracionObjeto('camino_sin_evaluacion',this.value)" name="camino_sin_evaluacion" class="form-control selectpicker @error('camino_sin_evaluacion') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Seleccione la siguiente secuencia</option>
-                                    @foreach ($listaActividades as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('camino_sin_evaluacion')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="clearfix"></div>
-
-                        <h4 class="header-title">Configuración de campos</h4>
                         
-                        <div class="data-tables">
-                            
-                            <table id="configuracion_campos_table" class="table text-center">
-                                <thead class="bg-light text-capitalize">
-                                    <th>Sección Campo</th>
-                                    <th>Nombre Campo</th>
-                                    <th>Variable</th>
-                                    <th>Editable</th>
-                                    <th>Visible</th>
-                                </thead>
-                                <tbody>
-                                
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <input type="hidden" id="configuracion" name="configuracion">
-                        <input type="hidden" id="configuracion_campos" name="configuracion_campos">
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
@@ -301,84 +181,76 @@ Crear Trámite - Admin Panel
     $(document).ready(function() {
         $('.select2').select2();
 
-        $('.campos_con_evaluacion').hide();
-
         $(document).on("input", ".int-number", function (e) {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
 
-        $('#requiere_evaluacion').change(function() {
-            if(this.checked){
-                $('.campos_con_evaluacion').show();
-                $('.campos_sin_evaluacion').hide();
-            }else{
-                $('.campos_con_evaluacion').hide();
-                $('.campos_sin_evaluacion').show();
-            }
-            generarConfiguracionObjeto('requiere_evaluacion',this.checked);
-        });
+        //creacion_tramite
+        renderFormPorSecuenciaProceso();
 
-        $('#requiere_evaluacion').change();
+    });
 
-        tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
+    function renderFormPorSecuenciaProceso(){
+        let html_components = "";
+        let listaCampos = '{{$listaCampos}}';
+        listaCampos = listaCampos.replace(/&quot;/g, '"');
+        listaCampos = JSON.parse(listaCampos);
+        let count = 1;
+        let long = listaCampos.length;
+
+        console.log(listaCampos);
+
+        html_components += '<div class="form-row">';
 
         for (let campo of listaCampos) {
-            let innerHTML = "";
-            innerHTML += 
-                "<td>"+ campo.seccion_campo+ "</td>"+
-                "<td>"+ campo.nombre+ "</td>"+
-                "<td>"+ campo.variable+ "</td>"+
-                "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>"+
-                "<td><input class='form-check-input' type='checkbox' value='"+ campo.visible+ "' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
+            
+            //html_components += '<div class="form-group col-md-6 col-sm-12">';
 
-                tableRef.insertRow().innerHTML = innerHTML;
+            switch (campo.tipo_campo) {
+                case "text":
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<label for="nombre">' + campo.nombre + '</label>'+
+                                        '<div class="input-group mb-3">';
+                    if(campo.visible){
+                        if(campo.editable && campo.requerido){
+                            html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
+                        }else if(campo.editable && !campo.requerido){
+                            html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
+                        }
+                    }
+
+                    if(long == count){
+                        html_components +='</div></div></div>';
+                    }else{
+                        if(count % 2 === 0){
+                            html_components +='</div></div></div><div class="form-row">';
+                        }else{
+                            html_components +='</div></div>';
+                        }
+                    }
+                    count ++;
+                    
+                break;
+                case "date":
+                    
+                break;
+                case "number":
+                    
+                break;
+                case "email":
+                    
+                break;
+                case "file":
+                    
+                break;
+                case "select":
+                    
+                break;
+            }
+            //count ++;
         }
-
-        /*table = $('#configuracion_campos_table').DataTable( {
-                        scrollX: true,
-                        orderCellsTop: true,
-                        fixedHeader: true,
-                        destroy: true,
-                        paging: true,
-                        searching: true,
-                        autoWidth: true,
-                        responsive: false,
-                    });*/
-    })
-
-    let table = "";
-    let tableRef = "";
-
-    let objeto = {
-        requiere_evaluacion: false,
-        pregunta_evaluacion: "",
-        variable_evaluacion: "",
-        camino_evaluacion_verdadero: "",
-        camino_evaluacion_falso: "",
-        camino_sin_evaluacion: ""
+        $("#creacionTramite").append(html_components);
     }
-    let listaCampos = '{{$listaCampos}}';
-    listaCampos = listaCampos.replace(/&quot;/g, '"');
-    listaCampos = JSON.parse(listaCampos);
-    for (let campo of listaCampos) {
-        campo.editable = false;
-        campo.visible = false;
-    }
-
-    function generarConfiguracionObjeto(campo,valor){
-        objeto[campo] = valor;
-        $('#configuracion').val(JSON.stringify(objeto));
-    }
-
-    function generarConfiguracionCamposObjeto(id,obj){
-        let campo = listaCampos.find(campo => campo.id === id);
-        if(obj.id == id + '_editable'){
-            campo.editable = obj.checked;
-        }else{
-            campo.visible = obj.checked;
-        }
-        
-        $('#configuracion_campos').val(JSON.stringify(listaCampos));
-    }
+    
 </script>
 @endsection

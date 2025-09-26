@@ -798,44 +798,46 @@ Crear Secuencia Proceso - Admin Panel
         $('#select_field_tipo_catalogo').on('change', function () {
             let tipo_catalogo_id = $('#select_field_tipo_catalogo').val();
             let selected = '';
-            //$('#select_field_default_value.selectpicker').selectpicker('destroy');
-            $("#select_field_default_value").html('');
-            $.ajax({
-                url: "{{url('/getCatalogoByTipoCatalogoId')}}",
-                type: "POST",
-                data: {
-                    tipo_catalogo_id: tipo_catalogo_id,
-                    _token: '{{csrf_token()}}'
-                },
-                dataType: 'json',
-                success: function (response) {
-                    //$('#select_field_default_value').html('<option value="">Seleccione un valor por defecto:</option>');
-                    $.each(response.catalogos, function (key, value) {
-                        if(value.id == select_field_default_value){
-                            selected = ' selected';
-                        }
-                        $("#select_field_default_value").append('<option value="' + value
-                            .id + '">' + value.nombre + '</option>');
-                    });
 
-                    
-                    //$('#select_field_default_value.selectpicker').selectpicker();
-                    //$('#select_field_default_value').val(2).trigger('change');
-                    $('#select_field_default_value.selectpicker').selectpicker('render');
-                    $("#select_field_default_value.selectpicker").selectpicker('val', select_field_default_value);
-                    //$('#select_field_default_value.selectpicker').selectpicker('render');
-                    $('.selectpicker').selectpicker('refresh');
-                    
-                }
-            });
-            $('.selectpicker').selectpicker('refresh');
+            $("#select_field_default_value").empty();
+            $("#select_field_default_value").html('');
+            $('#select_field_default_value').selectpicker('destroy');
+            $('#select_field_default_value').addClass( "selectpicker" );
+
+            if(tipo_catalogo_id != ""){
+                
+                $.ajax({
+                    url: "{{url('/getCatalogoByTipoCatalogoId')}}",
+                    type: "POST",
+                    data: {
+                        tipo_catalogo_id: tipo_catalogo_id,
+                        _token: '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        //$('#select_field_default_value').html('<option value="">Seleccione un valor por defecto:</option>');
+                        $.each(response.catalogos, function (key, value) {
+                            if(value.id == select_field_default_value){
+                                selected = ' selected';
+                            }
+                            $("#select_field_default_value").append('<option value="' + value
+                                .id + '">' + value.nombre + '</option>');
+                        });
+
+                        $("#select_field_default_value").selectpicker('val', select_field_default_value);
+                        $('#select_field_default_value').selectpicker('render');
+                        $('#select_field_default_value').selectpicker('refresh');
+                        $('#modalActualizarCampoTipoSelect').modal('show');
+                        
+                    }
+                });
+            }
+            $('#modalActualizarCampoTipoSelect').modal('show');
         });
     })
 
     let table = "";
     let tableRef = "";
-
-    let detalle_configuracion = {};
     let conf = {};
 
     let objeto = {
@@ -938,6 +940,7 @@ Crear Secuencia Proceso - Admin Panel
 
     let campo_id = "";
     let select_field_default_value = "";
+    let select_field_tipo_catalogo = "";
 
     function getField(id){
         campo_id = id;
@@ -989,44 +992,15 @@ Crear Secuencia Proceso - Admin Panel
                         $('#'+element.id).prop("checked", campo.configuracion[element.id]);
                     }else if(element.id == 'select_field_tipo_catalogo'){
                         $('#'+element.id).val(campo.configuracion[element.id]).trigger('change');
+                        select_field_tipo_catalogo = campo.configuracion[element.id];
                     }else if(element.id == 'select_field_default_value'){
                         select_field_default_value = campo.configuracion[element.id];
-                        $('#'+element.id).val(campo.configuracion[element.id]).trigger('change');
-                        /*$("#select_field_default_value").html('');
-                        $.ajax({
-                            url: "{{url('/getCatalogoByTipoCatalogoId')}}",
-                            type: "POST",
-                            data: {
-                                tipo_catalogo_id: $('#select_field_tipo_catalogo').val(),
-                                _token: '{{csrf_token()}}'
-                            },
-                            dataType: 'json',
-                            success: function (response) {
-                                //$('#select_field_default_value').html('<option value="">Seleccione un valor por defecto:</option>');
-                                $.each(response.catalogos, function (key, value) {
-                                    if(value.id == select_field_default_value){
-                                        selected = ' selected';
-                                    }
-                                    $("#select_field_default_value").append('<option value="' + value
-                                        .id + '">' + value.nombre + '</option>');
-                                });
-
-                                
-                                //$('#select_field_default_value.selectpicker').selectpicker();
-                                //$('#select_field_default_value').val(2).trigger('change');
-                                //$('#select_field_default_value.selectpicker').selectpicker('render');
-                                $("#select_field_default_value.selectpicker").selectpicker('val', select_field_default_value);
-                                //$('#select_field_default_value.selectpicker').selectpicker('render');
-                                $('.selectpicker').selectpicker('refresh');
-                                
-                            }
-                        });*/
+                        $('#'+element.id).val(campo.configuracion[element.id]);//.trigger('change');
                     }else{
                         $('#'+element.id).val(campo.configuracion[element.id]);
                     }
                 });
-                $('#select_field_default_value.selectpicker').selectpicker('refresh');
-                $('#modalActualizarCampoTipoSelect').modal('show');
+                
                 break;
         }
     }
