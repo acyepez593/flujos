@@ -46,7 +46,7 @@ class TramitesController extends Controller
         $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $configuracionSecuencia = $secuenciaProceso->configuracion;
-        $listaCampos = $secuenciaProceso->configuracion_campos;
+        $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
         $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $catalogos = Catalogo::get(["nombre", "id"])->pluck('nombre','id');
 
@@ -54,7 +54,7 @@ class TramitesController extends Controller
             'secuenciaProceso' => $secuenciaProceso,
             'campos' => $campos,
             'configuracionSecuencia' => $configuracionSecuencia,
-            'listaCampos' => $listaCampos,
+            'listaCampos' => $listaCampos[0],
             'tiposCatalogos' => $tiposCatalogos,
             'catalogos' => $catalogos,
             'proceso_id' => $proceso_id

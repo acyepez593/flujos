@@ -130,33 +130,11 @@ Crear Trámite - Admin Panel
                     <h4 class="header-title">Crear Nuevo Trámite</h4>
                     @include('backend.layouts.partials.messages')
                     
-                    <div id="creacionTramite" class="">
-                        
-                        
-                    </div>
+                    
 
                     <form action="{{ url('admin') }}/tramites/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="form-row">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="nombre">Nombre</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre') }}" required>
-                                    @error('nombre')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="descripcion">Descripción</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" value="{{ old('descripcion') }}" required>
-                                    @error('descripcion')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
+                        <div id="creacionTramite"></div>
                         
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
@@ -208,44 +186,50 @@ Crear Trámite - Admin Panel
 
             switch (campo.tipo_campo) {
                 case "text":
-                    html_components += '<div class="form-group col-md-6 col-sm-12">';
-                    html_components += '<label for="nombre">' + campo.nombre + '</label>'+
-                                        '<div class="input-group mb-3">';
+                    
                     if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="nombre">' + campo.nombre + '</label>'+
+                                            '<div class="input-group mb-3">';
+
                         if(campo.editable && campo.requerido){
                             html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
                         }else if(campo.editable && !campo.requerido){
                             html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
+                        }else if(!campo.editable && campo.requerido){
+                            html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
+                        }else if(!campo.editable && !campo.requerido){
+                            html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
                         }
+
+                        if(long == count){
+                            html_components +='</div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components +='</div></div></div><div class="form-row">';
+                            }else{
+                                html_components +='</div></div>';
+                            }
+                        }
+                        count ++;
                     }
 
-                    if(long == count){
-                        html_components +='</div></div></div>';
-                    }else{
-                        if(count % 2 === 0){
-                            html_components +='</div></div></div><div class="form-row">';
-                        }else{
-                            html_components +='</div></div>';
-                        }
-                    }
-                    count ++;
-                    
-                break;
+                    break;
                 case "date":
                     
-                break;
+                    break;
                 case "number":
                     
-                break;
+                    break;
                 case "email":
                     
-                break;
+                    break;
                 case "file":
                     
-                break;
+                    break;
                 case "select":
                     
-                break;
+                    break;
             }
             //count ++;
         }
