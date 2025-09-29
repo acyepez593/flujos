@@ -215,7 +215,7 @@ Crear Trámite - Admin Panel
         
 
         html_components += '<div class="accordion" id="accordion">';
-        //html_components += '<div class="form-row">';
+        
         for (let seccion in camposPorSeccion) {
             let count = 1;
 
