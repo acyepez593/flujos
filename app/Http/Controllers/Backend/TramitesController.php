@@ -48,7 +48,7 @@ class TramitesController extends Controller
         $configuracionSecuencia = $secuenciaProceso->configuracion;
         $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
         $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
-        $catalogos = Catalogo::get(["nombre", "id"])->pluck('nombre','id');
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
 
         return view('backend.pages.tramites.create', [
             'secuenciaProceso' => $secuenciaProceso,
@@ -56,7 +56,7 @@ class TramitesController extends Controller
             'configuracionSecuencia' => $configuracionSecuencia,
             'listaCampos' => $listaCampos[0],
             'tiposCatalogos' => $tiposCatalogos,
-            'catalogos' => $catalogos,
+            'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
             'proceso_id' => $proceso_id
         ]);
     }
