@@ -89,7 +89,7 @@
                                     <form>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="tipo_campo_search">Buscar por Sección del Campo:</label>
+                                                <label for="tipo_campo_search">Buscar por Tipo de Campo:</label>
                                                 <select id="tipo_campo_search" name="tipo_campo_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="text">TEXTO</option>
                                                     <option value="textarea">ÁREA DE TEXTO</option>

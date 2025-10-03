@@ -22,11 +22,11 @@ Editar Campos por Sección - Panel Campos por Sección
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">Editar Sección Pantalla</h4>
+                <h4 class="page-title pull-left">Editar Campos por Proceso</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                     <li><a href="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}">Todos los Campos por Secciones</a></li>
-                    <li><span>Editar Campos por Sección - {{ $camposPorProceso->nombre }}</span></li>
+                    <li><span>Editar Campos por Proceso - {{ $camposPorProceso->nombre }}</span></li>
                 </ul>
             </div>
         </div>
@@ -43,7 +43,7 @@ Editar Campos por Sección - Panel Campos por Sección
         <div class="col-12 mt-5">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Editar Campo por Sección - {{ $camposPorProceso->nombre }}</h4>
+                    <h4 class="header-title">Editar Campo por Proceso - {{ $camposPorProceso->nombre }}</h4>
                     @include('backend.layouts.partials.messages')
 
                     <form action="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}/{{$camposPorProceso->id}}/edit" method="POST" enctype="multipart/form-data">

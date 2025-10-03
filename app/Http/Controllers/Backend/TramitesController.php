@@ -20,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
@@ -44,10 +45,10 @@ class TramitesController extends Controller
         $this->checkAuthorization(auth()->user(), ['tramite.create']);
 
         $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
-        $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
+        $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $configuracionSecuencia = $secuenciaProceso->configuracion;
         $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
-        $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
+        $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
 
         return view('backend.pages.tramites.create', [
@@ -185,6 +186,34 @@ class TramitesController extends Controller
         $data['creadores'] = $creadores;
   
         return response()->json($data);
+    }
+
+    public function consultarSCI(Request $request): JsonResponse
+    {
+        $url = env('URL_LOGIN_SCI');
+        $username = env('SCI_USERNAME');
+        $password = env('SCI_PASSWORD');
+
+        $urlLogin = $url.'login'; 
+
+        $response = Http::post($urlLogin, [
+            'email' => $username,
+            'password' => $password,
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            return response()->json($data);
+            
+        } else {
+            $statusCode = $response->status();
+            $errorMessage = $response->body();
+            
+            return response()->json($response->body());
+        }
+
+        return response()->json($response->body());
     }
 
 }

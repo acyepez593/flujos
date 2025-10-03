@@ -37,10 +37,7 @@ class ListaSeeder extends Seeder
             [1, 'select', 'Agencia', 'agencia_id', 'SINIESTRO', 'ACTIVO', 1],
             [1, 'select', 'Tipo de Identificación', 'tipo_identificacion_id', 'VICTIMA', 'ACTIVO', 1],
             [1, 'text', 'Número Documento', 'numero_documento', 'VICTIMA', 'ACTIVO', 1],
-            [1, 'text', 'Primer Nombre', 'primer_nombre', 'VICTIMA', 'ACTIVO', 1],
-            [1, 'text', 'Segundo Nombre', 'segundo_nombre', 'VICTIMA', 'ACTIVO', 1],
-            [1, 'text', 'Primer Apellido', 'primer_apellido', 'VICTIMA', 'ACTIVO', 1],
-            [1, 'text', 'Segundo Apellido', 'segundo_apellido', 'VICTIMA', 'ACTIVO', 1],
+            [1, 'text', 'Nombre Completo', 'nombre_completo', 'VICTIMA', 'ACTIVO', 1],
             [1, 'select', 'Condición', 'condicion_id', 'VICTIMA', 'ACTIVO', 1],
             [1, 'select', 'Tipo Fallecimiento', 'tipo_fallecimiento_id', 'VICTIMA', 'ACTIVO', 1],
             [1, 'date', 'Fecha Nacimiento', 'fecha_nacimiento', 'VICTIMA', 'ACTIVO', 1],
@@ -50,11 +47,8 @@ class ListaSeeder extends Seeder
             [1, 'number', 'Edad Víctima', 'edad', 'VICTIMA', 'ACTIVO', 1],
             [1, 'file', 'Adjuntar Cédula', 'fecha_defuncion_file', 'VICTIMA', 'ACTIVO', 1],
             [1, 'text', 'Número Documento', 'numero_documento', 'BENEFICIARIOS', 'ACTIVO', 1],
-            [1, 'text', 'Primer Nombre', 'primer_nombre', 'BENEFICIARIOS', 'ACTIVO', 1],
-            [1, 'text', 'Segundo Nombre', 'segundo_nombre', 'BENEFICIARIOS', 'ACTIVO', 1],
-            [1, 'text', 'Primer Apellido', 'primer_apellido', 'BENEFICIARIOS', 'ACTIVO', 1],
-            [1, 'text', 'Segundo Apellido', 'segundo_apellido', 'BENEFICIARIOS', 'ACTIVO', 1],
-            [1, 'select', 'Parentesco con Víctima', 'parentesco_victima_id', 'RECLAMANTE', 'ACTIVO', 1],
+            [1, 'text', 'Nombre Completo', 'nombre_completo', 'BENEFICIARIOS', 'ACTIVO', 1],
+            [1, 'select', 'Parentesco con Víctima', 'parentesco_victima_id', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'text', 'Porcentaje a Pagar', 'porcentaje_pagar', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'text', 'Valor a Pagar', 'valor_pagar', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'select', 'Cuenta bancaria', 'tipo_cuenta_bancaria_id', 'BENEFICIARIOS', 'ACTIVO', 1],
@@ -69,10 +63,7 @@ class ListaSeeder extends Seeder
             [1, 'text', 'Descripción', 'descripcion', 'VEHICULO', 'ACTIVO', 1],
             [1, 'select', 'Tipo de Identificación', 'tipo_identificacion_id', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'text', 'Número Documento', 'numero_documento', 'RECLAMANTE', 'ACTIVO', 1],
-            [1, 'text', 'Primer Nombre', 'primer_nombre', 'RECLAMANTE', 'ACTIVO', 1],
-            [1, 'text', 'Segundo Nombre', 'segundo_nombre', 'RECLAMANTE', 'ACTIVO', 1],
-            [1, 'text', 'Primer Apellido', 'primer_apellido', 'RECLAMANTE', 'ACTIVO', 1],
-            [1, 'text', 'Segundo Apellido', 'segundo_apellido', 'RECLAMANTE', 'ACTIVO', 1],
+            [1, 'text', 'Nombre Completo', 'nombre_completo', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'select', 'Parentesco con Víctima', 'parentesco_victima_id', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'email', 'Correo electrónico', 'email', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'text', 'Telefonos', 'telefonos', 'RECLAMANTE', 'ACTIVO', 1],
@@ -94,7 +85,8 @@ class ListaSeeder extends Seeder
             ['ESTADO CIVIL','ACTIVO', 1],
             ['TIPO DE VEHICULO','ACTIVO', 1],
             ['TIPO SERVICIO','ACTIVO', 1],
-            ['PARENTESCO VICTIMA','ACTIVO', 1]
+            ['PARENTESCO VICTIMA','ACTIVO', 1],
+            ['TIPO CUENTA','ACTIVO', 1]
         ];
         foreach ($Tipos as $value) {
             TipoCatalogo::create(['nombre' => $value[0],'estatus' => $value[1], 'creado_por' => $admin->id]);
@@ -154,6 +146,11 @@ class ListaSeeder extends Seeder
         $Parentescos = ['ESPOSO/A', 'CONVIVIENTE', 'HIJO/A', 'PADRE', 'MADRE', 'HERMANO/A', 'ABUELO/A', 'NIETO/A', 'TIO/A', 'OTRO'];
         foreach ($Parentescos as $value) {
             Catalogo::create(['tipo_catalogo_id' => 11, 'nombre' => $value, 'creado_por' => 1]);
+        }
+
+        $TipoSCuenta = ['AHORROS', 'CORRIENTE'];
+        foreach ($TipoSCuenta as $value) {
+            Catalogo::create(['tipo_catalogo_id' => 12, 'nombre' => $value, 'creado_por' => 1]);
         }
 
     }

@@ -57,6 +57,8 @@ Route::post('/getLogsConfiguracionesValidacion','backend\LogsConfiguracionesVali
 
 Route::post('/getConfiguracionesCamposReporteByFilters','backend\ConfiguracionesCamposReporteController@getConfiguracionesCamposReporteByFilters')->middleware('auth:admin');
 
+Route::post('/consultarSCI','backend\TramitesController@consultarSCI')->middleware('auth:admin');
+
 /**
  * Admin routes
  */

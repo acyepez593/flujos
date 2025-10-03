@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('proceso_id')->constrained('procesos');
             $table->string('nombre');
             $table->string('variable');
-            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIO', 'MEDICA', 'FINANCIERO']);
+            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIOS', 'MEDICA', 'FINANCIERO']);
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
