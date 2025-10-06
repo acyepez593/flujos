@@ -10,7 +10,7 @@ use App\Http\Requests\TramiteRequest;
 use App\Models\Admin;
 use App\Models\CamposPorProceso;
 use App\Models\Catalogo;
-use App\Models\Proceso;
+use App\Models\Tramite;
 use App\Models\SecuenciaProceso;
 use App\Models\TipoCatalogo;
 use Carbon\Carbon;
@@ -45,6 +45,7 @@ class TramitesController extends Controller
         $this->checkAuthorization(auth()->user(), ['tramite.create']);
 
         $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
+        $secuenciaProcesoId = $secuenciaProceso->id;
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $configuracionSecuencia = $secuenciaProceso->configuracion;
         $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
@@ -52,7 +53,7 @@ class TramitesController extends Controller
         $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
 
         return view('backend.pages.tramites.create', [
-            'secuenciaProceso' => $secuenciaProceso,
+            'secuenciaProcesoId' => $secuenciaProcesoId,
             'campos' => $campos,
             'configuracionSecuencia' => $configuracionSecuencia,
             'listaCampos' => $listaCampos[0],
@@ -62,36 +63,39 @@ class TramitesController extends Controller
         ]);
     }
 
-    public function store(TramiteRequest $request): RedirectResponse
+    public function store(int $proceso_id, TramiteRequest $request): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['tramite.create']);
         
         $creado_por = Auth::id();
+        $funcionario_actual_id = $creado_por;
+        $estatus = "INGRESADO";
 
-        if(!$request->nombre || !isset($request->nombre) || empty($request->nombre || is_null($request->nombre))){
-            $nombre = "";
+
+        if(!$request->datos || !isset($request->datos) || empty($request->datos || is_null($request->datos))){
+            $datos = "";
         }else{
-            $nombre = $request->nombre;
-        }
-        if(!$request->descripcion || !isset($request->descripcion) || empty($request->descripcion) || is_null($request->descripcion)){
-            $descripcion = "";
-        }else{
-            $descripcion = $request->descripcion;
-        }
-        if(!$request->estatus || !isset($request->estatus) || empty($request->estatus) || is_null($request->estatus)){
-            $estatus = "";
-        }else{
-            $estatus = $request->estatus;
+            $datos = $request->datos;
         }
 
-        $proceso = new Proceso();
-        $proceso->nombre = $nombre;
-        $proceso->descripcion = $descripcion;
-        $proceso->estatus = $estatus;
-        $proceso->creado_por = $creado_por;
-        $proceso->save();
+        if(!$request->secuencia_proceso_id || !isset($request->secuencia_proceso_id) || empty($request->secuencia_proceso_id || is_null($request->secuencia_proceso_id))){
+            $secuencia_proceso_id = "";
+        }else{
+            $secuencia_proceso_id = $request->secuencia_proceso_id;
+        }
 
-        session()->flash('success', __('Proceso ha sido creado satisfactoriamente. '));
+        $secuenciaProceso = SecuenciaProceso::find($secuencia_proceso_id);
+
+        $tramite = new Tramite();
+        $tramite->proceso_id = $proceso_id;
+        $tramite->secuencia_proceso_id = $secuencia_proceso_id;
+        $tramite->funcionario_actual_id = $funcionario_actual_id;
+        $tramite->datos = $datos;
+        $tramite->estatus = $estatus;
+        $tramite->creado_por = $creado_por;
+        $tramite->save();
+
+        session()->flash('success', __('Tramite ha sido creado satisfactoriamente. '));
         return redirect()->route('admin.tramites.index');
     }
 

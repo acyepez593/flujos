@@ -88,6 +88,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::delete('/camposPorProcesos/{proceso_id}/{id}/delete', [CamposPorProcesosController::class, 'destroy']);
 
     Route::get('/tramites/{proceso_id}/create', [TramitesController::class, 'create']);
+    Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store']);
 
     Route::resource('tipoCatalogos', TipoCatalogosController::class);
     Route::resource('catalogos', CatalogosController::class);

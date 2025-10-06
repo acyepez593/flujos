@@ -130,11 +130,13 @@ Crear Trámite - Admin Panel
                     <h4 class="header-title">Crear Nuevo Trámite</h4>
                     @include('backend.layouts.partials.messages')
                     
-                    <form action="{{ url('admin') }}/tramites/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
+                    <form id="form" action="{{ url('admin') }}/tramites/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div id="creacionTramite"></div>
                         
-                        <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
+                        <input type="hidden" id="secuencia_proceso_id" name="secuencia_proceso_id">
+                        <input type="hidden" id="datos" name="datos">
+                        <button type="button" id="guardar" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
@@ -197,7 +199,27 @@ Crear Trámite - Admin Panel
             }
         }*/
 
+        $('#guardar').click(function(){
+            //validar
+
+            //guardar
+            for (let seccion in camposPorSeccion) {
+                generarDataObjeto(seccion);
+            }
+            $('#form').submit();
+            
+        });
+
     });
+
+    let secuencia_proceso_id = '{{$secuenciaProcesoId}}';
+
+    $('#secuencia_proceso_id').val(secuencia_proceso_id);
+
+    let objeto = {
+        data: {}
+    }
+    let camposPorSeccion = [];
 
     function renderFormPorSecuenciaProceso(){
         let html_components = "";
@@ -205,282 +227,289 @@ Crear Trámite - Admin Panel
         listaCampos = listaCampos.replace(/&quot;/g, '"');
         listaCampos = JSON.parse(listaCampos);
 
-        let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
+        camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
         console.log(camposPorSeccion);
 
         let catalogos = '{{$catalogos}}';
         catalogos = catalogos.replace(/&quot;/g, '"');
         catalogos = JSON.parse(catalogos);
 
-        
+        inicializarObjeto(camposPorSeccion);
 
         html_components += '<div class="accordion" id="accordion">';
         
         for (let seccion in camposPorSeccion) {
             let count = 1;
+            let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
+            
+            if(long > 0){
+                html_components += '<div class="card">'+
+                '<div class="card-header" id="headingOne">'+
+                '<h5 class="mb-0">'+
+                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">' + seccion + '</button>'+
+                '</h5>'+
+                '</div>'+
+                '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
+                '<div class="card-body">'+
+                '<div class="form-row">';
 
-            html_components += '<div class="card">'+
-            '<div class="card-header" id="headingOne">'+
-            '<h5 class="mb-0">'+
-            '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">' + seccion + '</button>'+
-            '</h5>'+
-            '</div>'+
-            '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
-            '<div class="card-body">'+
-            '<div class="form-row">';
+                for (let campo of camposPorSeccion[seccion]) {
+                
 
+                    switch (campo.tipo_campo) {
+                        case "text":
+                            
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
+                                                    '<div class="input-group mb-3">';
 
-            for (let campo of camposPorSeccion[seccion]) {
-                let long = camposPorSeccion[seccion].length;
-
-                switch (campo.tipo_campo) {
-                    case "text":
-                        
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
-                                                '<div class="input-group mb-3">';
-
-                            if(campo.variable == 'numero_documento'){
-                                if(campo.editable && campo.requerido){
-                                    html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
-                                }else if(campo.editable && !campo.requerido){
-                                    html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
-                                }else if(!campo.editable && campo.requerido){
-                                    html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
-                                }else if(!campo.editable && !campo.requerido){
-                                    html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
+                                if(campo.variable == 'numero_documento'){
+                                    if(campo.editable && campo.requerido){
+                                        html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
+                                    }else if(campo.editable && !campo.requerido){
+                                        html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
+                                    }else if(!campo.editable && campo.requerido){
+                                        html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
+                                    }else if(!campo.editable && !campo.requerido){
+                                        html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
+                                    }
+                                }else{
+                                    if(campo.editable && campo.requerido){
+                                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
+                                    }else if(campo.editable && !campo.requerido){
+                                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
+                                    }else if(!campo.editable && campo.requerido){
+                                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
+                                    }else if(!campo.editable && !campo.requerido){
+                                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
+                                    }
                                 }
-                            }else{
-                                if(campo.editable && campo.requerido){
-                                    html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
-                                }else if(campo.editable && !campo.requerido){
-                                    html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
-                                }else if(!campo.editable && campo.requerido){
-                                    html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
-                                }else if(!campo.editable && !campo.requerido){
-                                    html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
+                                
+
+                                if(long == count){
+                                    html_components += '</div></div></div></div>';
+                                }else{
+                                    if(count % 2 === 0){
+                                        html_components += '</div></div></div><div class="form-row">';
+                                    }else{
+                                        html_components += '</div></div>';
+                                    }
                                 }
+                                count ++;
+                            }
+
+                            break;
+                        case "date":
+
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + '</label>'+
+                                                    '<div class="datepicker date input-group">';
+
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '">';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required readonly>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" readonly>';
+                                }
+
+                                html_components += '<div class="input-group-append">';
+                                html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
+                                html_components += '</div>';
+
+                                if(long == count){
+                                    html_components += '</div></div></div></div></div>';
+                                }else{
+                                    if(count % 2 === 0){
+                                        html_components += '</div></div></div><div class="form-row">';
+                                    }else{
+                                        html_components += '</div></div>';
+                                    }
+                                }
+                                count ++;
                             }
                             
+                            break;
+                        case "number":
 
-                            if(long == count){
-                                html_components += '</div></div></div>';
-                            }else{
-                                if(count % 2 === 0){
-                                    html_components += '</div></div></div><div class="form-row">';
-                                }else{
-                                    html_components += '</div></div>';
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + '</label>'+
+                                                    '<div class="input-group mb-3">';
+
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '">';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required readonly>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" readonly>';
                                 }
-                            }
-                            count ++;
-                        }
 
-                        break;
-                    case "date":
-
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + '</label>'+
-                                                '<div class="datepicker date input-group">';
-
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required>';
-                            }else if(campo.editable && !campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" readonly>';
-                            }
-
-                            html_components += '<div class="input-group-append">';
-                            html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
-                            html_components += '</div>';
-
-                            if(long == count){
-                                html_components += '</div></div></div>';
-                            }else{
-                                if(count % 2 === 0){
-                                    html_components += '</div></div></div><div class="form-row">';
+                                if(long == count){
+                                    html_components +='</div></div></div></div>';
                                 }else{
-                                    html_components += '</div></div>';
+                                    if(count % 2 === 0){
+                                        html_components +='</div></div></div><div class="form-row">';
+                                    }else{
+                                        html_components +='</div></div>';
+                                    }
                                 }
+                                count ++;
                             }
-                            count ++;
-                        }
-                        
-                        break;
-                    case "number":
+                            
+                            break;
+                        case "email":
 
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + '</label>'+
-                                                '<div class="input-group mb-3">';
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="nombre">' + campo.nombre + '</label>'+
+                                                    '<div class="input-group mb-3">';
 
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required>';
-                            }else if(campo.editable && !campo.requerido){
-                                html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" readonly>';
-                            }
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '">';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required readonly>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" readonly>';
+                                }
 
-                            if(long == count){
-                                html_components +='</div></div></div>';
-                            }else{
-                                if(count % 2 === 0){
-                                    html_components +='</div></div></div><div class="form-row">';
+                                if(long == count){
+                                    html_components +='</div></div></div></div>';
                                 }else{
-                                    html_components +='</div></div>';
+                                    if(count % 2 === 0){
+                                        html_components +='</div></div></div><div class="form-row">';
+                                    }else{
+                                        html_components +='</div></div>';
+                                    }
                                 }
+                                count ++;
                             }
-                            count ++;
-                        }
-                        
-                        break;
-                    case "email":
+                            
+                            break;
+                        case "file":
 
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="nombre">' + campo.nombre + '</label>'+
-                                                '<div class="input-group mb-3">';
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
 
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required>';
-                            }else if(campo.editable && !campo.requerido){
-                                html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" readonly>';
-                            }
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                                }
 
-                            if(long == count){
-                                html_components +='</div></div></div>';
-                            }else{
-                                if(count % 2 === 0){
-                                    html_components +='</div></div></div><div class="form-row">';
+                                if(long == count){
+                                    html_components += '</div></div></div></div>';
                                 }else{
-                                    html_components +='</div></div>';
+                                    if(count % 2 === 0){
+                                        html_components += '</div></div><div class="form-row">';
+                                    }else{
+                                        html_components += '</div>';
+                                    }
                                 }
+                                count ++;
                             }
-                            count ++;
-                        }
-                        
-                        break;
-                    case "file":
+                            
+                            break;
+                        case "select":
 
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
 
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
-                            }else if(campo.editable && !campo.requerido){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
-                            }
-
-                            if(long == count){
-                                html_components += '</div></div>';
-                            }else{
-                                if(count % 2 === 0){
-                                    html_components += '</div></div><div class="form-row">';
-                                }else{
-                                    html_components += '</div>';
-                                }
-                            }
-                            count ++;
-                        }
-                        
-                        break;
-                    case "select":
-
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
-
-                            if(campo.editable && campo.requerido){
-                                html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required>';
-                                for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                    if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                        if(campo.configuracion.select_field_default_value == catalogo.id){
-                                            html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required>';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
                                         }else{
                                             html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                         }
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                     }
-                                }
-                                html_components += '</select>';
-                            }else if(campo.editable && !campo.requerido){
-                                html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
-                                for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                    if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                        if(campo.configuracion.select_field_default_value == catalogo.id){
-                                            html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                    html_components += '</select>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
                                         }else{
                                             html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                         }
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                     }
-                                }
-                                html_components += '</select>';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required readonly>';
-                                for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                    if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                        if(campo.configuracion.select_field_default_value == catalogo.id){
-                                            html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                    html_components += '</select>';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required readonly>';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
                                         }else{
                                             html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                         }
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                     }
-                                }
-                                html_components += '</select>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
-                                for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                    if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                        if(campo.configuracion.select_field_default_value == catalogo.id){
-                                            html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                    html_components += '</select>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
                                         }else{
                                             html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                         }
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                     }
+                                    html_components += '</select>';
                                 }
-                                html_components += '</select>';
-                            }
 
-                            if(long == count){
-                                html_components +='</div></div>';
-                            }else{
-                                if(count % 2 === 0){
-                                    html_components +='</div></div><div class="form-row">';
+                                if(long == count){
+                                    html_components +='</div></div></div></div>';
                                 }else{
-                                    html_components +='</div>';
+                                    if(count % 2 === 0){
+                                        html_components +='</div></div><div class="form-row">';
+                                    }else{
+                                        html_components +='</div>';
+                                    }
                                 }
+                                count ++;
                             }
-                            count ++;
-                        }
-                        
-                        break;
+                            
+                            break;
+                    }
+                    //count ++;
                 }
-                //count ++;
+                html_components += '</div>';
             }
-            html_components += '</div></div></div>';
+            
+            /*if(count == 1){
+                html_components += '</div>';
+            }*/
+            //html_components += '</div></div></div>';
         }
         html_components += '</div>'
         $("#creacionTramite").append(html_components);
@@ -506,6 +535,26 @@ Crear Trámite - Admin Panel
                 }
             });
         }
+        
+    }
+
+    function inicializarObjeto(camposPorSeccion){
+        for (let seccion in camposPorSeccion) {
+            objeto.data[seccion] = {};
+            for (let campo of camposPorSeccion[seccion]) {
+                let long = camposPorSeccion[seccion].length;
+                objeto.data[seccion][campo.variable] = "";
+            }
+        }
+    }
+
+    function generarDataObjeto(seccion){
+        $('#' + seccion).find("input, select").each(function() {
+            console.log('Seccion: ' + seccion + ', Name: ' + $(this).attr('name') + ', Value: ' + $(this).val());
+            objeto.data[seccion][$(this).attr('name')] = $(this).val();
+        });
+        
+        $('#datos').val(JSON.stringify(objeto));
         
     }
     

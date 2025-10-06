@@ -24,11 +24,8 @@ class TramiteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'proceso_id' => 'required',
             'secuencia_proceso_id' => 'required',
-            'funcionario_actual_id' => 'required',
             'datos' => 'required',
-            'estatus' => 'required'
         ];
     }
 
@@ -40,11 +37,8 @@ class TramiteRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'proceso_id.required' => 'El campo :attribute es requerido',
             'secuencia_proceso_id.required' => 'El campo :attribute es requerido',
-            'funcionario_actual_id.required' => 'El campo :attribute es requerido',
             'datos.required' => 'El campo :attribute es requerido',
-            'estatus.required' => 'El campo :attribute es requerido',
         ];
     }
 }
