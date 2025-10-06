@@ -89,8 +89,8 @@
                                     <form>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="proceso_search">Buscar por Procesos:</label>
-                                                <select id="proceso_search" name="proceso_search" class="form-control selectpicker" data-live-search="true">
+                                                <label for="actores_search">Buscar por Procesos:</label>
+                                                <select id="actores_search" name="actores_search" class="form-control selectpicker" data-live-search="true">
                                                     <option value="">Seleccione un Proceso</option>
                                                     @foreach ($procesos as $key => $value)
                                                         <option value="{{ $value->id }}">{{ $value->nombre }}</option>
@@ -107,26 +107,17 @@
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="funcionario_search">Buscar por Funcionario:</label>
-                                                <select id="funcionario_search" name="funcionario_search" class="form-control selectpicker" data-live-search="true">
+                                                <label for="actores_search">Buscar por Funcionario:</label>
+                                                <select id="actores_search" name="actores_search" class="form-control selectpicker" data-live-search="true">
                                                     <option value="">Seleccione un Funcionario</option>
                                                     @foreach ($funcionarios as $key => $value)
                                                         <option value="{{ $value->id }}">{{ $value->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-6 col-sm-12">
-                                                <label for="creado_por_search">Buscar por Creador:</label>
-                                                <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true">
-                                                    <option value="">Seleccione un Creador</option>
-                                                    @foreach ($creadores as $key => $value)
-                                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
                                         </div>
 
-                                        <button type="button" id="buscarTramites" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
+                                        <button type="button" id="buscarSecuenciaProcesos" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
                                     </form>
                                 </div>
                             </div>
@@ -144,7 +135,11 @@
                                 <div class="card-body">
                                     <h4 class="header-title float-left">{{ __('Trámites') }}</h4>
                                     <p class="float-right mb-2" style="padding: 5px;">
-                                        
+                                        @if (auth()->user()->can('proceso.create'))
+                                            <a class="btn btn-primary text-white" href="{{ url('admin') }}/tramites/{{$proceso_id}}/create">
+                                                {{ __('Iniciar Nuevo Trámite') }}
+                                            </a>
+                                        @endif
                                     </p>
                                     <div class="clearfix"></div>
                                     <div class="data-tables">
@@ -189,6 +184,7 @@
         let tableHeaderRef = "";
         let tramites = [];
         let creadores = [];
+        let proceso_id = '{{$proceso_id}}';
 
         $(document).ready(function() {
 
@@ -213,12 +209,16 @@
 
         function loadDataTable(){
             $.ajax({
-                url: "{{url('/getTramitessByFilters')}}",
+                url: "{{url('/getSecuenciaProcesosByFilters')}}/{{$proceso_id}}",
                 method: "POST",
                 data: {
-                    proceso_search: $('#proceso_search').val(),
+                    nombre_search: $('#nombre_search').val(),
+                    descripcion_search: $('#descripcion_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
-                    funcionario_search: JSON.stringify($('#funcionario_search').val()),
+                    tiempo_procesamiento_search: $('#tiempo_procesamiento_search').val(),
+                    actores_search: JSON.stringify($('#actores_search').val()),
+                    configuracion_search: JSON.stringify($('#configuracion_search').val()),
+                    configuracion_campos_search: JSON.stringify($('#configuracion_campos_search').val()),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
                     _token: '{{csrf_token()}}'
                 },
@@ -240,7 +240,6 @@
                         "<th>Funcionario encargado</th>"+
                         "<th>Estatus</th>"+
                         "<th>Creador Por</th>"+
-                        "<th>Creador En</th>"+
                         "<th>Acción</th>";
 
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
@@ -266,7 +265,6 @@
                             "<td>"+ tramite.secuencia_nombre+ "</td>"+
                             "<td>"+ tramite.funcionario_actual_nombre+ "</td>"+
                             "<td>"+ tramite.estatus+ "</td>"+
-                            "<td>"+ tramite.creado_por_nombre+ "</td>"+
                             "<td>"+ tramite.created_at+ "</td>"+
                             "<td>" + htmlView + "</td>";
                             /*if(tramite.esCreadorRegistro){

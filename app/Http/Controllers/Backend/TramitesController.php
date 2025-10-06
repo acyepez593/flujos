@@ -10,6 +10,7 @@ use App\Http\Requests\TramiteRequest;
 use App\Models\Admin;
 use App\Models\CamposPorProceso;
 use App\Models\Catalogo;
+use App\Models\Proceso;
 use App\Models\Tramite;
 use App\Models\SecuenciaProceso;
 use App\Models\TipoCatalogo;
@@ -32,10 +33,14 @@ class TramitesController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['tramite.view']);
 
+        $procesos = Proceso::where('estatus','ACTIVO')->get(["nombre", "id"]);
         $creadores = Admin::get(["name", "id"]);
+        $funcionarios = $creadores;
         $responsable_id = Auth::id();
 
         return view('backend.pages.tramites.index', [
+            'procesos' => $procesos,
+            'funcionarios' => $funcionarios,
             'creadores' => $creadores
         ]);
     }
@@ -150,27 +155,34 @@ class TramitesController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['tramite.view']);
 
-        $procesos = Proceso::where('id',">",0);
+        $tramites = Proceso::where('id',">",0);
 
-        $filtroNombreSearch = $request->nombre_search;
-        $filtroDescripcionSearch = $request->descripcion_search;
+        $filtroProcesoSearch = $request->proceso_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
+        $filtroFuncionarioSearch = json_decode($request->funcionario_search, true);
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
-        if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
-            $procesos = $procesos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
-        }
-        if(isset($filtroDescripcionSearch) && !empty($filtroDescripcionSearch)){
-            $procesos = $procesos->where('descripcion', 'like', '%'.$filtroDescripcionSearch.'%');
+        if(isset($filtroProcesoSearch) && !empty($filtroProcesoSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroProcesoSearch);
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
-            $procesos = $procesos->whereIn('estatus', $filtroEstatus);
+            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+        }
+        if(isset($filtroFuncionarioSearch) && !empty($filtroFuncionarioSearch)){
+            $tramites = $tramites->whereIn('funcionario_actual_id', $filtroFuncionarioSearch);
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
-            $procesos = $procesos->whereIn('creado_por', $filtroCreadoPorSearch);
+            $tramites = $tramites->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
-        $procesos = $procesos->orderBy('id', 'desc')->get();
+        $tramites = $tramites->orderBy('id', 'desc')->get();
+
+        $secuenciasProceso = SecuenciaProceso::where('proceso_id',$filtroProcesoSearch)->where('estatus','ACTIVO')->get();
+
+        $secuencias_proceso_temp = [];
+        foreach($secuencias_proceso_temp as $secuencia){
+            $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+        }
 
         $creadores = Admin::all();
 
@@ -181,12 +193,14 @@ class TramitesController extends Controller
 
         $usuario_actual_id = Auth::id();
 
-        foreach($procesos as $proceso){
-            $proceso->creado_por_nombre = array_key_exists($proceso->creado_por, $creadores_temp) ? $creadores_temp[$proceso->creado_por] : "";
-            $proceso->esCreadorRegistro = $usuario_actual_id == $proceso->creado_por ? true : false;
+        foreach($tramites as $tramite){
+            $tramite->secuencia_nombre = array_key_exists($tramite->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$tramite->secuencia_proceso_id] : "";
+            $tramite->funcionario_actual_nombre = array_key_exists($tramite->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$tramite->funcionario_actual_id] : "";
+            $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
+            $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
         }
 
-        $data['procesos'] = $procesos;
+        $data['tramites'] = $tramites;
         $data['creadores'] = $creadores;
   
         return response()->json($data);
@@ -194,6 +208,8 @@ class TramitesController extends Controller
 
     public function consultarSCI(Request $request): JsonResponse
     {
+        $this->checkAuthorization(auth()->user(), ['tramite.create']);
+
         $url = env('URL_LOGIN_SCI');
         $username = env('SCI_USERNAME');
         $password = env('SCI_PASSWORD');
@@ -207,12 +223,24 @@ class TramitesController extends Controller
 
         if ($response->successful()) {
             $data = $response->json();
+            $token = $data['data']['token'];
 
-            return response()->json($data);
+            $urlWS = $url.'getConsultaWsInteroperabilidad';
             
+            $responseWS = Http::withToken($token)->post($urlWS, [
+                'tipo_consulta_id' => 1,
+                'identificacion' => $request->identificacion,
+            ]);
+
+            if ($responseWS->successful()) {
+                $dataWs = $responseWS->json();
+
+                return response()->json($dataWs);
+            }else {
+                
+                return response()->json($responseWS->body());
+            }
         } else {
-            $statusCode = $response->status();
-            $errorMessage = $response->body();
             
             return response()->json($response->body());
         }

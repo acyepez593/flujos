@@ -46,6 +46,8 @@ Route::post('/getSecuenciaProcesosByFilters/{proceso_id}','backend\SecuenciaProc
 
 Route::post('/getCamposPorProcesosByFilters/{proceso_id}','backend\CamposPorProcesosController@getCamposPorProcesosByFilters')->middleware('auth:admin');
 
+Route::post('/getTramitessByFilters','backend\TramitesController@getTramitessByFilters')->middleware('auth:admin');
+
 Route::post('/getTipoCatalogosByFilters','backend\TipoCatalogosController@getTipoCatalogosByFilters')->middleware('auth:admin');
 Route::post('/getCatalogosByFilters','backend\CatalogosController@getCatalogosByFilters')->middleware('auth:admin');
 Route::post('/getCatalogoByTipoCatalogoId','backend\CatalogosController@getCatalogoByTipoCatalogoId')->middleware('auth:admin');
@@ -87,6 +89,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::put('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'update']);
     Route::delete('/camposPorProcesos/{proceso_id}/{id}/delete', [CamposPorProcesosController::class, 'destroy']);
 
+    Route::get('/tramites/{proceso_id}', [TramitesController::class, 'index']);
     Route::get('/tramites/{proceso_id}/create', [TramitesController::class, 'create']);
     Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store']);
 

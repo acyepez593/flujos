@@ -221,6 +221,10 @@ Crear Trámite - Admin Panel
     }
     let camposPorSeccion = [];
 
+    let catalogos = '{{$catalogos}}';
+    catalogos = catalogos.replace(/&quot;/g, '"');
+    catalogos = JSON.parse(catalogos);
+
     function renderFormPorSecuenciaProceso(){
         let html_components = "";
         let listaCampos = '{{$listaCampos}}';
@@ -229,10 +233,6 @@ Crear Trámite - Admin Panel
 
         camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
         console.log(camposPorSeccion);
-
-        let catalogos = '{{$catalogos}}';
-        catalogos = catalogos.replace(/&quot;/g, '"');
-        catalogos = JSON.parse(catalogos);
 
         inicializarObjeto(camposPorSeccion);
 
@@ -505,20 +505,16 @@ Crear Trámite - Admin Panel
                 }
                 html_components += '</div>';
             }
-            
-            /*if(count == 1){
-                html_components += '</div>';
-            }*/
-            //html_components += '</div></div></div>';
         }
         html_components += '</div>'
         $("#creacionTramite").append(html_components);
     }
 
     function consultarSCI(seccion_campo, input){
-        debugger;
+        
         let seccion = seccion_campo.id;
         let numero_documento = input.value;
+        let respuestaWS = [];
 
         if(numero_documento.length >= 10){
             $.ajax({
@@ -531,7 +527,25 @@ Crear Trámite - Admin Panel
                 },
                 dataType: 'json',
                 success: function (response) {
-                    console.log(response);
+                    
+                    respuestaWS = response.respuestaWs;
+                    let nombre_completo = respuestaWS.find(dato => dato.campo === 'nombre').valor;
+                    let estado_civil = respuestaWS.find(dato => dato.campo === 'estadoCivil').valor;
+                    let sexo = respuestaWS.find(dato => dato.campo === 'sexo').valor;
+                    let genero = '';
+
+                    $('#' + seccion + ' input[name="nombre_completo"]').val(nombre_completo);
+                    if(sexo == 'HOMBRE'){
+                        genero = 'MASCULINO';
+                    }else if(sexo == 'MUJER'){
+                        genero = 'FEMENINO';
+                    }
+
+                    $('#' + seccion + ' select[name="genero_id"] option').filter(function() {
+                        return $(this).text() === genero;
+                    }).prop('selected', true);
+                    $('#' + seccion + ' select[name="genero_id"]').trigger("change");
+
                 }
             });
         }
