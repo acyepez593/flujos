@@ -148,7 +148,26 @@ class ProcesosController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['proceso.view']);
 
-        $procesos = Proceso::where('id',">",0);
+        $usuario_actual_id = Auth::id();
+
+        $user = Admin::find($usuario_actual_id);
+        $roles_names = $user->getRoleNames()->toArray();
+
+        $procesos_temp = Proceso::where('estatus','ACTIVO')->get(['id','nombre']);
+        
+        $procesosIds = [];
+        foreach($procesos_temp as $proceso_temp){
+            $searchString = $proceso_temp->nombre;
+
+            $result = array_filter($roles_names, function ($element) use ($searchString) {
+                return strpos(strtolower($element), strtolower($searchString)) !== false;
+            });
+            if($result){
+                $procesosIds[] = $proceso_temp->id;
+            }
+        }
+
+        $procesos = Proceso::whereIn('id',$procesosIds)->where('estatus','ACTIVO');
 
         $filtroNombreSearch = $request->nombre_search;
         $filtroDescripcionSearch = $request->descripcion_search;
@@ -176,8 +195,6 @@ class ProcesosController extends Controller
         foreach($creadores as $creador){
             $creadores_temp[$creador->id] = $creador->name;
         }
-
-        $usuario_actual_id = Auth::id();
 
         foreach($procesos as $proceso){
             $proceso->creado_por_nombre = array_key_exists($proceso->creado_por, $creadores_temp) ? $creadores_temp[$proceso->creado_por] : "";

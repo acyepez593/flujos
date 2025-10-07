@@ -1,7 +1,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-    {{ __('Trámites - Panel de Tramites') }}
+    {{ __('Bandeja de Trámites - Panel de Tramites') }}
 @endsection
 
 @section('styles')
@@ -53,7 +53,7 @@
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">{{ __('Trámites') }}</h4>
+                <h4 class="page-title pull-left">{{ __('Bandeja de Trámites') }}</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
                     <li><span>{{ __('Todas los Trámites') }}</span></li>
@@ -147,7 +147,11 @@
                                 <div class="card-body">
                                     <h4 class="header-title float-left">{{ __('Trámites') }}</h4>
                                     <p class="float-right mb-2" style="padding: 5px;">
-                                        
+                                        @if (auth()->user()->can('tramite.create'))
+                                            <a id="crearTramite" class="btn btn-primary text-white" href="{{ url('admin') }}/tramites/">
+                                                {{ __('Crear Nueva') }}
+                                            </a>
+                                        @endif
                                     </p>
                                     <div class="clearfix"></div>
                                     <div class="data-tables">
@@ -231,11 +235,18 @@
                 format: "yyyy-mm-dd"
             });
 
+            $('#proceso_search').on('change', function() {
+                let selectedValue = $(this).val();
+                $('#crearTramite').attr('href', "{{ url('admin') }}/tramites/"+selectedValue+"/create");
+            });
+
+            $('#proceso_search').trigger("change");
+
         });
 
         function loadDataTable(){
             $.ajax({
-                url: "{{url('/getTramitesByFilters')}}",
+                url: "{{url('/getBandejaTramitesByFilters')}}",
                 method: "POST",
                 data: {
                     proceso_search: $('#proceso_search').val(),
@@ -271,15 +282,15 @@
                     for (let tramite of tramites) {
                         
                         let rutaView ="";
-                        let rutaEdit = "{{url()->current()}}"+"/"+tramite.id+"/edit";
-                        let rutaDelete = "{{url()->current()}}"+"/"+tramite.id;
+                        let rutaEdit = "{{url('admin')}}"+"/tramites/"+tramite.id+"/edit";
+                        let rutaDelete = "{{url('admin')}}"+"/tramites/"+tramite.id;
                         let innerHTML = "";
                         let htmlView = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
                         
                         htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
-                        htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
+                        htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
                         htmlDelete += @if (auth()->user()->can('tramite.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tramite.id+')">Borrar</a> <form id="delete-form-'+tramite.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
 
                         innerHTML += 
@@ -289,13 +300,12 @@
                             "<td>"+ tramite.funcionario_actual_nombre+ "</td>"+
                             "<td>"+ tramite.estatus+ "</td>"+
                             "<td>"+ tramite.creado_por_nombre+ "</td>"+
-                            "<td>"+ tramite.created_at+ "</td>"+
-                            "<td>" + htmlView + "</td>";
-                            /*if(tramite.esCreadorRegistro){
-                                innerHTML +="<td>" + htmlView + "</td>";
+                            "<td>"+ tramite.created_at+ "</td>";
+                            if(tramite.esEditorRegistro){
+                                innerHTML +="<td>" + htmlView + htmlEdit + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
-                            }*/
+                            }
 
                             tableRef.insertRow().innerHTML = innerHTML;
                             contador += 1;

@@ -2,7 +2,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-Editar Secuencia Proceso - Panel Secuencia Proceso
+Editar Trámite - Admin Panel
 @endsection
 
 @section('styles')
@@ -98,6 +98,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 </style>
 @endsection
 
+
 @section('admin-content')
 
 <!-- page title area start -->
@@ -105,11 +106,11 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">Editar Secuencia Proceso</h4>
+                <h4 class="page-title pull-left">Editar Trámite</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}">Todos las Secuencias Procesos</a></li>
-                    <li><span>Editar Proceso - {{ $secuenciaProceso->nombre }}</span></li>
+                    <li><a href="{{ route('admin.tramites.inbox') }}">Todas mis Trámites</a></li>
+                    <li><span>Editar Trámite</span></li>
                 </ul>
             </div>
         </div>
@@ -126,159 +127,16 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         <div class="col-12 mt-5">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Editar Secuencia Proceso - {{ $secuenciaProceso->nombre }}</h4>
+                    <h4 class="header-title">Editar Trámite</h4>
                     @include('backend.layouts.partials.messages')
-
-                    <form action="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}/{{$secuenciaProceso->id}}/edit" method="POST" enctype="multipart/form-data">
-                        @method('PUT')
+                    
+                    <form id="form" action="{{ url('admin') }}/tramites/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="form-row">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="nombre">Nombre</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" value="{{ old('nombre', $secuenciaProceso->nombre) }}" required>
-                                    @error('nombre')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="descripcion">Descripción</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" value="{{ old('descripcion', $secuenciaProceso->descripcion) }}" required>
-                                    @error('descripcion')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="estatus">Seleccione un Estatus:</label>
-                                <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="ACTIVO" {{ old('estatus', $secuenciaProceso->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
-                                    <option value="INACTIVO" {{ old('estatus', $secuenciaProceso->estatus) == 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
-                                </select>
-                                @error('estatus')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="tiempo_procesamiento">Tiempo procesamiento</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control int-number @error('tiempo_procesamiento') is-invalid @enderror" id="tiempo_procesamiento" name="tiempo_procesamiento" value="{{ old('tiempo_procesamiento', $secuenciaProceso->tiempo_procesamiento) }}" required>
-                                    @error('tiempo_procesamiento')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="actores">Seleccione un Actor:</label>
-                                <select id="actores" name="actores" class="form-control selectpicker @error('actores') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="">Seleccione un Actor</option>
-                                    @foreach ($actores as $key => $value)
-                                        <option value="{{ $key }}" {{ old('actores', $secuenciaProceso->actores) == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('actores')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="requiere_evaluacion">Requiere evaluación?:</label>
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="requiere_evaluacion">
-                                    <label class="custom-control-label" for="requiere_evaluacion"></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row campos_con_evaluacion">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="pregunta_evaluacion">Pregunta Evaluación</label>
-                                <input type="text" class="form-control @error('pregunta_evaluacion') is-invalid @enderror" onchange="generarConfiguracionObjeto('pregunta_evaluacion',this.value)" id="pregunta_evaluacion" name="pregunta_evaluacion" value="{{ old('pregunta_evaluacion') }}">
-                                @error('pregunta_evaluacion')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="variable_evaluacion">Seleccione la variable a evaluar</label>
-                                <select id="variable_evaluacion" onchange="generarConfiguracionObjeto('variable_evaluacion',this.value)" name="variable_evaluacion" class="form-control selectpicker @error('variable_evaluacion') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Seleccione la variable a evaluar</option>
-                                    @foreach ($campos as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('variable_evaluacion')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="form-row campos_con_evaluacion">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_evaluacion_verdadero">Secuencia en caso de evaluación verdadera</label>
-                                <select id="camino_evaluacion_verdadero" onchange="generarConfiguracionObjeto('camino_evaluacion_verdadero',this.value)" name="camino_evaluacion_verdadero" class="form-control selectpicker @error('camino_evaluacion_verdadero') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Secuencia en caso de evaluación verdadera</option>
-                                    @foreach ($listaActividades as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('camino_evaluacion_verdadero')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_evaluacion_falso">Secuencia en caso de evaluación falsa</label>
-                                <select id="camino_evaluacion_falso" onchange="generarConfiguracionObjeto('camino_evaluacion_falso',this.value)" name="camino_evaluacion_falso" class="form-control selectpicker @error('camino_evaluacion_falso') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Secuencia en caso de evaluación falsa</option>
-                                    @foreach ($listaActividades as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('camino_evaluacion_falso')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="form-row campos_sin_evaluacion">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_sin_evaluacion">Seleccione la siguiente secuencia</label>
-                                <select id="camino_sin_evaluacion" onchange="generarConfiguracionObjeto('camino_sin_evaluacion',this.value)" name="camino_sin_evaluacion" class="form-control selectpicker @error('camino_sin_evaluacion') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Seleccione la siguiente secuencia</option>
-                                    @foreach ($listaActividades as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('camino_sin_evaluacion')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="clearfix"></div>
-
-                        <h4 class="header-title">Configuración de campos</h4>
+                        <div id="edicionTramite"></div>
                         
-                        <div class="data-tables">
-                            
-                            <table id="configuracion_campos_table" class="table text-center">
-                                <thead class="bg-light text-capitalize">
-                                    <th>Sección Campo</th>
-                                    <th>Nombre Campo</th>
-                                    <th>Variable</th>
-                                    <th>Editable</th>
-                                    <th>Visible</th>
-                                </thead>
-                                <tbody>
-                                
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <input type="hidden" id="configuracion" name="configuracion">
-                        <input type="hidden" id="configuracion_campos" name="configuracion_campos">
-                        <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
+                        <input type="hidden" id="secuencia_proceso_id" name="secuencia_proceso_id">
+                        <input type="hidden" id="datos" name="datos">
+                        <button type="button" id="guardar" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
@@ -290,6 +148,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 @endsection
 
 @section('scripts')
+<!-- Start datatable js -->
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
 <script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
@@ -304,88 +163,414 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             this.value = this.value.replace(/[^0-9]/g, '');
         });
 
-        $('#requiere_evaluacion').change(function() {
-            if(this.checked){
-                $('.campos_con_evaluacion').show();
-                $('.campos_sin_evaluacion').hide();
-            }else{
-                $('.campos_con_evaluacion').hide();
-                $('.campos_sin_evaluacion').show();
-            }
-            generarConfiguracionObjeto('requiere_evaluacion',this.checked);
+        $.fn.datepicker.dates['es'] = {
+			days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+		    daysShort: ['Dom','Lun','Mar','Mié','Juv','Vie','Sáb'],
+		    daysMin: ['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
+		    months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+		    monthsShort: ['Ene','Feb','Mar','Abr', 'May','Jun','Jul','Ago','Sep', 'Oct','Nov','Dic'],
+		    today: 'Hoy',
+		    clear: 'Limpiar',
+		    format: 'yyyy-mm-dd',
+		    titleFormat: "MM yyyy", 
+		    weekStart: 1
+		};
+
+        //creacion_tramite
+        renderFormPorSecuenciaProceso();
+
+        $('.datepicker').datepicker({
+            language: 'es',
+            autoclose: true,
+            format: "yyyy-mm-dd",
+            todayHighlight: true,
+            endDate: 0
         });
 
-        $('#requiere_evaluacion').change();
-        $('#configuracion_campos').val(JSON.stringify(listaCampos));
+        /*for (let campo of listaCampos) {
+            if(campo.tipo_campo == 'date'){
+                $('.datepicker input[id=' + campo.id + ']').datepicker({
+                    language: 'es',
+                    autoclose: true,
+                    format: "yyyy-mm-dd",
+                    todayHighlight: true,
+                    endDate: campo.campo.configuracion.date_field_max_legth
+                });
+            }
+        }*/
 
-        tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
+        $('#guardar').click(function(){
+            //validar
 
-        for (let campo of listaCampos) {
-            let innerHTML = "";
-            innerHTML += 
-                "<td>"+ campo.seccion_campo+ "</td>"+
-                "<td>"+ campo.nombre+ "</td>"+
-                "<td>"+ campo.variable+ "</td>";
-                if(campo.editable == true){
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
-                }else{
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
+            //guardar
+            for (let seccion in camposPorSeccion) {
+                generarDataObjeto(seccion);
+            }
+            $('#form').submit();
+            
+        });
+
+    });
+
+    let secuencia_proceso_id = '{{$secuenciaProcesoId}}';
+
+    $('#secuencia_proceso_id').val(secuencia_proceso_id);
+
+    let objeto = {
+        data: {}
+    }
+    let camposPorSeccion = [];
+
+    let catalogos = '{{$catalogos}}';
+    catalogos = catalogos.replace(/&quot;/g, '"');
+    catalogos = JSON.parse(catalogos);
+
+    function renderFormPorSecuenciaProceso(){
+        let html_components = "";
+        let listaCampos = '{{$listaCampos}}';
+        listaCampos = listaCampos.replace(/&quot;/g, '"');
+        listaCampos = JSON.parse(listaCampos);
+
+        camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
+        console.log(camposPorSeccion);
+
+        inicializarObjeto(camposPorSeccion);
+
+        html_components += '<div class="accordion" id="accordion">';
+        
+        for (let seccion in camposPorSeccion) {
+            let count = 1;
+            let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
+            
+            if(long > 0){
+                html_components += '<div class="card">'+
+                '<div class="card-header" id="headingOne">'+
+                '<h5 class="mb-0">'+
+                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">' + seccion + '</button>'+
+                '</h5>'+
+                '</div>'+
+                '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
+                '<div class="card-body">'+
+                '<div class="form-row">';
+
+                for (let campo of camposPorSeccion[seccion]) {
+                
+
+                    switch (campo.tipo_campo) {
+                        case "text":
+                            
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
+                                                    '<div class="input-group mb-3">';
+
+                                if(campo.variable == 'numero_documento'){
+                                    if(campo.editable && campo.requerido){
+                                        html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
+                                    }else if(campo.editable && !campo.requerido){
+                                        html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
+                                    }else if(!campo.editable && campo.requerido){
+                                        html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
+                                    }else if(!campo.editable && !campo.requerido){
+                                        html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
+                                    }
+                                }else{
+                                    if(campo.editable && campo.requerido){
+                                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
+                                    }else if(campo.editable && !campo.requerido){
+                                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
+                                    }else if(!campo.editable && campo.requerido){
+                                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
+                                    }else if(!campo.editable && !campo.requerido){
+                                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
+                                    }
+                                }
+                                
+
+                                if(long == count){
+                                    html_components += '</div></div></div></div>';
+                                }else{
+                                    if(count % 2 === 0){
+                                        html_components += '</div></div></div><div class="form-row">';
+                                    }else{
+                                        html_components += '</div></div>';
+                                    }
+                                }
+                                count ++;
+                            }
+
+                            break;
+                        case "date":
+
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + '</label>'+
+                                                    '<div class="datepicker date input-group">';
+
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '">';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required readonly>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" readonly>';
+                                }
+
+                                html_components += '<div class="input-group-append">';
+                                html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
+                                html_components += '</div>';
+
+                                if(long == count){
+                                    html_components += '</div></div></div></div></div>';
+                                }else{
+                                    if(count % 2 === 0){
+                                        html_components += '</div></div></div><div class="form-row">';
+                                    }else{
+                                        html_components += '</div></div>';
+                                    }
+                                }
+                                count ++;
+                            }
+                            
+                            break;
+                        case "number":
+
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + '</label>'+
+                                                    '<div class="input-group mb-3">';
+
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '">';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required readonly>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" readonly>';
+                                }
+
+                                if(long == count){
+                                    html_components +='</div></div></div></div>';
+                                }else{
+                                    if(count % 2 === 0){
+                                        html_components +='</div></div></div><div class="form-row">';
+                                    }else{
+                                        html_components +='</div></div>';
+                                    }
+                                }
+                                count ++;
+                            }
+                            
+                            break;
+                        case "email":
+
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="nombre">' + campo.nombre + '</label>'+
+                                                    '<div class="input-group mb-3">';
+
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '">';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required readonly>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" readonly>';
+                                }
+
+                                if(long == count){
+                                    html_components +='</div></div></div></div>';
+                                }else{
+                                    if(count % 2 === 0){
+                                        html_components +='</div></div></div><div class="form-row">';
+                                    }else{
+                                        html_components +='</div></div>';
+                                    }
+                                }
+                                count ++;
+                            }
+                            
+                            break;
+                        case "file":
+
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                                }
+
+                                if(long == count){
+                                    html_components += '</div></div></div></div>';
+                                }else{
+                                    if(count % 2 === 0){
+                                        html_components += '</div></div><div class="form-row">';
+                                    }else{
+                                        html_components += '</div>';
+                                    }
+                                }
+                                count ++;
+                            }
+                            
+                            break;
+                        case "select":
+
+                            if(campo.visible){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
+
+                                if(campo.editable && campo.requerido){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required>';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
+                                        }else{
+                                            html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                        }
+                                    }
+                                    html_components += '</select>';
+                                }else if(campo.editable && !campo.requerido){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
+                                        }else{
+                                            html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                        }
+                                    }
+                                    html_components += '</select>';
+                                }else if(!campo.editable && campo.requerido){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required readonly>';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
+                                        }else{
+                                            html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                        }
+                                    }
+                                    html_components += '</select>';
+                                }else if(!campo.editable && !campo.requerido){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
+                                        }else{
+                                            html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                        }
+                                    }
+                                    html_components += '</select>';
+                                }
+
+                                if(long == count){
+                                    html_components +='</div></div></div></div>';
+                                }else{
+                                    if(count % 2 === 0){
+                                        html_components +='</div></div><div class="form-row">';
+                                    }else{
+                                        html_components +='</div>';
+                                    }
+                                }
+                                count ++;
+                            }
+                            
+                            break;
+                    }
+                    //count ++;
                 }
-                if(campo.visible == true){
-                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
-                }else{
-                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.seccion_campo + campo.variable + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
-                }
-
-                tableRef.insertRow().innerHTML = innerHTML;
+                html_components += '</div>';
+            }
         }
-
-        /*table = $('#configuracion_campos_table').DataTable( {
-                        scrollX: true,
-                        orderCellsTop: true,
-                        fixedHeader: true,
-                        destroy: true,
-                        paging: true,
-                        searching: true,
-                        autoWidth: true,
-                        responsive: false,
-                    });*/
-    })
-
-    let table = "";
-    let tableRef = "";
-
-    let configuraciones = '{{$secuenciaProceso->configuracion}}';
-    configuraciones = configuraciones.replace(/&quot;/g, '"');
-    configuraciones = JSON.parse(configuraciones);
-
-    for (let prop in configuraciones) {
-        console.log(`${prop}: ${configuraciones[prop]}`);
-        setearConfiguracionObjeto(prop,configuraciones[prop]);
+        html_components += '</div>'
+        $("#edicionTramite").append(html_components);
     }
 
-    let listaCampos = '{{$listaCampos}}';
-    listaCampos = listaCampos.replace(/&quot;/g, '"');
-    listaCampos = JSON.parse(listaCampos);
+    function consultarSCI(seccion_campo, input){
+        
+        let seccion = seccion_campo.id;
+        let numero_documento = input.value;
+        let respuestaWS = [];
 
-    function generarConfiguracionObjeto(campo,valor){
-        configuraciones[campo] = valor;
-        $('#configuracion').val(JSON.stringify(configuraciones));
-    }
+        if(numero_documento.length >= 10){
+            $.ajax({
+                url: "{{url('/consultarSCI')}}",
+                type: "POST",
+                data: {
+                    tipo_consulta_id: 1,
+                    identificacion: numero_documento,
+                    _token: '{{csrf_token()}}'
+                },
+                dataType: 'json',
+                success: function (response) {
+                    
+                    respuestaWS = response.respuestaWs;
+                    let nombre_completo = respuestaWS.find(dato => dato.campo === 'nombre').valor;
+                    let estado_civil = respuestaWS.find(dato => dato.campo === 'estadoCivil').valor;
+                    let sexo = respuestaWS.find(dato => dato.campo === 'sexo').valor;
+                    let genero = '';
 
-    function setearConfiguracionObjeto(campo,valor){
-        $('#'+campo).val(valor);
-    }
+                    $('#' + seccion + ' input[name="nombre_completo"]').val(nombre_completo);
+                    if(sexo == 'HOMBRE'){
+                        genero = 'MASCULINO';
+                    }else if(sexo == 'MUJER'){
+                        genero = 'FEMENINO';
+                    }
 
-    function generarConfiguracionCamposObjeto(id,obj){
-        let campo = listaCampos.find(campo => campo.id === id);
-        if(obj.id == id + '_editable'){
-            campo.editable = obj.checked;
-        }else{
-            campo.visible = obj.checked;
+                    $('#' + seccion + ' select[name="genero_id"] option').filter(function() {
+                        return $(this).text() === genero;
+                    }).prop('selected', true);
+                    $('#' + seccion + ' select[name="genero_id"]').trigger("change");
+
+                }
+            });
         }
         
-        $('#configuracion_campos').val(JSON.stringify(listaCampos));
     }
+
+    function inicializarObjeto(camposPorSeccion){
+        for (let seccion in camposPorSeccion) {
+            objeto.data[seccion] = {};
+            for (let campo of camposPorSeccion[seccion]) {
+                let long = camposPorSeccion[seccion].length;
+                objeto.data[seccion][campo.variable] = "";
+            }
+        }
+    }
+
+    function generarDataObjeto(seccion){
+        $('#' + seccion).find("input, select").each(function() {
+            console.log('Seccion: ' + seccion + ', Name: ' + $(this).attr('name') + ', Value: ' + $(this).val());
+            objeto.data[seccion][$(this).attr('name')] = $(this).val();
+        });
+        
+        $('#datos').val(JSON.stringify(objeto));
+        
+    }
+    
 </script>
 @endsection

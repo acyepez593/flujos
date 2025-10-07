@@ -67,12 +67,12 @@ class RolePermissionSeeder extends Seeder
                 ]
             ],
             [
-                'group_name' => 'profile',
+                'group_name' => 'flujo',
                 'permissions' => [
                     // profile Permissions
-                    'profile.view',
-                    'profile.edit',
-                    'profile.delete',
+                    'flujo.fallecimientos',
+                    'flujo.funerarios',
+                    'flujo.discapacidad',
                     
                 ]
             ],

@@ -226,7 +226,7 @@
                     $("#overlay").fadeOut(300);
 
                     $("#collapseTwo").collapse('show');
-                    
+                    console.log(response);
                     procesos = response.procesos;
                     creadores = response.creadores;
 
@@ -273,6 +273,8 @@
                             "<td>"+ proceso.created_at+ "</td>";
                             if(proceso.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlIniciarTramite + htmlEdit + htmlConfigCampos + htmlConfigSecuencia + htmlDelete + "</td>";
+                            }else if({{auth()->user()->can('flujo.discapacidad')}}){
+                                innerHTML += "<td>"+htmlIniciarTramite+"</td>";
                             }else{
                                 innerHTML += "<td></td>";
                             }

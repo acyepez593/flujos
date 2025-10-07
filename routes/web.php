@@ -46,7 +46,9 @@ Route::post('/getSecuenciaProcesosByFilters/{proceso_id}','backend\SecuenciaProc
 
 Route::post('/getCamposPorProcesosByFilters/{proceso_id}','backend\CamposPorProcesosController@getCamposPorProcesosByFilters')->middleware('auth:admin');
 
-Route::post('/getTramitessByFilters','backend\TramitesController@getTramitessByFilters')->middleware('auth:admin');
+Route::post('/getBandejaTramitesByFilters','backend\TramitesController@getBandejaTramitesByFilters')->middleware('auth:admin');
+Route::post('/getTramitesByFilters','backend\TramitesController@getTramitesByFilters')->middleware('auth:admin');
+Route::post('/getListaCamposByTramite','backend\TramitesController@getListaCamposByTramite')->middleware('auth:admin');
 
 Route::post('/getTipoCatalogosByFilters','backend\TipoCatalogosController@getTipoCatalogosByFilters')->middleware('auth:admin');
 Route::post('/getCatalogosByFilters','backend\CatalogosController@getCatalogosByFilters')->middleware('auth:admin');
@@ -89,9 +91,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::put('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'update']);
     Route::delete('/camposPorProcesos/{proceso_id}/{id}/delete', [CamposPorProcesosController::class, 'destroy']);
 
-    Route::get('/tramites/{proceso_id}', [TramitesController::class, 'index']);
+    Route::get('/tramites/index', [TramitesController::class, 'index']);
+    Route::get('/tramites/inbox', [TramitesController::class, 'inbox']);
     Route::get('/tramites/{proceso_id}/create', [TramitesController::class, 'create']);
     Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store']);
+    Route::get('/tramites/{id}/edit', [TramitesController::class, 'edit']);
+    Route::put('/tramites/{id}/edit', [TramitesController::class, 'update']);
 
     Route::resource('tipoCatalogos', TipoCatalogosController::class);
     Route::resource('catalogos', CatalogosController::class);
