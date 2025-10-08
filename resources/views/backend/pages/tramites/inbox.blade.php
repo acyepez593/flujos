@@ -518,7 +518,7 @@
 
                                             html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
                                             for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                                if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                                if(typeof datos.data[campo.seccion_campo][campo.variable] !== 'undefined' && datos.data[campo.seccion_campo][campo.variable] !== null){
                                                     if(datos.data[campo.seccion_campo][campo.variable] == catalogo.id){
                                                         html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                                     }else{
@@ -551,7 +551,7 @@
                     }
                     html_components += '</div>'
                     $("#detalleTramite").append(html_components);
-
+                    $(".selectpicker").selectpicker('refresh');
                     $("#overlay").fadeOut(300);
                     $("#modalVerDetalle").modal('show');
 

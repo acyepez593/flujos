@@ -95,10 +95,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::put('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'update']);
     Route::delete('/camposPorProcesos/{proceso_id}/{id}/delete', [CamposPorProcesosController::class, 'destroy']);
 
-    //Route::get('/tramites/index', [TramitesController::class, 'index'])->name('tramites.index');
-    Route::get('/tramites', [TramitesController::class, 'inbox'])->name('tramites.index');
-    Route::get('/tramites/{id}/create', [TramitesController::class, 'create'])->name('tramites.create');
-    Route::post('/tramites/{id}/create', [TramitesController::class, 'store'])->name('tramites.store');
+    Route::get('/tramites', [TramitesController::class, 'index'])->name('tramites.index');
+    Route::get('/tramites/inbox', [TramitesController::class, 'inbox'])->name('tramites.inbox');
+    Route::get('/tramites/{proceso_id}/create', [TramitesController::class, 'create'])->name('tramites.create');
+    Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store'])->name('tramites.store');
     Route::get('/tramites/{id}/edit', [TramitesController::class, 'edit'])->name('tramites.edit');
     Route::put('/tramites/{id}/edit', [TramitesController::class, 'update'])->name('tramites.update');
 

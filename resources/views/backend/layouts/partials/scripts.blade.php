@@ -12,6 +12,8 @@
 <script src="{{ asset('backend/assets/js/bootstrap-datepicker.min.js') }}"></script>
 <!-- Jquery confirm -->
 <script src="{{ asset('backend/assets/js/jquery-confirm.min.js') }}"></script>
+<!-- Jquery validate -->
+<script src="{{ asset('backend/assets/js/jquery-confirm.min.js') }}"></script>
 
 <!-- start chart js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>

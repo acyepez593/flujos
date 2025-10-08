@@ -93,7 +93,6 @@ class TramitesController extends Controller
         $funcionario_actual_id = $creado_por;
         $estatus = "INGRESADO";
 
-
         if(!$request->datos || !isset($request->datos) || empty($request->datos || is_null($request->datos))){
             $datos = "";
         }else{
@@ -117,17 +116,17 @@ class TramitesController extends Controller
         $tramite->creado_por = $creado_por;
         $tramite->save();
 
-        session()->flash('success', __('Tramite ha sido creado satisfactoriamente. '));
+        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '));
         return redirect()->route('admin.tramites.index');
     }
 
     public function edit(int $id): Renderable
     {
-        //$this->checkAuthorization(auth()->user(), ['tramite.edit']);
+        $this->checkAuthorization(auth()->user(), ['tramite.edit']);
 
         $tramite = Tramite::findOrFail($id);
         $proceso_id = $tramite->proceso_id;
-        $secuenciaProceso = SecuenciaProceso::findOrFail('secuencia_proceso_id');
+        $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
         $secuenciaProcesoId = $secuenciaProceso->id;
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $configuracionSecuencia = $secuenciaProceso->configuracion;
@@ -151,29 +150,19 @@ class TramitesController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['tramite.edit']);
 
-        if(!$request->nombre || !isset($request->nombre) || empty($request->nombre || is_null($request->nombre))){
-            $nombre = "";
+        $modificado_por = Auth::id();
+
+        if(!$request->datos || !isset($request->datos) || empty($request->datos || is_null($request->datos))){
+            $datos = "";
         }else{
-            $nombre = $request->nombre;
-        }
-        if(!$request->descripcion || !isset($request->descripcion) || empty($request->descripcion) || is_null($request->descripcion)){
-            $descripcion = "";
-        }else{
-            $descripcion = $request->descripcion;
-        }
-        if(!$request->estatus || !isset($request->estatus) || empty($request->estatus) || is_null($request->estatus)){
-            $estatus = "";
-        }else{
-            $estatus = $request->estatus;
+            $datos = $request->datos;
         }
 
-        $proceso = Proceso::findOrFail($id);
-        $proceso->nombre = $nombre;
-        $proceso->descripcion = $descripcion;
-        $proceso->estatus = $estatus;
-        $proceso->save();
+        $tramite = Tramite::findOrFail($id);
+        $tramite->datos = $datos;
+        $tramite->save();
 
-        session()->flash('success', 'Proceso ha sido actualizado satisfactoriamente.');
+        session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.');
         return redirect()->route('admin.tramites.index');
     }
 
