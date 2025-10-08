@@ -18,10 +18,10 @@ use App\Http\Controllers\Backend\API\RegisterController;
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register', 'register');
     Route::post('login', 'login');
-    Route::post('/getCantonByProvincia','backend\CantonesController@getCantonByProvincia');
+    /*Route::post('/getCantonByProvincia','backend\CantonesController@getCantonByProvincia');
     Route::post('/getParroquiaByCanton','backend\ParroquiasController@getParroquiaByCanton');
     Route::post('/getProvinciasCantonesParroquias','backend\PrestadoresSaludController@getProvinciasCantonesParroquias');
-    Route::post('/getPrestadorSaludByRuc','backend\OficiosController@getPrestadorSaludByRuc');
+    Route::post('/getPrestadorSaludByRuc','backend\OficiosController@getPrestadorSaludByRuc');*/
 });
 
 Route::middleware('auth:sanctum')->group( function () {

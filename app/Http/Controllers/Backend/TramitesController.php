@@ -123,7 +123,7 @@ class TramitesController extends Controller
 
     public function edit(int $id): Renderable
     {
-        $this->checkAuthorization(auth()->user(), ['tramite.edit']);
+        //$this->checkAuthorization(auth()->user(), ['tramite.edit']);
 
         $tramite = Tramite::findOrFail($id);
         $proceso_id = $tramite->proceso_id;
@@ -135,7 +135,7 @@ class TramitesController extends Controller
         $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
 
-        return view('backend.pages.tramites.create', [
+        return view('backend.pages.tramites.edit', [
             'tramite' => $tramite,
             'secuenciaProcesoId' => $secuenciaProcesoId,
             'campos' => $campos,

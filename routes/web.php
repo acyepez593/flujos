@@ -38,8 +38,12 @@ Auth::routes();
 
 Route::get('/', 'HomeController@redirectAdmin')->name('index');
 Route::get('/home', 'HomeController@index')->name('home');
-Route::post('/getReporteByFilters','backend\ReportesController@getReporteByFilters')->middleware('auth:admin');
+/*Route::post('/getReporteByFilters','backend\ReportesController@getReporteByFilters')->middleware('auth:admin');
+*/
 
+/*Route::get('tramites/{id}/edit', [TramitesController::class, 'edit'])->name('tramites.edit')->middleware('auth:admin');
+Route::put('tramites/{id}/edit', [TramitesController::class, 'update'])->name('tramites.update')->middleware('auth:admin');
+*/
 Route::post('/getProcesosByFilters','backend\ProcesosController@getProcesosByFilters')->middleware('auth:admin');
 
 Route::post('/getSecuenciaProcesosByFilters/{proceso_id}','backend\SecuenciaProcesosController@getSecuenciaProcesosByFilters')->middleware('auth:admin');
@@ -54,13 +58,13 @@ Route::post('/getTipoCatalogosByFilters','backend\TipoCatalogosController@getTip
 Route::post('/getCatalogosByFilters','backend\CatalogosController@getCatalogosByFilters')->middleware('auth:admin');
 Route::post('/getCatalogoByTipoCatalogoId','backend\CatalogosController@getCatalogoByTipoCatalogoId')->middleware('auth:admin');
 
-Route::post('/getSeccionPantallasByFilters','backend\SeccionPantallasController@getSeccionPantallasByFilters')->middleware('auth:admin');
+/*Route::post('/getSeccionPantallasByFilters','backend\SeccionPantallasController@getSeccionPantallasByFilters')->middleware('auth:admin');
 
 Route::post('/getConfiguracionesValidacion','backend\ConfiguracionesValidacionController@getConfiguracionesValidacion')->middleware('auth:admin');
 Route::post('/getLogsConfiguracionesValidacion','backend\LogsConfiguracionesValidacionController@getLogsConfiguracionesValidacion')->middleware('auth:admin');
 
 Route::post('/getConfiguracionesCamposReporteByFilters','backend\ConfiguracionesCamposReporteController@getConfiguracionesCamposReporteByFilters')->middleware('auth:admin');
-
+*/
 Route::post('/consultarSCI','backend\TramitesController@consultarSCI')->middleware('auth:admin');
 
 /**
@@ -91,17 +95,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::put('/camposPorProcesos/{proceso_id}/{id}/edit', [CamposPorProcesosController::class, 'update']);
     Route::delete('/camposPorProcesos/{proceso_id}/{id}/delete', [CamposPorProcesosController::class, 'destroy']);
 
-    Route::get('/tramites/index', [TramitesController::class, 'index']);
-    Route::get('/tramites/inbox', [TramitesController::class, 'inbox']);
-    Route::get('/tramites/{proceso_id}/create', [TramitesController::class, 'create']);
-    Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store']);
-    Route::get('/tramites/{id}/edit', [TramitesController::class, 'edit']);
-    Route::put('/tramites/{id}/edit', [TramitesController::class, 'update']);
+    //Route::get('/tramites/index', [TramitesController::class, 'index'])->name('tramites.index');
+    Route::get('/tramites', [TramitesController::class, 'inbox'])->name('tramites.index');
+    Route::get('/tramites/{id}/create', [TramitesController::class, 'create'])->name('tramites.create');
+    Route::post('/tramites/{id}/create', [TramitesController::class, 'store'])->name('tramites.store');
+    Route::get('/tramites/{id}/edit', [TramitesController::class, 'edit'])->name('tramites.edit');
+    Route::put('/tramites/{id}/edit', [TramitesController::class, 'update'])->name('tramites.update');
 
     Route::resource('tipoCatalogos', TipoCatalogosController::class);
     Route::resource('catalogos', CatalogosController::class);
-    Route::resource('pantallas', PantallasController::class);
-    Route::resource('seccionPantallas', SeccionPantallasController::class);
+    //Route::resource('pantallas', PantallasController::class);
+    //Route::resource('seccionPantallas', SeccionPantallasController::class);
     /*Route::resource('configuracionesCamposReporte', ConfiguracionesCamposReporteController::class);*/
     Route::resource('reportes', ReportesController::class);
 
