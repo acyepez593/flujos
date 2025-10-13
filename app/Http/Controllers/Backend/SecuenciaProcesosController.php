@@ -221,6 +221,22 @@ class SecuenciaProcesosController extends Controller
 
     }
 
+    public function getSecuenciaProcesosByProceso(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['proceso.view']);
+
+        $proceso_id = $request->proceso_id;
+        $secuenciaProcesos = SecuenciaProceso::where('estatus','ACTIVO');
+        if(isset($request->proceso_id) && !empty($request->proceso_id)){
+            $secuenciaProcesos = $secuenciaProcesos->where('proceso_id',$proceso_id);
+        }
+        $secuenciaProcesos = $secuenciaProcesos->get(["nombre", "id", "configuracion"]);
+
+        $data['secuenciaProcesos'] = $secuenciaProcesos;
+  
+        return response()->json($data);
+    }
+
     public function getSecuenciaProcesosByFilters(Request $request, int $proceso_id): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['proceso.view']);

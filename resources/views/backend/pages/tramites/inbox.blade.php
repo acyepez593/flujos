@@ -89,12 +89,16 @@
                                     <form>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="proceso_search">Buscar por Procesos:</label>
-                                                <select id="proceso_search" name="proceso_search" class="form-control selectpicker" data-live-search="true">
-                                                    <option value="">Seleccione un Proceso</option>
+                                                <label for="proceso_id_search">Buscar por Procesos:</label>
+                                                <select id="proceso_id_search" name="proceso_id_search" class="form-control selectpicker" data-live-search="true">
                                                     @foreach ($procesos as $key => $value)
                                                         <option value="{{ $value->id }}" {{ ($key) == 0 ? 'selected' : '' }}>{{ $value->nombre }}</option>
                                                     @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="secuencia_proceso_id_search">Buscar por Actividad Actual:</label>
+                                                <select id="secuencia_proceso_id_search" name="secuencia_proceso_id_search" class="form-control selectpicker" data-live-search="true">
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
@@ -153,6 +157,11 @@
                                             </a>
                                         @endif
                                     </p>
+                                    <p class="float-right mb-2" style="padding: 5px;">
+                                        @if (auth()->user()->can('tramite.edit'))
+                                            <button class="btn btn-success" type="button" data-toggle="modal" data-target="#modalSubmitTramite">Continuar con el trámite</button>
+                                        @endif
+                                    </p>
                                     <div class="clearfix"></div>
                                     <div class="data-tables">
                                         
@@ -188,6 +197,34 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalSubmitTramite" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Continuar con trámite</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-12 col-sm-12">
+                            <label for="numero_memorando">Número de memorando</label>
+                            <input type="text" class="form-control" id="numero_memorando" value="">
+                        </div>
+                        <div class="form-group col-md-6 col-sm-12">
+                            <label for="archivo_memorando">Archivo</label>
+                            <input type="file" class="form-control" id="files" name="archivo_memorando" value="" accept=".pdf">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" id="continuarTramite" class="btn btn-warning mt-4 pr-4 pl-4" >Continuar</button>
                 </div>
                 </div>
             </div>
@@ -235,12 +272,42 @@
                 format: "yyyy-mm-dd"
             });
 
-            $('#proceso_search').on('change', function() {
+            $('#proceso_id_search').on('change', function() {
                 let selectedValue = $(this).val();
+
+                $('#secuencia_proceso_id_search').selectpicker('destroy');
+                $("#secuencia_proceso_id_search").html('');
+
                 $('#crearTramite').attr('href', "{{ url('admin') }}/tramites/"+selectedValue+"/create");
+
+                $.ajax({
+                    url: "{{url('/getSecuenciaProcesosByProceso')}}",
+                    method: "POST",
+                    data: {
+                        proceso_id: selectedValue,
+                        _token: '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        $.each(response.secuenciaProcesos, function (key, value) {
+                            if(key == 0){
+                                $("#secuencia_proceso_id_search").append('<option value="' + value.id + '" selected>' + value.nombre + '</option>');
+                            }else{
+                                $("#secuencia_proceso_id_search").append('<option value="' + value.id + '">' + value.nombre + '</option>');
+                            }
+                            
+                        });
+                        
+                        $('.selectpicker').selectpicker('refresh');
+                        
+                    },
+                    error: function(jqXHR, textoEstado, errorEncontrado) {
+                        console.error('Error en la solicitud, por favor vuelva a intentar.');
+                    }
+                });
             });
 
-            $('#proceso_search').trigger("change");
+            $('#proceso_id_search').trigger("change");
 
         });
 
@@ -249,7 +316,8 @@
                 url: "{{url('/getBandejaTramitesByFilters')}}",
                 method: "POST",
                 data: {
-                    proceso_search: $('#proceso_search').val(),
+                    proceso_id_search: $('#proceso_id_search').val(),
+                    secuencia_proceso_id_search: $('#secuencia_proceso_id_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
                     funcionario_search: JSON.stringify($('#funcionario_search').val()),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
@@ -268,12 +336,13 @@
 
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
+                        "<th>Seleccionar</th>"+
                         "<th>Proceso</th>"+
                         "<th>Actividad Actual</th>"+
                         "<th>Funcionario encargado</th>"+
                         "<th>Estatus</th>"+
-                        "<th>Creador Por</th>"+
-                        "<th>Creador En</th>"+
+                        "<th>Creado Por</th>"+
+                        "<th>Creado En</th>"+
                         "<th>Acción</th>";
 
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
@@ -288,13 +357,21 @@
                         let htmlView = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
+                        let htmlCheck = "";
                         
                         htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                         htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
                         htmlDelete += @if (auth()->user()->can('tramite.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tramite.id+')">Borrar</a> <form id="delete-form-'+tramite.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
+                        htmlCheck += @if (auth()->user()->can('tramite.edit')) '<input type="checkbox" id="'+ tramite.id +'" name="select" class="checkSingle" onclick="toggle('+tramite.id+');">' @else '' @endif;
 
                         innerHTML += 
-                            "<td>"+ contador+ "</td>"+
+                            "<td>"+ contador+ "</td>";
+                            if(tramite.habilidato_para_continuar){
+                                innerHTML += "<td>"+ htmlCheck+ "</td>";
+                            }else{
+                                innerHTML += "<td></td>";
+                            }
+                            innerHTML +=
                             "<td>"+ tramite.proceso_nombre+ "</td>"+
                             "<td>"+ tramite.secuencia_nombre+ "</td>"+
                             "<td>"+ tramite.funcionario_actual_nombre+ "</td>"+
@@ -315,7 +392,7 @@
                     $('#dataTable thead tr:eq(1) th').each( function (i) {
                         
                         var title = $(this).text();
-                        if(title !== '#' && title !== 'Acción'){
+                        if(title !== '#' && title !== 'Acción' && title !== 'Seleccionar'){
                             $(this).html( '<input type="text" placeholder="Buscar por: '+title+'" />' );
 
                             $( 'input', this ).on( 'keyup change', function () {

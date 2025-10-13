@@ -261,8 +261,8 @@
                         "<th>Actividad Actual</th>"+
                         "<th>Funcionario encargado</th>"+
                         "<th>Estatus</th>"+
-                        "<th>Creador Por</th>"+
-                        "<th>Creador En</th>"+
+                        "<th>Creado Por</th>"+
+                        "<th>Creado En</th>"+
                         "<th>Acción</th>";
 
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];

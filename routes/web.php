@@ -50,6 +50,8 @@ Route::post('/getSecuenciaProcesosByFilters/{proceso_id}','backend\SecuenciaProc
 
 Route::post('/getCamposPorProcesosByFilters/{proceso_id}','backend\CamposPorProcesosController@getCamposPorProcesosByFilters')->middleware('auth:admin');
 
+Route::post('/getSecuenciaProcesosByProceso','backend\SecuenciaProcesosController@getSecuenciaProcesosByProceso')->middleware('auth:admin');
+
 Route::post('/getBandejaTramitesByFilters','backend\TramitesController@getBandejaTramitesByFilters')->middleware('auth:admin');
 Route::post('/getTramitesByFilters','backend\TramitesController@getTramitesByFilters')->middleware('auth:admin');
 Route::post('/getListaCamposByTramite','backend\TramitesController@getListaCamposByTramite')->middleware('auth:admin');

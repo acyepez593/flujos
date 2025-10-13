@@ -173,13 +173,17 @@ class TramitesController extends Controller
         $funcionario_actual_id = Auth::id();
         $tramites = Tramite::where('funcionario_actual_id',$funcionario_actual_id);
 
-        $filtroProcesoSearch = $request->proceso_search;
+        $filtroProcesoIdSearch = $request->proceso_id_search;
+        $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
         $filtroFuncionarioSearch = json_decode($request->funcionario_search, true);
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
-        if(isset($filtroProcesoSearch) && !empty($filtroProcesoSearch)){
-            $tramites = $tramites->where('proceso_id', 1);
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+        }
+        if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroSecuenciaIdProcesoSearch);
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatus);
@@ -200,11 +204,13 @@ class TramitesController extends Controller
             $procesos_temp[$proceso->id] = $proceso->nombre;
         }
 
-        $secuenciasProceso = SecuenciaProceso::where('proceso_id',$filtroProcesoSearch)->where('estatus','ACTIVO')->get();
+        $secuenciasProceso = SecuenciaProceso::where('proceso_id',$filtroProcesoIdSearch)->where('estatus','ACTIVO')->get();
 
         $secuencias_proceso_temp = [];
+        $configuracion_secuencia_temp = [];
         foreach($secuenciasProceso as $secuencia){
             $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+            $configuracion_secuencia_temp[$secuencia->id] = json_decode($secuencia->configuracion, true);
         }
 
         $creadores = Admin::all();
@@ -223,6 +229,9 @@ class TramitesController extends Controller
             $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
             $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
             $tramite->esEditorRegistro = $usuario_actual_id == $tramite->funcionario_actual_id ? true : false;
+            $tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
+            $tramite->requiere_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_memorando'] : "";
+            $tramite->requiere_adjuntar_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_adjuntar_memorando'] : "";
         }
 
         $data['tramites'] = $tramites;
