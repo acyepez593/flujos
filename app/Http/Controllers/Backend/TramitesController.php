@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class TramitesController extends Controller
 {
@@ -176,8 +177,6 @@ class TramitesController extends Controller
         $filtroProcesoIdSearch = $request->proceso_id_search;
         $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
-        $filtroFuncionarioSearch = json_decode($request->funcionario_search, true);
-        $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
             $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
@@ -187,12 +186,6 @@ class TramitesController extends Controller
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatus);
-        }
-        if(isset($filtroFuncionarioSearch) && !empty($filtroFuncionarioSearch)){
-            $tramites = $tramites->whereIn('funcionario_actual_id', $filtroFuncionarioSearch);
-        }
-        if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
-            $tramites = $tramites->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
         $tramites = $tramites->orderBy('id', 'asc')->get();
@@ -222,7 +215,10 @@ class TramitesController extends Controller
 
         $usuario_actual_id = Auth::id();
 
+        $secuencia_proceso_id = 0;
+
         foreach($tramites as $tramite){
+            $secuencia_proceso_id = $tramite->secuencia_proceso_id;
             $tramite->proceso_nombre = array_key_exists($tramite->proceso_id, $procesos_temp) ? $procesos_temp[$tramite->proceso_id] : "";
             $tramite->secuencia_nombre = array_key_exists($tramite->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$tramite->secuencia_proceso_id] : "";
             $tramite->funcionario_actual_nombre = array_key_exists($tramite->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$tramite->funcionario_actual_id] : "";
@@ -234,10 +230,57 @@ class TramitesController extends Controller
             $tramite->requiere_adjuntar_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_adjuntar_memorando'] : "";
         }
 
+        $secuencia = SecuenciaProceso::findOrFail($secuencia_proceso_id);        
+
         $data['tramites'] = $tramites;
-        $data['creadores'] = $creadores;
+        $data['secuencia'] = $secuencia;
   
         return response()->json($data);
+    }
+
+    public function procesarTramites(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.edit']);
+
+        try {
+            $proceso_id = $request->proceso_id;
+            $tramites_ids = json_decode($request->tramites_ids, true);
+            $numero_memorando = $request->numero_memorando;
+
+            $tramites = Tramite::whereIn('id',$tramites_ids)->get();
+
+            $secuencia_proceso_id = $tramites[0]['secuencia_proceso_id'];
+            $secuencia_proceso = SecuenciaProceso::findOrFail($secuencia_proceso_id);
+            $configuracion_secuencia = json_decode($secuencia_proceso->configuracion, true);
+
+            foreach($tramites as $tramite){
+                $datos = json_decode($tramite->datos, true);
+                $datos['data']['MEMORANDOS'] = [];
+                $datos['data']['MEMORANDOS'][$tramite->secuencia_proceso_id] = [];
+
+                $obj1 = [];
+                $obj['secuencia_proceso_id'] = $tramite->secuencia_proceso_id;
+                $obj['numero_memorando'] = $numero_memorando;
+
+                array_push($datos['data']['MEMORANDOS'][$tramite->secuencia_proceso_id], $obj);
+                $tramite->datos = json_encode($datos);
+
+                if($configuracion_secuencia['requiere_evaluacion'] == false){
+                    $siguiente_secuencia_proceso = SecuenciaProceso::findOrFail($configuracion_secuencia['camino_sin_evaluacion']);
+                    $tramite->secuencia_proceso_id = $configuracion_secuencia['camino_sin_evaluacion'];
+                    $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actores;
+                    $tramite->estatus = 'EN PROCESO DAP';
+                }
+                $tramite->save();
+
+            }
+            return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
+        } catch (Throwable $e) {
+            return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
+        }
+
     }
 
     public function getTramitesByFilters(Request $request): JsonResponse

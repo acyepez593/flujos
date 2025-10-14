@@ -99,6 +99,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
     Route::get('/tramites', [TramitesController::class, 'index'])->name('tramites.index');
     Route::get('/tramites/inbox', [TramitesController::class, 'inbox'])->name('tramites.inbox');
+    Route::post('/tramites/procesarTramites', [TramitesController::class, 'procesarTramites'])->name('tramites.procesarTramites');
     Route::get('/tramites/{proceso_id}/create', [TramitesController::class, 'create'])->name('tramites.create');
     Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store'])->name('tramites.store');
     Route::get('/tramites/{id}/edit', [TramitesController::class, 'edit'])->name('tramites.edit');

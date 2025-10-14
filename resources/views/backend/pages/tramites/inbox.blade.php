@@ -112,26 +112,6 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-row">
-                                            <div class="form-group col-md-6 col-sm-12">
-                                                <label for="funcionario_search">Buscar por Funcionario:</label>
-                                                <select id="funcionario_search" name="funcionario_search" class="form-control selectpicker" data-live-search="true">
-                                                    <option value="">Seleccione un Funcionario</option>
-                                                    @foreach ($funcionarios as $key => $value)
-                                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="form-group col-md-6 col-sm-12">
-                                                <label for="creado_por_search">Buscar por Creador:</label>
-                                                <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true">
-                                                    <option value="">Seleccione un Creador</option>
-                                                    @foreach ($creadores as $key => $value)
-                                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
 
                                         <button type="button" id="buscarTramites" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
                                     </form>
@@ -159,7 +139,7 @@
                                     </p>
                                     <p class="float-right mb-2" style="padding: 5px;">
                                         @if (auth()->user()->can('tramite.edit'))
-                                            <button class="btn btn-success" type="button" data-toggle="modal" data-target="#modalSubmitTramite">Continuar con el trámite</button>
+                                            <button id="procesarTramite" class="btn btn-success" type="button" data-toggle="modal" data-target="#modalSubmitTramite">Procesar trámites</button>
                                         @endif
                                     </p>
                                     <div class="clearfix"></div>
@@ -205,13 +185,13 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Continuar con trámite</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Procesar trámites</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-row">
+                    <!--<div class="form-row">
                         <div class="form-group col-md-12 col-sm-12">
                             <label for="numero_memorando">Número de memorando</label>
                             <input type="text" class="form-control" id="numero_memorando" value="">
@@ -220,11 +200,11 @@
                             <label for="archivo_memorando">Archivo</label>
                             <input type="file" class="form-control" id="files" name="archivo_memorando" value="" accept=".pdf">
                         </div>
-                    </div>
+                    </div>-->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="submit" id="continuarTramite" class="btn btn-warning mt-4 pr-4 pl-4" >Continuar</button>
+                    <button type="button" id="procesar" class="btn btn-warning" >Procesar</button>
                 </div>
                 </div>
             </div>
@@ -251,7 +231,7 @@
         let tableRef = "";
         let tableHeaderRef = "";
         let tramites = [];
-        let creadores = [];
+        let secuencia = [];
 
         $(document).ready(function() {
 
@@ -307,7 +287,46 @@
                 });
             });
 
+            $("#procesar").on( "click", function() {
+                let proceso_id = $('#proceso_id_search').val();
+                let secuencia_proceso_id = $('#secuencia_proceso_id').val();
+                let numero_memorando = $('#numero_memorando').val();
+                $("#overlay").fadeIn(300);
+
+                $.ajax({
+                    url: "{{ url('admin') }}/tramites/procesarTramites",
+                    method: "POST",
+                    data: {
+                        proceso_id: proceso_id,
+                        tramites_ids: JSON.stringify(selected_table_items),
+                        numero_memorando: numero_memorando,
+                        _token: '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#modalSubmitTramite').modal('hide');
+                        $('#dataTable').empty();
+
+                        var tabla = $('#dataTable');
+                        var thead = $('<thead></thead>').appendTo(tabla);
+                        var tbody = $('<tbody><tbody/>').appendTo(tabla);
+                        table = "";
+
+                        loadDataTable();
+                        
+                    },
+                    error: function(jqXHR, textoEstado, errorEncontrado) {
+                        $("#overlay").fadeOut(300);
+                        $('#modalSubmitTramite').modal('hide');
+                        console.error('Error en la solicitud, por favor vuelva a intentar.');
+                    }
+                });
+    
+                
+            });
+            
             $('#proceso_id_search').trigger("change");
+            $("#procesarTramite").prop("disabled", true);
 
         });
 
@@ -325,12 +344,13 @@
                 },
                 dataType: 'json',
                 success: function (response) {
+                    $("#procesarTramite").prop("disabled", true);
                     $("#overlay").fadeOut(300);
 
                     $("#collapseTwo").collapse('show');
                     
                     tramites = response.tramites;
-                    creadores = response.creadores;
+                    secuencia = response.secuencia;
 
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
 
@@ -416,14 +436,41 @@
                         autoWidth: true,
                         responsive: false,
                     });
+
+                    setModalSubmitTramites(JSON.parse(secuencia.configuracion));
                     
                 },
                 error: function(jqXHR, textoEstado, errorEncontrado) {
+                    $("#overlay").fadeOut(300);
                     console.error('Error en la solicitud, por favor vuelva a intentar.');
                 }
             });
         }
 
+        function setModalSubmitTramites(configuracion){
+            let innerHtml = '';
+
+            if(configuracion.requiere_memorando ||  configuracion.requiere_adjuntar_memorando){
+                innerHtml += '<div class="form-row">';
+                if(configuracion.requiere_memorando){
+                    innerHtml += '<div class="form-group col-md-12 col-sm-12">'+
+                        '<label for="numero_memorando">Número de memorando</label>'+
+                        '<input type="text" class="form-control" id="numero_memorando" value="">'+
+                    '</div>';
+                }
+                if(configuracion.requiere_adjuntar_memorando){
+                    innerHtml += '<div class="form-group col-md-6 col-sm-12">'+
+                            '<label for="archivo_memorando">Archivo</label>'+
+                            '<input type="file" class="form-control" id="files" name="archivo_memorando" value="" accept=".pdf">'+
+                        '</div>';
+                }
+                innerHtml += '</div>';
+            }
+            $("#modalSubmitTramite .modal-body").append(innerHtml);
+
+        }
+
+        let selected_table_items = [];
         let html_components = "";
         let listaCampos = [];
         let catalogos = '{{$catalogos}}';
@@ -671,6 +718,11 @@
             selected_table_items = [];
             for (let i = 0; i < checkboxes.length; i++) {
                 selected_table_items.push(checkboxes[i].id);
+            }
+            if(selected_table_items.length == 0){
+                $("#procesarTramite").prop("disabled", true);
+            }else{
+                $("#procesarTramite").prop("disabled", false);
             }
         }
         
