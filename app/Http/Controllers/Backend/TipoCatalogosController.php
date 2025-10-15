@@ -56,6 +56,11 @@ class TipoCatalogosController extends Controller
         }else{
             $nombre = $request->nombre;
         }
+        if(!$request->tipo || !isset($request->tipo) || empty($request->tipo) || is_null($request->tipo)){
+            $tipo = "";
+        }else{
+            $tipo = $request->tipo;
+        }
         if(!$request->estatus || !isset($request->estatus) || empty($request->estatus) || is_null($request->estatus)){
             $estatus = "";
         }else{
@@ -64,6 +69,7 @@ class TipoCatalogosController extends Controller
 
         $tipoCatalogo = new TipoCatalogo();
         $tipoCatalogo->nombre = $nombre;
+        $tipoCatalogo->tipo = $tipo;
         $tipoCatalogo->estatus = $estatus;
         $tipoCatalogo->creado_por = $creado_por;
         $tipoCatalogo->save();
@@ -98,6 +104,11 @@ class TipoCatalogosController extends Controller
         }else{
             $nombre = $request->nombre;
         }
+        if(!$request->tipo || !isset($request->tipo) || empty($request->tipo) || is_null($request->tipo)){
+            $tipo = "";
+        }else{
+            $tipo = $request->tipo;
+        }
         if(!$request->estatus || !isset($request->estatus) || empty($request->estatus) || is_null($request->estatus)){
             $estatus = "";
         }else{
@@ -106,6 +117,7 @@ class TipoCatalogosController extends Controller
 
         $tipoCatalogo = TipoCatalogo::findOrFail($id);
         $tipoCatalogo->nombre = $nombre;
+        $tipoCatalogo->tipo = $tipo;
         $tipoCatalogo->estatus = $estatus;
         $tipoCatalogo->save();
 
@@ -138,11 +150,15 @@ class TipoCatalogosController extends Controller
         $tipoCatalogos = TipoCatalogo::where('id',">",0);
 
         $filtroNombreSearch = $request->nombre_search;
+        $filtroTipo = json_decode($request->tipo_search, true);
         $filtroEstatus = json_decode($request->estatus_search, true);
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
             $tipoCatalogos = $tipoCatalogos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
+        }
+        if(isset($filtroTipo) && !empty($filtroTipo)){
+            $tipoCatalogos = $tipoCatalogos->whereIn('tipo', $filtroTipo);
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
             $tipoCatalogos = $tipoCatalogos->whereIn('estatus', $filtroEstatus);
@@ -151,7 +167,7 @@ class TipoCatalogosController extends Controller
             $tipoCatalogos = $tipoCatalogos->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
-        $tipoCatalogos = $tipoCatalogos->orderBy('id', 'desc')->get();
+        $tipoCatalogos = $tipoCatalogos->orderBy('id', 'asc')->get();
 
         $creadores = Admin::all();
 

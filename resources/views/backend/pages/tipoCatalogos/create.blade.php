@@ -60,6 +60,18 @@ Crear Tipo Catálogo - Admin Panel
                                 </div>
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="tipo">Seleccione un Tipo:</label>
+                                <select id="tipo" name="tipo" class="form-control selectpicker @error('tipo') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="PRINCIPAL" selected>PRINCIPAL</option>
+                                    <option value="DEPENDIENTE">DEPENDIENTE</option>
+                                </select>
+                                @error('tipo')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
                                     <option value="ACTIVO">ACTIVO</option>

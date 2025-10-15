@@ -133,7 +133,7 @@
                                     <p class="float-right mb-2" style="padding: 5px;">
                                         @if (auth()->user()->can('tramite.create'))
                                             <a id="crearTramite" class="btn btn-primary text-white" href="{{ url('admin') }}/tramites/">
-                                                {{ __('Crear Nueva') }}
+                                                {{ __('Crear Nuevo Trámite') }}
                                             </a>
                                         @endif
                                     </p>
@@ -397,7 +397,7 @@
                             "<td>"+ tramite.funcionario_actual_nombre+ "</td>"+
                             "<td>"+ tramite.estatus+ "</td>"+
                             "<td>"+ tramite.creado_por_nombre+ "</td>"+
-                            "<td>"+ tramite.created_at+ "</td>";
+                            "<td>"+ moment(tramite.created_at).format("YYYY-MM-DD HH:mm") + "</td>";
                             if(tramite.esEditorRegistro){
                                 innerHTML +="<td>" + htmlView + htmlEdit + "</td>";
                             }else{

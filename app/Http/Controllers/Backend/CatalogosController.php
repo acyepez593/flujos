@@ -177,7 +177,7 @@ class CatalogosController extends Controller
             $catalogos = $catalogos->whereIn('creado_por', $filtroCreadoPorSearch);
         }
         
-        $catalogos = $catalogos->orderBy('id', 'desc')->get();
+        $catalogos = $catalogos->orderBy('id', 'asc')->get();
 
         $tipos_catalogos = TipoCatalogo::all();
         $creadores = Admin::all();

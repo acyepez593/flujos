@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
+            $table->enum('tipo', ['PRINCIPAL', 'DEPENDIENTE'])->default('PRINCIPAL');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();

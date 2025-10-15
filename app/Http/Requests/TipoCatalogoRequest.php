@@ -25,6 +25,7 @@ class TipoCatalogoRequest extends FormRequest
     {
         return [
             'nombre' => 'required',
+            'tipo' => 'required',
             'estatus' => 'required'
         ];
     }
@@ -38,6 +39,7 @@ class TipoCatalogoRequest extends FormRequest
     {
         return [
             'nombre.required' => 'El campo :attribute es requerido',
+            'tipo.required' => 'El campo :attribute es requerido',
             'estatus.required' => 'El campo :attribute es requerido',
         ];
     }

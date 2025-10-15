@@ -266,7 +266,7 @@
                             "<td>"+ catalogo.nombre+ "</td>"+
                             "<td>"+ catalogo.estatus+ "</td>"+
                             "<td>"+ catalogo.creado_por_nombre+ "</td>"+
-                            "<td>"+ catalogo.created_at+ "</td>";
+                            "<td>"+ moment(catalogo.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
                             if(catalogo.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
                             }else{

@@ -14,6 +14,8 @@
 <script src="{{ asset('backend/assets/js/jquery-confirm.min.js') }}"></script>
 <!-- Jquery validate -->
 <script src="{{ asset('backend/assets/js/jquery-confirm.min.js') }}"></script>
+<!-- Moment -->
+<script src="{{ asset('backend/assets/js/moment.min.js') }}"></script>
 
 <!-- start chart js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>

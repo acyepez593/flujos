@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('catalogos', function (Blueprint $table) {
+        Schema::create('beneficiarios', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tipo_catalogo_id')->constrained('tipo_catalogos');
-            $table->string('nombre');
-            $table->unsignedBigInteger('catalogo_id')->nullable();
-            $table->index('catalogo_id');
-            $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
+            $table->foreignId('tramite_id')->constrained('tramites');
+            $table->json('datos');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('catalogos');
+        Schema::dropIfExists('beneficiarios');
     }
 };

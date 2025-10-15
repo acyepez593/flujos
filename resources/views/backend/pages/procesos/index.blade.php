@@ -270,7 +270,7 @@
                             "<td>"+ proceso.descripcion+ "</td>"+
                             "<td>"+ proceso.estatus+ "</td>"+
                             "<td>"+ proceso.creado_por_nombre+ "</td>"+
-                            "<td>"+ proceso.created_at+ "</td>";
+                            "<td>"+ moment(proceso.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
                             if(proceso.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlIniciarTramite + htmlEdit + htmlConfigCampos + htmlConfigSecuencia + htmlDelete + "</td>";
                             }else if({{auth()->user()->can('flujo.discapacidad')}}){

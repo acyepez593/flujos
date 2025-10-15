@@ -289,7 +289,7 @@
                             "<td>"+ tramite.funcionario_actual_nombre+ "</td>"+
                             "<td>"+ tramite.estatus+ "</td>"+
                             "<td>"+ tramite.creado_por_nombre+ "</td>"+
-                            "<td>"+ tramite.created_at+ "</td>"+
+                            "<td>"+ moment(tramite.created_at).format("YYYY-MM-DD HH:mm")+ "</td>"+
                             "<td>" + htmlView + "</td>";
                             /*if(tramite.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlView + "</td>";

@@ -96,14 +96,21 @@
                                                 <input type="text" class="form-control" id="nombre_search" name="nombre_search">
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
+                                                <label for="tipo_search">Buscar por Tipo:</label>
+                                                <select id="tipo_search" name="tipo_search" class="form-control selectpicker" data-live-search="true" multiple>
+                                                    <option value="PRINCIPAL">PRINCIPAL</option>
+                                                    <option value="DEPENDIENTE">DEPENDIENTE</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="ACTIVO">ACTIVO</option>
                                                     <option value="INACTIVO">INACTIVO</option>
                                                 </select>
                                             </div>
-                                        </div>
-                                        <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="creado_por_search">Buscar por Creador:</label>
                                                 <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true" multiple>
@@ -212,6 +219,7 @@
                 method: "POST",
                 data: {
                     nombre_search: $('#nombre_search').val(),
+                    tipo_search: JSON.stringify($('#tipo_search').val()),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
                     _token: '{{csrf_token()}}'
@@ -230,6 +238,7 @@
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
                         "<th>Nombre</th>"+
+                        "<th>Tipo</th>"+
                         "<th>Estatus</th>"+
                         "<th>Creador Por</th>"+
                         "<th>Fecha de Creación</th>"+
@@ -252,9 +261,10 @@
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
                             "<td>"+ tipoCatalogo.nombre+ "</td>"+
+                            "<td>"+ tipoCatalogo.tipo+ "</td>"+
                             "<td>"+ tipoCatalogo.estatus+ "</td>"+
                             "<td>"+ tipoCatalogo.creado_por_nombre+ "</td>"+
-                            "<td>"+ tipoCatalogo.created_at+ "</td>";
+                            "<td>"+ moment(tipoCatalogo.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
                             if(tipoCatalogo.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
                             }else{

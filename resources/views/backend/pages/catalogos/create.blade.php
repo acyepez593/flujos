@@ -60,7 +60,7 @@ Crear Catálogo - Admin Panel
                                 </div>
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="tipo_catalogo_id">Buscar por Tipo Catálogo:</label>
+                                <label for="tipo_catalogo_id">Tipo Catálogo:</label>
                                 <select id="tipo_catalogo_id" name="tipo_catalogo_id" class="form-control selectpicker" data-live-search="true">
                                     <option value="">Seleccione un Tipo Catálogo</option>
                                     @foreach ($tipoCatalogos as $key => $value)

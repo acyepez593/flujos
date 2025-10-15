@@ -289,7 +289,7 @@
                             "<td>"+ camposPorProceso.seccion_campo+ "</td>"+
                             "<td>"+ camposPorProceso.estatus+ "</td>"+
                             "<td>"+ camposPorProceso.creado_por_nombre+ "</td>"+
-                            "<td>"+ camposPorProceso.created_at+ "</td>";
+                            "<td>"+ moment(camposPorProceso.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
                             if(camposPorProceso.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
                             }else{

@@ -287,7 +287,7 @@
                             "<td>"+ secuenciaProceso.estatus+ "</td>"+
                             "<td>"+ secuenciaProceso.tiempo_procesamiento+ "</td>"+
                             "<td>"+ secuenciaProceso.actores_nombre+ "</td>"+
-                            "<td>"+ secuenciaProceso.created_at+ "</td>";
+                            "<td>"+ moment(secuenciaProceso.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
                             if(secuenciaProceso.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
                             }else{
