@@ -60,12 +60,14 @@ Crear Tipo Catálogo - Admin Panel
                                 </div>
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="tipo">Seleccione un Tipo:</label>
-                                <select id="tipo" name="tipo" class="form-control selectpicker @error('tipo') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="PRINCIPAL" selected>PRINCIPAL</option>
-                                    <option value="DEPENDIENTE">DEPENDIENTE</option>
+                                <label for="tipo_catalogo_relacionado_id">Seleccione un Tipo Catálogo Relacionado:</label>
+                                <select id="tipo_catalogo_relacionado_id" name="tipo_catalogo_relacionado_id" class="form-control selectpicker @error('tipo_catalogo_relacionado_id') is-invalid @enderror" data-live-search="true">
+                                    <option value="">Seleccione un Tipo Catálogo Relacionado</option>
+                                    @foreach ($tipoCatalogosRelacionados as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
                                 </select>
-                                @error('tipo')
+                                @error('tipo_catalogo_relacionado_id')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>

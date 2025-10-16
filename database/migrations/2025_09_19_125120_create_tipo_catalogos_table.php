@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
-            $table->enum('tipo', ['PRINCIPAL', 'DEPENDIENTE'])->default('PRINCIPAL');
+            $table->unsignedBigInteger('tipo_catalogo_relacionado_id')->nullable();
+            $table->index('tipo_catalogo_relacionado_id');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();

@@ -60,12 +60,14 @@ Editar Tipo Catálogo - Panel Tipo Catálogo
                                 </div>
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="tipo">Seleccione un Tipo:</label>
-                                <select id="tipo" name="tipo" class="form-control selectpicker @error('tipo') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="PRINCIPAL" {{ old('tipo', $tipoCatalogo->tipo) == 'PRINCIPAL' ? 'selected' : '' }}>PRINCIPAL</option>
-                                    <option value="DEPENDIENTE" {{ old('tipo', $tipoCatalogo->tipo) == 'DEPENDIENTE' ? 'selected' : '' }}>DEPENDIENTE</option>
+                                <label for="tipo_catalogo_relacionado_id">Seleccione un Tipo Catálogo Relacionado:</label>
+                                <select id="tipo_catalogo_relacionado_id" name="tipo_catalogo_relacionado_id" class="form-control selectpicker @error('tipo_catalogo_relacionado_id') is-invalid @enderror" data-live-search="true">
+                                    <option value="">Seleccione un Tipo Catálogo Relacionado</option>
+                                    @foreach ($tipoCatalogosRelacionados as $key => $value)
+                                        <option value="{{ $key }}" {{ old('tipo_catalogo_relacionado_id', $tipoCatalogo->tipo_catalogo_relacionado_id) == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    @endforeach
                                 </select>
-                                @error('tipo')
+                                @error('tipo_catalogo_relacionado_id')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>

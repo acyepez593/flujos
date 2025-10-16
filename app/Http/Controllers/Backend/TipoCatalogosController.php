@@ -28,8 +28,10 @@ class TipoCatalogosController extends Controller
         $this->checkAuthorization(auth()->user(), ['catalogo.view']);
 
         $creadores = Admin::get(["name", "id"]);
+        $tipoCatalogosRelacionados = TipoCatalogo::where('estatus','ACTIVO')->get(['nombre', 'id', 'tipo_catalogo_relacionado_id']);
 
         return view('backend.pages.tipoCatalogos.index', [
+            'tipoCatalogosRelacionados' => $tipoCatalogosRelacionados,
             'creadores' => $creadores
         ]);
     }
@@ -39,8 +41,10 @@ class TipoCatalogosController extends Controller
         $this->checkAuthorization(auth()->user(), ['catalogo.create']);
 
         $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
+        $tipoCatalogosRelacionados = TipoCatalogo::where('estatus','ACTIVO')->get(['nombre', 'id', 'tipo_catalogo_relacionado_id'])->pluck('nombre','id','tipo_catalogo_relacionado_id');
 
         return view('backend.pages.tipoCatalogos.create', [
+            'tipoCatalogosRelacionados' => $tipoCatalogosRelacionados,
             'creadores' => $creadores
         ]);
     }
@@ -56,10 +60,10 @@ class TipoCatalogosController extends Controller
         }else{
             $nombre = $request->nombre;
         }
-        if(!$request->tipo || !isset($request->tipo) || empty($request->tipo) || is_null($request->tipo)){
-            $tipo = "";
+        if(!$request->tipo_catalogo_relacionado_id || !isset($request->tipo_catalogo_relacionado_id) || empty($request->tipo_catalogo_relacionado_id) || is_null($request->tipo_catalogo_relacionado_id)){
+            $tipo_catalogo_relacionado_id = NULL;
         }else{
-            $tipo = $request->tipo;
+            $tipo_catalogo_relacionado_id = $request->tipo_catalogo_relacionado_id;
         }
         if(!$request->estatus || !isset($request->estatus) || empty($request->estatus) || is_null($request->estatus)){
             $estatus = "";
@@ -69,7 +73,7 @@ class TipoCatalogosController extends Controller
 
         $tipoCatalogo = new TipoCatalogo();
         $tipoCatalogo->nombre = $nombre;
-        $tipoCatalogo->tipo = $tipo;
+        $tipoCatalogo->tipo_catalogo_relacionado_id = $tipo_catalogo_relacionado_id;
         $tipoCatalogo->estatus = $estatus;
         $tipoCatalogo->creado_por = $creado_por;
         $tipoCatalogo->save();
@@ -87,10 +91,12 @@ class TipoCatalogosController extends Controller
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
+        $tipoCatalogosRelacionados = TipoCatalogo::where('estatus','ACTIVO')->get(['nombre', 'id', 'tipo_catalogo_relacionado_id'])->pluck('nombre','id','tipo_catalogo_relacionado_id');
         $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
 
         return view('backend.pages.tipoCatalogos.edit', [
             'tipoCatalogo' => $tipoCatalogo,
+            'tipoCatalogosRelacionados' => $tipoCatalogosRelacionados,
             'creadores' => $creadores
         ]);
     }
@@ -104,10 +110,10 @@ class TipoCatalogosController extends Controller
         }else{
             $nombre = $request->nombre;
         }
-        if(!$request->tipo || !isset($request->tipo) || empty($request->tipo) || is_null($request->tipo)){
-            $tipo = "";
+        if(!$request->tipo_catalogo_relacionado_id || !isset($request->tipo_catalogo_relacionado_id) || empty($request->tipo_catalogo_relacionado_id) || is_null($request->tipo_catalogo_relacionado_id)){
+            $tipo_catalogo_relacionado_id = NULL;
         }else{
-            $tipo = $request->tipo;
+            $tipo_catalogo_relacionado_id = $request->tipo_catalogo_relacionado_id;
         }
         if(!$request->estatus || !isset($request->estatus) || empty($request->estatus) || is_null($request->estatus)){
             $estatus = "";
@@ -117,7 +123,7 @@ class TipoCatalogosController extends Controller
 
         $tipoCatalogo = TipoCatalogo::findOrFail($id);
         $tipoCatalogo->nombre = $nombre;
-        $tipoCatalogo->tipo = $tipo;
+        $tipoCatalogo->tipo_catalogo_relacionado_id = $tipo_catalogo_relacionado_id;
         $tipoCatalogo->estatus = $estatus;
         $tipoCatalogo->save();
 
@@ -147,21 +153,21 @@ class TipoCatalogosController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['catalogo.view']);
 
-        $tipoCatalogos = TipoCatalogo::where('id',">",0);
+        $tipoCatalogos = TipoCatalogo::where('estatus','ACTIVO');
 
         $filtroNombreSearch = $request->nombre_search;
-        $filtroTipo = json_decode($request->tipo_search, true);
-        $filtroEstatus = json_decode($request->estatus_search, true);
+        $filtroTipoCatalogoRelacionadoIdSearch = json_decode($request->tipo_catalogo_relacionado_id_search, true);
+        $filtroEstatusSearch = json_decode($request->estatus_search, true);
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
             $tipoCatalogos = $tipoCatalogos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
         }
-        if(isset($filtroTipo) && !empty($filtroTipo)){
-            $tipoCatalogos = $tipoCatalogos->whereIn('tipo', $filtroTipo);
+        if(isset($filtroTipoCatalogoRelacionadoIdSearch) && !empty($filtroTipoCatalogoRelacionadoIdSearch)){
+            $tipoCatalogos = $tipoCatalogos->whereIn('tipo_catalogo_relacionado_id', $filtroTipoCatalogoRelacionadoIdSearch);
         }
-        if(isset($filtroEstatus) && !empty($filtroEstatus)){
-            $tipoCatalogos = $tipoCatalogos->whereIn('estatus', $filtroEstatus);
+        if(isset($filtroEstatusSearch) && !empty($filtroEstatusSearch)){
+            $tipoCatalogos = $tipoCatalogos->whereIn('estatus', $filtroEstatusSearch);
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
             $tipoCatalogos = $tipoCatalogos->whereIn('creado_por', $filtroCreadoPorSearch);
@@ -178,7 +184,14 @@ class TipoCatalogosController extends Controller
 
         $usuario_actual_id = Auth::id();
 
+        $tipoCatalogosRelacionados = TipoCatalogo::where('estatus','ACTIVO')->get(['nombre', 'id']);
+        $tipo_catalogos_relacionados_temp = [];
+        foreach($tipoCatalogosRelacionados as $tipo){
+            $tipo_catalogos_relacionados_temp[$tipo->id] = $tipo->nombre;
+        }
+
         foreach($tipoCatalogos as $tipoCatalogo){
+            $tipoCatalogo->tipo_catalogo_relacionado_nombre = array_key_exists($tipoCatalogo->tipo_catalogo_relacionado_id, $tipo_catalogos_relacionados_temp) ? $tipo_catalogos_relacionados_temp[$tipoCatalogo->tipo_catalogo_relacionado_id] : "";
             $tipoCatalogo->creado_por_nombre = array_key_exists($tipoCatalogo->creado_por, $creadores_temp) ? $creadores_temp[$tipoCatalogo->creado_por] : "";
             $tipoCatalogo->esCreadorRegistro = $usuario_actual_id == $tipoCatalogo->creado_por ? true : false;
         }

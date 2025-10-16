@@ -42,11 +42,24 @@ class CatalogosController extends Controller
         $this->checkAuthorization(auth()->user(), ['catalogo.create']);
 
         $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
-        $tipoCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
+        $tipoCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(['nombre', 'id', 'tipo']);
+        $tiposCatalogosDependientesIds = [];
+        $tiposCatalogosIds = [];
+        foreach($tipoCatalogos as $tipoCatalogo){
+            if($tipoCatalogo->tipo == 'DEPENDIENTE'){
+                $tiposCatalogosDependientesIds[] = $tipoCatalogo->id;
+            }
+            $tiposCatalogosIds[] = $tipoCatalogo->id;
+        }
+        $tipoCatalogos = $tipoCatalogos->pluck('nombre','id','tipo');
+        $catalogosDependientesByTipoCatalogo = Catalogo::whereIn('tipo_catalogo_id',$tiposCatalogosDependientesIds)->where('estatus','ACTIVO')->get(['tipo_catalogo_id','catalogo_id','id','nombre'])->groupBy('tipo_catalogo_id');
+        $catalogosByTipoCatalogo = Catalogo::whereIn('tipo_catalogo_id',$tiposCatalogosIds)->where('estatus','ACTIVO')->get(['id','nombre']);
 
         return view('backend.pages.catalogos.create', [
             'creadores' => $creadores,
-            'tipoCatalogos' => $tipoCatalogos
+            'tipoCatalogos' => $tipoCatalogos,
+            'catalogosDependientesByTipoCatalogo' => $catalogosDependientesByTipoCatalogo,
+            'catalogosByTipoCatalogo' => $catalogosByTipoCatalogo
         ]);
     }
 
@@ -87,18 +100,35 @@ class CatalogosController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['catalogo.edit']);
 
+        $catalogo_id = $id;
         $catalogo = Catalogo::findOrFail($id);
         if($catalogo->creado_por != Auth::id()){
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
 
-        $tipoCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
+        $tipoCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(['nombre', 'id', 'tipo_catalogo_relacionado_id']);
+
+        $tiposCatalogosRelacionadosIds = [];
+        $tiposCatalogosIds = [];
+        foreach($tipoCatalogos as $tipoCatalogo){
+            if(!empty($tipoCatalogo->tipo_catalogo_relacionado_id)){
+                $tiposCatalogosRelacionadosIds[] = $tipoCatalogo->tipo_catalogo_relacionado_id;
+            }
+            $tiposCatalogosIds[] = $tipoCatalogo->id;
+        }
+
+        $tipoCatalogos = $tipoCatalogos->pluck('nombre','id','tipo');
+        $catalogosRelacionadosByTipoCatalogo = Catalogo::whereIn('tipo_catalogo_id',$tiposCatalogosRelacionadosIds)->where('estatus','ACTIVO')->get(['tipo_catalogo_id','catalogo_id','id','nombre'])->groupBy('tipo_catalogo_id');
+        $catalogosByTipoCatalogo = Catalogo::whereIn('tipo_catalogo_id',$tiposCatalogosIds)->where('estatus','ACTIVO')->get(['id','nombre']);
 
         return view('backend.pages.catalogos.edit', [
             'catalogo' => $catalogo,
             'creadores' => $creadores,
-            'tipoCatalogos' => $tipoCatalogos
+            'tipoCatalogos' => $tipoCatalogos,
+            'catalogosRelacionadosByTipoCatalogo' => $catalogosRelacionadosByTipoCatalogo,
+            'catalogosByTipoCatalogo' => $catalogosByTipoCatalogo,
+            'catalogo_id' => $catalogo_id
         ]);
     }
 

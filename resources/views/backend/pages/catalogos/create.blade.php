@@ -73,6 +73,15 @@ Crear Catálogo - Admin Panel
                             </div>
                         </div>
                         <div class="form-row">
+                            <div id="catalogoDependiente" class="form-group col-md-6 col-sm-12">
+                                <label for="catalogo_id">Catálogo:</label>
+                                <select id="catalogo_id" name="catalogo_id" class="form-control selectpicker" data-live-search="true">
+                                    
+                                </select>
+                                @error('catalogo_id')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
@@ -105,8 +114,46 @@ Crear Catálogo - Admin Panel
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script>
+
+    let catalogosDependientesByTipoCatalogo = '{{$catalogosDependientesByTipoCatalogo}}';
+    catalogosDependientesByTipoCatalogo = catalogosDependientesByTipoCatalogo.replace(/&quot;/g, '"');
+    catalogosDependientesByTipoCatalogo = JSON.parse(catalogosDependientesByTipoCatalogo);
+
+    let catalogosByTipoCatalogo = '{{$catalogosByTipoCatalogo}}'
+    catalogosByTipoCatalogo = catalogosByTipoCatalogo.replace(/&quot;/g, '"');
+    catalogosByTipoCatalogo = JSON.parse(catalogosByTipoCatalogo);
+
     $(document).ready(function() {
         $('.select2').select2();
+
+        $("#tipo_catalogo_id").on("change", function() {
+            if(catalogosDependientesByTipoCatalogo[$(this).val()] != undefined){
+                $('#catalogo_id').selectpicker('destroy');
+                $("#catalogo_id").html('');
+
+                $.each(catalogosDependientesByTipoCatalogo[$(this).val()], function (key, value) {
+                    if(key == 0){
+                        $("#catalogo_id").append('<option value="' + value.id + '" selected>' + catalogosByTipoCatalogo[value.catalogo_id-1].nombre + ' - ' + value.nombre + '</option>');
+                    }else{
+                        $("#catalogo_id").append('<option value="' + value.id + '">' + catalogosByTipoCatalogo[value.catalogo_id-1].nombre + ' - ' + value.nombre + '</option>');
+                    }
+                    
+                });
+                $('#catalogo_id').selectpicker();
+                $('.selectpicker').selectpicker('refresh');
+                $('#catalogoDependiente').show();
+
+            }else{
+                $('#catalogo_id').selectpicker('destroy');
+                $("#catalogo_id").html('');
+                $('#catalogoDependiente').hide();
+            }
+            
+            $('.selectpicker').selectpicker('refresh');
+
+        });
+
+        $('#catalogoDependiente').hide();
     })
 </script>
 @endsection

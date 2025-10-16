@@ -73,6 +73,14 @@ Editar Catálogo - Panel Catálogo
                             </div>
                         </div>
                         <div class="form-row">
+                            <div id="catalogoRelacionado" class="form-group col-md-6 col-sm-12">
+                                <label for="catalogo_id">Seleccione un Catálogo:</label>
+                                <select id="catalogo_id" name="catalogo_id" class="form-control selectpicker @error('catalogo_id') is-invalid @enderror" data-live-search="true" required>
+                                </select>
+                                @error('catalogo_id')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
@@ -104,8 +112,51 @@ Editar Catálogo - Panel Catálogo
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script>
+
+    let catalogosRelacionadosByTipoCatalogo = '{{$catalogosRelacionadosByTipoCatalogo}}';
+    catalogosRelacionadosByTipoCatalogo = catalogosRelacionadosByTipoCatalogo.replace(/&quot;/g, '"');
+    catalogosRelacionadosByTipoCatalogo = JSON.parse(catalogosRelacionadosByTipoCatalogo);
+
+    let catalogosByTipoCatalogo = '{{$catalogosByTipoCatalogo}}';
+    catalogosByTipoCatalogo = catalogosByTipoCatalogo.replace(/&quot;/g, '"');
+    catalogosByTipoCatalogo = JSON.parse(catalogosByTipoCatalogo);
+
+    let catalogo_id = '{{$catalogo_id}}';
+
     $(document).ready(function() {
         $('.select2').select2();
+
+        $("#tipo_catalogo_id").on("change", function() {
+            debugger;
+            if(catalogosRelacionadosByTipoCatalogo[$(this).val()] != undefined){
+                $('#catalogo_id').selectpicker('destroy');
+                $("#catalogo_id").html('');
+                
+                $.each(catalogosRelacionadosByTipoCatalogo[$(this).val()], function (key, value) {
+                    if(value.id == catalogo_id){
+                        $("#catalogo_id").append('<option value="' + value.id + '" selected>' + catalogosByTipoCatalogo[value.catalogo_id-1].nombre + '</option>');
+                    }else{
+                        //if(){}
+                        $("#catalogo_id").append('<option value="' + value.id + '">' + catalogosByTipoCatalogo[value.catalogo_id-1].nombre + '</option>');
+                    }
+                    
+                });
+                $('#catalogo_id').selectpicker();
+                $('.selectpicker').selectpicker('refresh');
+                $('#catalogoRelacionado').show();
+
+            }else{
+                $('#catalogo_id').selectpicker('destroy');
+                $("#catalogo_id").html('');
+                $('#catalogoRelacionado').hide();
+            }
+            
+            $('.selectpicker').selectpicker('refresh');
+
+        });
+
+        $("#tipo_catalogo_id").trigger("change");
+
     })
 </script>
 @endsection
