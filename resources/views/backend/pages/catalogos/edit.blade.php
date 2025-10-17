@@ -64,7 +64,7 @@ Editar Catálogo - Panel Catálogo
                                 <select id="tipo_catalogo_id" name="tipo_catalogo_id" class="form-control selectpicker @error('tipo_catalogo_id') is-invalid @enderror" data-live-search="true" required>
                                     <option value="">Seleccione una Tipo de Catálogo</option>
                                     @foreach ($tipoCatalogos as $key => $value)
-                                        <option value="{{ $key }}" {{ old('tipo_catalogo_id', $catalogo->tipo_catalogo_id) == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                        <option value="{{ $value->id }}" {{ old('tipo_catalogo_id', $value->id) == $catalogo->tipo_catalogo_id ? 'selected' : '' }}>{{ $value->nombre }}</option>
                                     @endforeach
                                 </select>
                                 @error('tipo_catalogo_id')
@@ -74,8 +74,8 @@ Editar Catálogo - Panel Catálogo
                         </div>
                         <div class="form-row">
                             <div id="catalogoRelacionado" class="form-group col-md-6 col-sm-12">
-                                <label for="catalogo_id">Seleccione un Catálogo:</label>
-                                <select id="catalogo_id" name="catalogo_id" class="form-control selectpicker @error('catalogo_id') is-invalid @enderror" data-live-search="true" required>
+                                <label for="catalogo_id">Seleccione el Catálogo Relacionado:</label>
+                                <select id="catalogo_id" name="catalogo_id" class="form-control selectpicker @error('catalogo_id') is-invalid @enderror" data-live-search="true">
                                 </select>
                                 @error('catalogo_id')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -121,23 +121,27 @@ Editar Catálogo - Panel Catálogo
     catalogosByTipoCatalogo = catalogosByTipoCatalogo.replace(/&quot;/g, '"');
     catalogosByTipoCatalogo = JSON.parse(catalogosByTipoCatalogo);
 
-    let catalogo_id = '{{$catalogo_id}}';
+    let tipoCatalogos = '{{$tipoCatalogos}}';
+    tipoCatalogos = tipoCatalogos.replace(/&quot;/g, '"');
+    tipoCatalogos = JSON.parse(tipoCatalogos);
+
+    let catalogo_id = '{{$catalogo->catalogo_id}}';
 
     $(document).ready(function() {
         $('.select2').select2();
 
         $("#tipo_catalogo_id").on("change", function() {
-            debugger;
-            if(catalogosRelacionadosByTipoCatalogo[$(this).val()] != undefined){
+            
+            let temp = tipoCatalogos.find(tipo => tipo.id == $(this).val());
+            if(temp.tipo_catalogo_relacionado_id != undefined){
                 $('#catalogo_id').selectpicker('destroy');
                 $("#catalogo_id").html('');
-                
-                $.each(catalogosRelacionadosByTipoCatalogo[$(this).val()], function (key, value) {
+                $("#catalogo_id").append('<option value="">Seleccione el Catálogo Relacionado</option>');
+                $.each(catalogosRelacionadosByTipoCatalogo[temp.tipo_catalogo_relacionado_id], function (key, value) {
                     if(value.id == catalogo_id){
-                        $("#catalogo_id").append('<option value="' + value.id + '" selected>' + catalogosByTipoCatalogo[value.catalogo_id-1].nombre + '</option>');
+                        $("#catalogo_id").append('<option value="' + value.id + '" selected>' + value.nombre + '</option>');
                     }else{
-                        //if(){}
-                        $("#catalogo_id").append('<option value="' + value.id + '">' + catalogosByTipoCatalogo[value.catalogo_id-1].nombre + '</option>');
+                        $("#catalogo_id").append('<option value="' + value.id + '">' + value.nombre + '</option>');
                     }
                     
                 });

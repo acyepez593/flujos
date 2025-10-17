@@ -61,10 +61,10 @@ Crear Catálogo - Admin Panel
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="tipo_catalogo_id">Tipo Catálogo:</label>
-                                <select id="tipo_catalogo_id" name="tipo_catalogo_id" class="form-control selectpicker" data-live-search="true">
+                                <select id="tipo_catalogo_id" name="tipo_catalogo_id" class="form-control selectpicker" data-live-search="true" required>
                                     <option value="">Seleccione un Tipo Catálogo</option>
                                     @foreach ($tipoCatalogos as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
+                                        <option value="{{ $value->id }}">{{ $value->nombre }}</option>
                                     @endforeach
                                 </select>
                                 @error('tipo_catalogo_id')
@@ -73,10 +73,9 @@ Crear Catálogo - Admin Panel
                             </div>
                         </div>
                         <div class="form-row">
-                            <div id="catalogoDependiente" class="form-group col-md-6 col-sm-12">
-                                <label for="catalogo_id">Catálogo:</label>
-                                <select id="catalogo_id" name="catalogo_id" class="form-control selectpicker" data-live-search="true">
-                                    
+                            <div id="catalogoRelacionado" class="form-group col-md-6 col-sm-12">
+                                <label for="catalogo_id">Seleccione el Catálogo Relacionado:</label>
+                                <select id="catalogo_id" name="catalogo_id" class="form-control selectpicker @error('catalogo_id') is-invalid @enderror" data-live-search="true">
                                 </select>
                                 @error('catalogo_id')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -115,45 +114,51 @@ Crear Catálogo - Admin Panel
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script>
 
-    let catalogosDependientesByTipoCatalogo = '{{$catalogosDependientesByTipoCatalogo}}';
-    catalogosDependientesByTipoCatalogo = catalogosDependientesByTipoCatalogo.replace(/&quot;/g, '"');
-    catalogosDependientesByTipoCatalogo = JSON.parse(catalogosDependientesByTipoCatalogo);
+    let catalogosRelacionadosByTipoCatalogo = '{{$catalogosRelacionadosByTipoCatalogo}}';
+    catalogosRelacionadosByTipoCatalogo = catalogosRelacionadosByTipoCatalogo.replace(/&quot;/g, '"');
+    catalogosRelacionadosByTipoCatalogo = JSON.parse(catalogosRelacionadosByTipoCatalogo);
 
-    let catalogosByTipoCatalogo = '{{$catalogosByTipoCatalogo}}'
+    let catalogosByTipoCatalogo = '{{$catalogosByTipoCatalogo}}';
     catalogosByTipoCatalogo = catalogosByTipoCatalogo.replace(/&quot;/g, '"');
     catalogosByTipoCatalogo = JSON.parse(catalogosByTipoCatalogo);
+
+    let tipoCatalogos = '{{$tipoCatalogos}}';
+    tipoCatalogos = tipoCatalogos.replace(/&quot;/g, '"');
+    tipoCatalogos = JSON.parse(tipoCatalogos);
 
     $(document).ready(function() {
         $('.select2').select2();
 
         $("#tipo_catalogo_id").on("change", function() {
-            if(catalogosDependientesByTipoCatalogo[$(this).val()] != undefined){
+            
+            let temp = tipoCatalogos.find(tipo => tipo.id == $(this).val());
+            if(temp.tipo_catalogo_relacionado_id != undefined){
                 $('#catalogo_id').selectpicker('destroy');
                 $("#catalogo_id").html('');
-
-                $.each(catalogosDependientesByTipoCatalogo[$(this).val()], function (key, value) {
-                    if(key == 0){
-                        $("#catalogo_id").append('<option value="' + value.id + '" selected>' + catalogosByTipoCatalogo[value.catalogo_id-1].nombre + ' - ' + value.nombre + '</option>');
+                $("#catalogo_id").append('<option value="">Seleccione el Catálogo Relacionado</option>');
+                $.each(catalogosRelacionadosByTipoCatalogo[temp.tipo_catalogo_relacionado_id], function (key, value) {
+                    if(value.id == catalogo_id){
+                        $("#catalogo_id").append('<option value="' + value.id + '" selected>' + value.nombre + '</option>');
                     }else{
-                        $("#catalogo_id").append('<option value="' + value.id + '">' + catalogosByTipoCatalogo[value.catalogo_id-1].nombre + ' - ' + value.nombre + '</option>');
+                        $("#catalogo_id").append('<option value="' + value.id + '">' + value.nombre + '</option>');
                     }
                     
                 });
                 $('#catalogo_id').selectpicker();
                 $('.selectpicker').selectpicker('refresh');
-                $('#catalogoDependiente').show();
+                $('#catalogoRelacionado').show();
 
             }else{
                 $('#catalogo_id').selectpicker('destroy');
                 $("#catalogo_id").html('');
-                $('#catalogoDependiente').hide();
+                $('#catalogoRelacionado').hide();
             }
             
             $('.selectpicker').selectpicker('refresh');
 
         });
 
-        $('#catalogoDependiente').hide();
+        $('#catalogoRelacionado').hide();
     })
 </script>
 @endsection

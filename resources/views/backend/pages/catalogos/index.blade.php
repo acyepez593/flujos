@@ -240,6 +240,7 @@
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
                         "<th>Tipo Catálogo</th>"+
+                        "<th>Catálogo Relacionado"+
                         "<th>Nombre</th>"+
                         "<th>Estatus</th>"+
                         "<th>Creador Por</th>"+
@@ -263,6 +264,7 @@
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
                             "<td>"+ catalogo.tipo_catalogo_nombre+ "</td>"+
+                            "<td>"+ catalogo.catalogo_relacionado_nombre+ "</td>"+
                             "<td>"+ catalogo.nombre+ "</td>"+
                             "<td>"+ catalogo.estatus+ "</td>"+
                             "<td>"+ catalogo.creado_por_nombre+ "</td>"+
