@@ -29,12 +29,21 @@ class ListaSeeder extends Seeder
         }
 
         $CamposPorProcesos = [
+            [1, 'select', 'Tipo Expediente', 'tipo_expediente_id', 'RECEPCION', 'ACTIVO', 1],
+            [1, 'text', 'Detalle de la documentación Adicional', 'detalle_documentacion_adicional', 'VICTIMA', 'ACTIVO', 1],
             [1, 'select', 'Tipo Recepción', 'tipo_recepcion_id', 'RECEPCION', 'ACTIVO', 1],
             [1, 'date', 'Fecha Recepción', 'fecha_recepcion', 'RECEPCION', 'ACTIVO', 1],
+            [1, 'date', 'Fecha Recepción Zonal', 'fecha_recepcion_zonal', 'RECEPCION', 'ACTIVO', 1],
+            [1, 'date', 'Fecha del Oficio de la Solicitud', 'fecha_oficio_solicitud', 'RECEPCION', 'ACTIVO', 1],
             [1, 'file', 'Adjuntar Documentos Digitalizados', 'documentos_digitalizados_file', 'RECEPCION', 'ACTIVO', 1],
+
             [1, 'date', 'Fecha del Siniestro', 'fecha_siniestro', 'SINIESTRO', 'ACTIVO', 1],
             [1, 'select', 'Tipo de Accidente', 'tipo_accidente_id', 'SINIESTRO', 'ACTIVO', 1],
+            [1, 'text', 'Lugar del Accidente', 'lugar_accidente', 'SINIESTRO', 'ACTIVO', 1],
+            [1, 'select', 'Provincia del Accidente', 'provincia_accidente_id', 'SINIESTRO', 'ACTIVO', 1],
+            [1, 'select', 'Canton del Accidente', 'canton_accidente_id', 'SINIESTRO', 'ACTIVO', 1],
             [1, 'select', 'Agencia', 'agencia_id', 'SINIESTRO', 'ACTIVO', 1],
+
             [1, 'select', 'Tipo de Identificación', 'tipo_identificacion_id', 'VICTIMA', 'ACTIVO', 1],
             [1, 'text', 'Número Documento', 'numero_documento', 'VICTIMA', 'ACTIVO', 1],
             [1, 'text', 'Nombre Completo', 'nombre_completo', 'VICTIMA', 'ACTIVO', 1],
@@ -45,14 +54,21 @@ class ListaSeeder extends Seeder
             [1, 'select', 'Estado Civil', 'estado_civil_id', 'VICTIMA', 'ACTIVO', 1],
             [1, 'date', 'Fecha de Defunción', 'fecha_defuncion', 'VICTIMA', 'ACTIVO', 1],
             [1, 'number', 'Edad Víctima', 'edad', 'VICTIMA', 'ACTIVO', 1],
+            [1, 'select', 'Autodeterminación Étnica', 'autodeterminacion_etnica_id', 'VICTIMA', 'ACTIVO', 1],
+            [1, 'select', 'Detalle Autodeterminación Étnica', 'detalle_autodeterminacion_etnica_id', 'VICTIMA', 'ACTIVO', 1],
+            [1, 'email', 'Correo electrónico', 'email', 'VICTIMA', 'ACTIVO', 1],
             [1, 'file', 'Adjuntar Cédula', 'fecha_defuncion_file', 'VICTIMA', 'ACTIVO', 1],
+
             [1, 'text', 'Número Documento', 'numero_documento', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'text', 'Nombre Completo', 'nombre_completo', 'BENEFICIARIOS', 'ACTIVO', 1],
+            [1, 'select', 'Género', 'genero_id', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'select', 'Parentesco con Víctima', 'parentesco_victima_id', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'text', 'Porcentaje a Pagar', 'porcentaje_pagar', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'text', 'Valor a Pagar', 'valor_pagar', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'select', 'Cuenta bancaria', 'tipo_cuenta_bancaria_id', 'BENEFICIARIOS', 'ACTIVO', 1],
+            [1, 'select', 'Origen de Cuenta bancaria', 'origen_cuenta_bancaria_id', 'BENEFICIARIOS', 'ACTIVO', 1],
             [1, 'select', 'Es cuenta bancaria de menor de edad', 'es_cuenta_bancaria_menor_id', 'BENEFICIARIOS', 'ACTIVO', 1],
+
             [1, 'select', 'Tipo de Vehículo', 'tipo_vehiculo_id', 'VEHICULO', 'ACTIVO', 1],
             [1, 'text', 'Número de Placa', 'numero_placa', 'VEHICULO', 'ACTIVO', 1],
             [1, 'number', 'Año Fabricación', 'ano_fabricacion', 'VEHICULO', 'ACTIVO', 1],
@@ -61,12 +77,17 @@ class ListaSeeder extends Seeder
             [1, 'text', 'Cilindraje', 'cilindraje', 'VEHICULO', 'ACTIVO', 1],
             [1, 'select', 'Tipo de Servicio', 'tipo_servicio_id', 'VEHICULO', 'ACTIVO', 1],
             [1, 'text', 'Descripción', 'descripcion', 'VEHICULO', 'ACTIVO', 1],
+
             [1, 'select', 'Tipo de Identificación', 'tipo_identificacion_id', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'text', 'Número Documento', 'numero_documento', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'text', 'Nombre Completo', 'nombre_completo', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'select', 'Parentesco con Víctima', 'parentesco_victima_id', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'email', 'Correo electrónico', 'email', 'RECLAMANTE', 'ACTIVO', 1],
             [1, 'text', 'Telefonos', 'telefonos', 'RECLAMANTE', 'ACTIVO', 1],
+
+            [1, 'text', 'Número CUR', 'numero_cur', 'FINANCIERO', 'ACTIVO', 1],
+            [1, 'date', 'Fecha Número CUR', 'fecha_numero_cur', 'FINANCIERO', 'ACTIVO', 1],
+            [1, 'text', 'Observaciones Pago', 'observaciones_pago', 'FINANCIERO', 'ACTIVO', 1],
         ];
 
         foreach ($CamposPorProcesos as $value) {
@@ -156,8 +177,8 @@ class ListaSeeder extends Seeder
             Catalogo::create(['tipo_catalogo_id' => 11, 'nombre' => $value, 'creado_por' => 1]);
         }
 
-        $TipoSCuenta = ['AHORROS', 'CORRIENTE', 'EXTRANJERA'];
-        foreach ($TipoSCuenta as $value) {
+        $TiposCuenta = ['AHORROS', 'CORRIENTE', 'EXTRANJERA'];
+        foreach ($TiposCuenta as $value) {
             Catalogo::create(['tipo_catalogo_id' => 12, 'nombre' => $value, 'creado_por' => 1]);
         }
 

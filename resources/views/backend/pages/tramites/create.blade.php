@@ -220,6 +220,7 @@ Crear Trámite - Admin Panel
         data: {}
     }
     let camposPorSeccion = [];
+    let objBeneficiarios = [];
 
     let catalogos = '{{$catalogos}}';
     catalogos = catalogos.replace(/&quot;/g, '"');
@@ -255,7 +256,6 @@ Crear Trámite - Admin Panel
 
                 for (let campo of camposPorSeccion[seccion]) {
                 
-
                     switch (campo.tipo_campo) {
                         case "text":
                             
@@ -554,10 +554,19 @@ Crear Trámite - Admin Panel
 
     function inicializarObjeto(camposPorSeccion){
         for (let seccion in camposPorSeccion) {
-            objeto.data[seccion] = {};
-            for (let campo of camposPorSeccion[seccion]) {
-                let long = camposPorSeccion[seccion].length;
-                objeto.data[seccion][campo.variable] = "";
+            if(seccion == 'BENEFICIARIOS'){
+                objeto.data[seccion] = [];
+                let obj = {};
+                for (let campo of camposPorSeccion[seccion]) {
+                    obj[campo.variable] = "";
+                }
+                objeto.data[seccion].push(obj);
+                objBeneficiarios = obj;
+            }else{
+                objeto.data[seccion] = {};
+                for (let campo of camposPorSeccion[seccion]) {
+                    objeto.data[seccion][campo.variable] = "";
+                }
             }
         }
     }

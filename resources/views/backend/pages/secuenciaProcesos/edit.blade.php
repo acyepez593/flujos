@@ -695,9 +695,9 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                     innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_requerido' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
                 }
                 if(campo.editable == true){
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";
                 }else{
-                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_editble' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)'></td>";
                 }
                 if(campo.visible == true){
                     innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposObjeto(" + campo.id + ",this)' checked></td>";

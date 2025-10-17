@@ -458,15 +458,29 @@
                         '<input type="text" class="form-control" id="numero_memorando" value="">'+
                     '</div>';
                 }
-                if(configuracion.requiere_adjuntar_memorando){
+                if(configuracion.requiere_fecha_memorando){
+                    innerHtml += '<div class="form-group col-md-12 col-sm-12">'+
+                        '<label for="fecha_memorando">Fecha de memorando</label>'+
+                        '<div class="datepicker date input-group">'+
+                        '<input type="text" class="form-control" id="fecha_memorando" value="">'+
+                        '<div class="input-group-append">'+
+                        '<span class="input-group-text"><i class="fa fa-calendar"></i></span>'+
+                    '</div>';
+                }
+                /*if(configuracion.requiere_adjuntar_memorando){
                     innerHtml += '<div class="form-group col-md-6 col-sm-12">'+
                             '<label for="archivo_memorando">Archivo</label>'+
                             '<input type="file" class="form-control" id="files" name="archivo_memorando" value="" accept=".pdf">'+
                         '</div>';
-                }
+                }*/
                 innerHtml += '</div>';
             }
             $("#modalSubmitTramite .modal-body").append(innerHtml);
+
+            $('.datepicker').datepicker({
+                autoclose: true,
+                format: "yyyy-mm-dd"
+            });
 
         }
 

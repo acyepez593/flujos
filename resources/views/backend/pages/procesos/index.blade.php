@@ -113,7 +113,7 @@
                                                 <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="">Seleccione un Creador</option>
                                                     @foreach ($creadores as $key => $value)
-                                                        <option value="{{ $value->id }}" {{ Auth::user()->id == $value->id ? 'selected' : ''}}>{{ $value->name }}</option>
+                                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -186,6 +186,9 @@
         let tableHeaderRef = "";
         let procesos = [];
         let creadores = [];
+        let var_fallecimientos = "{{auth()->user()->can('flujo.fallecimientos')}}";
+        let var_funerarios = "{{auth()->user()->can('flujo.funerarios')}}";
+        let var_discapacidad = "{{auth()->user()->can('flujo.discapacidad')}}";
 
         $(document).ready(function() {
 
@@ -273,7 +276,7 @@
                             "<td>"+ moment(proceso.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
                             if(proceso.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlIniciarTramite + htmlEdit + htmlConfigCampos + htmlConfigSecuencia + htmlDelete + "</td>";
-                            }else if({{auth()->user()->can('flujo.discapacidad')}}){
+                            }else if(var_fallecimientos != "" || var_funerarios != "" || var_discapacidad != ""){
                                 innerHTML += "<td>"+htmlIniciarTramite+"</td>";
                             }else{
                                 innerHTML += "<td></td>";
