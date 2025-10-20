@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TramiteRequest;
 use App\Models\Admin;
+use App\Models\Beneficiario;
 use App\Models\CamposPorProceso;
 use App\Models\Catalogo;
 use App\Models\Proceso;
@@ -117,8 +118,18 @@ class TramitesController extends Controller
         $tramite->creado_por = $creado_por;
         $tramite->save();
 
+
+        $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
+        foreach($beneficiarios as $ben){
+            $beneficiario = new Beneficiario();
+            $beneficiario->tramite_id = $tramite->id;
+            $beneficiario->datos =json_encode($ben);
+            $beneficiario->creado_por = $creado_por;
+            $beneficiario->save();
+        }
+
         session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '));
-        return redirect()->route('admin.tramites.index');
+        return redirect()->route('admin.tramites.inbox');
     }
 
     public function edit(int $id): Renderable
