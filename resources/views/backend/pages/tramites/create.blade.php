@@ -587,7 +587,6 @@ Crear Trámite - Admin Panel
                     let genero = '';
 
                     if(seccion == 'BENEFICIARIOS'){
-                        debugger;
                         $('#' + id_beneficiario + ' input[name="nombre_completo"]').val(nombre_completo);
                         if(sexo == 'HOMBRE'){
                             genero = 'MASCULINO';

@@ -522,6 +522,7 @@ Editar Trámite - Admin Panel
     function consultarSCI(seccion_campo, input){
         
         let seccion = seccion_campo.id;
+        id_beneficiario = input.parentElement.parentElement.parentElement.parentElement.parentElement.id;
         let numero_documento = input.value;
         let respuestaWS = [];
 
@@ -543,18 +544,31 @@ Editar Trámite - Admin Panel
                     let sexo = respuestaWS.find(dato => dato.campo === 'sexo').valor;
                     let genero = '';
 
-                    $('#' + seccion + ' input[name="nombre_completo"]').val(nombre_completo);
-                    if(sexo == 'HOMBRE'){
-                        genero = 'MASCULINO';
-                    }else if(sexo == 'MUJER'){
-                        genero = 'FEMENINO';
+                    if(seccion == 'BENEFICIARIOS'){
+                        $('#' + id_beneficiario + ' input[name="nombre_completo"]').val(nombre_completo);
+                        if(sexo == 'HOMBRE'){
+                            genero = 'MASCULINO';
+                        }else if(sexo == 'MUJER'){
+                            genero = 'FEMENINO';
+                        }
+
+                        $('#' + id_beneficiario + ' select[name="genero_id"] option').filter(function() {
+                            return $(this).text() === genero;
+                        }).prop('selected', true);
+                        $('#' + id_beneficiario + ' select[name="genero_id"]').trigger("change");
+                    }else{
+                        $('#' + seccion + ' input[name="nombre_completo"]').val(nombre_completo);
+                        if(sexo == 'HOMBRE'){
+                            genero = 'MASCULINO';
+                        }else if(sexo == 'MUJER'){
+                            genero = 'FEMENINO';
+                        }
+
+                        $('#' + seccion + ' select[name="genero_id"] option').filter(function() {
+                            return $(this).text() === genero;
+                        }).prop('selected', true);
+                        $('#' + seccion + ' select[name="genero_id"]').trigger("change");
                     }
-
-                    $('#' + seccion + ' select[name="genero_id"] option').filter(function() {
-                        return $(this).text() === genero;
-                    }).prop('selected', true);
-                    $('#' + seccion + ' select[name="genero_id"]').trigger("change");
-
                 }
             });
         }
