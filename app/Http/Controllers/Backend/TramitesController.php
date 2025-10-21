@@ -100,14 +100,11 @@ class TramitesController extends Controller
         }else{
             $datos = $request->datos;
         }
-
         if(!$request->secuencia_proceso_id || !isset($request->secuencia_proceso_id) || empty($request->secuencia_proceso_id || is_null($request->secuencia_proceso_id))){
             $secuencia_proceso_id = "";
         }else{
             $secuencia_proceso_id = $request->secuencia_proceso_id;
         }
-
-        $secuenciaProceso = SecuenciaProceso::find($secuencia_proceso_id);
 
         $tramite = new Tramite();
         $tramite->proceso_id = $proceso_id;
@@ -117,7 +114,6 @@ class TramitesController extends Controller
         $tramite->estatus = $estatus;
         $tramite->creado_por = $creado_por;
         $tramite->save();
-
 
         $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
         foreach($beneficiarios as $ben){
@@ -145,9 +141,11 @@ class TramitesController extends Controller
         $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
         $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
+        $beneficiarios = Beneficiario::where('tramite_id',$tramite->id)->get();
 
         return view('backend.pages.tramites.edit', [
             'tramite' => $tramite,
+            'beneficiarios' => $beneficiarios,
             'secuenciaProcesoId' => $secuenciaProcesoId,
             'campos' => $campos,
             'configuracionSecuencia' => $configuracionSecuencia,
@@ -162,7 +160,7 @@ class TramitesController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['tramite.edit']);
 
-        $modificado_por = Auth::id();
+        $creado_por = Auth::id();
 
         if(!$request->datos || !isset($request->datos) || empty($request->datos || is_null($request->datos))){
             $datos = "";
@@ -174,8 +172,19 @@ class TramitesController extends Controller
         $tramite->datos = $datos;
         $tramite->save();
 
+        Beneficiario::where('tramite_id',$tramite->id)->delete();
+
+        $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
+        foreach($beneficiarios as $ben){
+            $beneficiario = new Beneficiario();
+            $beneficiario->tramite_id = $tramite->id;
+            $beneficiario->datos =json_encode($ben);
+            $beneficiario->creado_por = $creado_por;
+            $beneficiario->save();
+        }
+
         session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.');
-        return redirect()->route('admin.tramites.index');
+        return redirect()->route('admin.tramites.inbox');
     }
 
     public function getBandejaTramitesByFilters(Request $request): JsonResponse
@@ -242,7 +251,7 @@ class TramitesController extends Controller
             $tramite->requiere_adjuntar_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_adjuntar_memorando'] : "";
         }
 
-        $secuencia = SecuenciaProceso::findOrFail($secuencia_proceso_id);        
+        $secuencia = SecuenciaProceso::find($secuencia_proceso_id);        
 
         $data['tramites'] = $tramites;
         $data['secuencia'] = $secuencia;

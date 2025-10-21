@@ -281,7 +281,6 @@ Crear Trámite - Admin Panel
     function contruirCampos(count,long,seccion){
         let html_components = '';
         for (let campo of camposPorSeccion[seccion]) {
-                
             switch (campo.tipo_campo) {
                 case "text":
                     
@@ -312,7 +311,6 @@ Crear Trámite - Admin Panel
                             }
                         }
                         
-
                         if(long == count){
                             html_components += '</div></div></div></div>';
                         }else{
@@ -641,7 +639,7 @@ Crear Trámite - Admin Panel
             $('#' + seccion).find("input, select").each(function() {
                 let id = $(this).parents('.card').attr('id');
                 let separador = id.split('_');
-                console.log('Seccion: ' + seccion + ', Name: ' + $(this).attr('name') + ', Value: ' + $(this).val());
+
                 if(objeto.data[seccion][separador[1] - 1] !== undefined){
                     objeto.data[seccion][separador[1]-1][$(this).attr('name')] = $(this).val();
                 }else{
@@ -654,13 +652,10 @@ Crear Trámite - Admin Panel
 
         }else{
             $('#' + seccion).find("input, select").each(function() {
-                console.log('Seccion: ' + seccion + ', Name: ' + $(this).attr('name') + ', Value: ' + $(this).val());
                 objeto.data[seccion][$(this).attr('name')] = $(this).val();
             });
         }
 
-        
-        
         $('#datos').val(JSON.stringify(objeto));
         
     }

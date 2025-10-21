@@ -379,7 +379,7 @@
                         let htmlDelete = "";
                         let htmlCheck = "";
                         
-                        htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
+                        htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                         htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
                         htmlDelete += @if (auth()->user()->can('tramite.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tramite.id+')">Borrar</a> <form id="delete-form-'+tramite.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
                         htmlCheck += @if (auth()->user()->can('tramite.edit')) '<input type="checkbox" id="'+ tramite.id +'" name="select" class="checkSingle" onclick="toggle('+tramite.id+');">' @else '' @endif;
@@ -493,7 +493,7 @@
 
         let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
 
-        function mostarDetalle(tramite_id){
+        function mostrarDetalle(tramite_id){
 
             $("#overlay").fadeIn(300);
             $("#detalleTramite").empty();
@@ -533,7 +533,6 @@
 
                             for (let campo of camposPorSeccion[seccion]) {
                             
-
                                 switch (campo.tipo_campo) {
                                     case "text":
                                         
