@@ -100,7 +100,7 @@
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
-                                                    <option value="INGRESADO" selected>INGRESADO</option>
+                                                    <option value="INGRESADO">INGRESADO</option>
                                                     <option value="EN PROCESO DAP">EN PROCESO DAP</option>
                                                     <option value="EN PROCESO AUDITORIA">EN PROCESO AUDITORIA</option>
                                                     <option value="EN PROCESO FINANCIERO">EN PROCESO FINANCIERO</option>
@@ -278,7 +278,7 @@
                         let htmlEdit = "";
                         let htmlDelete = "";
                         
-                        htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
+                        htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                         htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
                         htmlDelete += @if (auth()->user()->can('tramite.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tramite.id+')">Borrar</a> <form id="delete-form-'+tramite.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
 
@@ -345,8 +345,9 @@
 
         let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
         let tramite = [];
+        let datos = [];
 
-        function mostarDetalle(tramite_id){
+        function mostrarDetalle(tramite_id){
 
             $("#overlay").fadeIn(300);
             $("#detalleTramite").empty();
@@ -362,7 +363,7 @@
                 success: function (response) {
 
                     tramite = tramites.find(tramite => tramite.id === tramite_id);
-                    let datos = JSON.parse(tramite.datos);
+                    datos = JSON.parse(tramite.datos);
                     
                     listaCampos = JSON.parse(response.listaCampos);
                     camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
@@ -381,163 +382,32 @@
                             '</h5>'+
                             '</div>'+
                             '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
-                            '<div class="card-body">'+
-                            '<div class="form-row">';
+                            '<div class="card-body">';
+                            if(seccion == 'BENEFICIARIOS'){
+                                for (let [index, beneficiario] of datos.data[seccion].entries()) {
 
-                            for (let campo of camposPorSeccion[seccion]) {
-                            
+                                    html_components += '<div id="beneficiario_' + (index + 1) + '" class="card">'+
+                                    '<div class="card-header">'+
+                                    'Beneficiario';
+                                    
+                                    html_components += '</div>'+
+                                    '<div class="card-body">';
 
-                                switch (campo.tipo_campo) {
-                                    case "text":
-                                        
-                                        if(campo.visible){
-                                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                                            html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
-                                                                '<div class="input-group mb-3">';
+                                    html_components += '<div class="form-row">';
 
-                                            html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + datos.data[campo.seccion_campo][campo.variable] + '" readonly>';
-                                            
-                                            if(long == count){
-                                                html_components += '</div></div></div></div>';
-                                            }else{
-                                                if(count % 2 === 0){
-                                                    html_components += '</div></div></div><div class="form-row">';
-                                                }else{
-                                                    html_components += '</div></div>';
-                                                }
-                                            }
-                                            count ++;
-                                        }
+                                    html_components += contruirCampos(count,long,seccion,index);
 
-                                        break;
-                                    case "date":
-
-                                        if(campo.visible){
-                                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                                            html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + '</label>'+
-                                                                '<div class="datepicker date input-group">';
-
-                                            html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + datos.data[campo.seccion_campo][campo.variable] + '" readonly>';
-
-                                            html_components += '<div class="input-group-append">';
-                                            html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
-                                            html_components += '</div>';
-
-                                            if(long == count){
-                                                html_components += '</div></div></div></div></div>';
-                                            }else{
-                                                if(count % 2 === 0){
-                                                    html_components += '</div></div></div><div class="form-row">';
-                                                }else{
-                                                    html_components += '</div></div>';
-                                                }
-                                            }
-                                            count ++;
-                                        }
-                                        
-                                        break;
-                                    case "number":
-
-                                        if(campo.visible){
-                                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                                            html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + '</label>'+
-                                                                '<div class="input-group mb-3">';
-
-                                            html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + datos.data[campo.seccion_campo][campo.variable] + '" readonly>';
-
-                                            if(long == count){
-                                                html_components +='</div></div></div></div>';
-                                            }else{
-                                                if(count % 2 === 0){
-                                                    html_components +='</div></div></div><div class="form-row">';
-                                                }else{
-                                                    html_components +='</div></div>';
-                                                }
-                                            }
-                                            count ++;
-                                        }
-                                        
-                                        break;
-                                    case "email":
-
-                                        if(campo.visible){
-                                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                                            html_components += '<label for="nombre">' + campo.nombre + '</label>'+
-                                                                '<div class="input-group mb-3">';
-
-                                            html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + datos.data[campo.seccion_campo][campo.variable] + '" readonly>';
-
-                                            if(long == count){
-                                                html_components +='</div></div></div></div>';
-                                            }else{
-                                                if(count % 2 === 0){
-                                                    html_components +='</div></div></div><div class="form-row">';
-                                                }else{
-                                                    html_components +='</div></div>';
-                                                }
-                                            }
-                                            count ++;
-                                        }
-                                        
-                                        break;
-                                    case "file":
-
-                                        if(campo.visible){
-                                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                                            html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
-
-                                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + datos.data[campo.seccion_campo][campo.variable] + '" accept=".pdf" readonly>';
-
-                                            if(long == count){
-                                                html_components += '</div></div></div></div>';
-                                            }else{
-                                                if(count % 2 === 0){
-                                                    html_components += '</div></div><div class="form-row">';
-                                                }else{
-                                                    html_components += '</div>';
-                                                }
-                                            }
-                                            count ++;
-                                        }
-                                        
-                                        break;
-                                    case "select":
-
-                                        if(campo.visible){
-                                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                                            html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
-
-                                            html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
-                                            for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                                if(typeof datos.data[campo.seccion_campo][campo.variable] !== 'undefined' && datos.data[campo.seccion_campo][campo.variable] !== null){
-                                                    if(datos.data[campo.seccion_campo][campo.variable] == catalogo.id){
-                                                        html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                                    }else{
-                                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                                    }
-                                                }else{
-                                                    html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                                }
-                                            }
-                                            html_components += '</select>';
-
-                                            if(long == count){
-                                                html_components +='</div></div></div></div>';
-                                            }else{
-                                                if(count % 2 === 0){
-                                                    html_components +='</div></div><div class="form-row">';
-                                                }else{
-                                                    html_components +='</div>';
-                                                }
-                                            }
-                                            count ++;
-                                        }
-                                        
-                                        break;
+                                    if((index+1) == datos.data[seccion].length){
+                                        html_components += '</div></div></div>';
+                                    }
                                 }
-                                //count ++;
+                            }else{
+                                html_components += '<div class="form-row">';
+
+                                html_components += contruirCampos(count,long,seccion);
+                            
+                                html_components += '</div>';
                             }
-                            html_components += '</div>';
                         }
                     }
                     html_components += '</div>'
@@ -551,6 +421,181 @@
                     console.error('Error en la solicitud, por favor vuelva a intentar.');
                 }
             });
+        }
+
+        function contruirCampos(count,long,seccion,beneficiario_id=null){
+            let html_components = '';
+
+            for (let campo of camposPorSeccion[seccion]) {
+                let valor = '';
+                if(seccion == 'BENEFICIARIOS'){
+                    let valor_campo = '';
+                    if(beneficiario_id !== null){
+                        valor_campo = datos.data[seccion][beneficiario_id][campo.variable];
+                    }
+                    html_components += getCampos(count,long,seccion,campo,valor_campo);
+                }else{
+                    html_components += getCampos(count,long,seccion,campo,datos.data[campo.seccion_campo][campo.variable]);
+                }
+                if(campo.visible){
+                    count ++;
+                }
+            }
+            return html_components;
+        }
+
+        function getCampos(count,long,seccion,campo,valor_campo){
+            let html_components = '';
+
+            switch (campo.tipo_campo) {
+                case "text":
+                    
+                    if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
+                                            '<div class="input-group mb-3">';
+
+                        html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" readonly>';
+                        
+                        if(long == count){
+                            html_components += '</div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components += '</div></div></div><div class="form-row">';
+                            }else{
+                                html_components += '</div></div>';
+                            }
+                        }
+                        count ++;
+                    }
+
+                    break;
+                case "date":
+
+                    if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + '</label>'+
+                                            '<div class="datepicker date input-group">';
+
+                        html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + valor_campo + '" readonly>';
+
+                        html_components += '<div class="input-group-append">';
+                        html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
+                        html_components += '</div>';
+
+                        if(long == count){
+                            html_components += '</div></div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components += '</div></div></div><div class="form-row">';
+                            }else{
+                                html_components += '</div></div>';
+                            }
+                        }
+                        count ++;
+                    }
+                    
+                    break;
+                case "number":
+
+                    if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + '</label>'+
+                                            '<div class="input-group mb-3">';
+
+                        html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + valor_campo + '" readonly>';
+
+                        if(long == count){
+                            html_components +='</div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components +='</div></div></div><div class="form-row">';
+                            }else{
+                                html_components +='</div></div>';
+                            }
+                        }
+                        count ++;
+                    }
+                    
+                    break;
+                case "email":
+
+                    if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="nombre">' + campo.nombre + '</label>'+
+                                            '<div class="input-group mb-3">';
+
+                        html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + valor_campo + '" readonly>';
+
+                        if(long == count){
+                            html_components +='</div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components +='</div></div></div><div class="form-row">';
+                            }else{
+                                html_components +='</div></div>';
+                            }
+                        }
+                        count ++;
+                    }
+                    
+                    break;
+                case "file":
+
+                    if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+
+                        html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
+
+                        if(long == count){
+                            html_components += '</div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components += '</div></div><div class="form-row">';
+                            }else{
+                                html_components += '</div>';
+                            }
+                        }
+                        count ++;
+                    }
+                    
+                    break;
+                case "select":
+
+                    if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
+
+                        html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
+                        for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                            if(typeof valor_campo !== 'undefined' && valor_campo !== null){
+                                if(valor_campo == catalogo.id){
+                                    html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                }else{
+                                    html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                }
+                            }else{
+                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                            }
+                        }
+                        html_components += '</select>';
+
+                        if(long == count){
+                            html_components +='</div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components +='</div></div><div class="form-row">';
+                            }else{
+                                html_components +='</div>';
+                            }
+                        }
+                        count ++;
+                    }
+                    
+                    break;
+            }
+            return html_components;
         }
 
         function deleteDialog(id){
