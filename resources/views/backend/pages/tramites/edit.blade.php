@@ -177,9 +177,6 @@ Editar Trámite - Admin Panel
 		    weekStart: 1
 		};
 
-        //creacion_tramite
-        renderFormPorSecuenciaProceso();
-
         $('.datepicker').datepicker({
             language: 'es',
             autoclose: true,
@@ -187,6 +184,51 @@ Editar Trámite - Admin Panel
             todayHighlight: true,
             endDate: 0
         });
+
+        let selector = '';
+
+        //creacion_tramite
+        renderFormPorSecuenciaProceso();
+
+        for (let index in catalogosRelacionadosVariables) {
+
+            if(index == catalogosRelacionadosVariables.length-1){
+                selector += 'select[name="'+ catalogosRelacionadosVariables[index] +'"]' ;
+            }else{
+                selector += 'select[name="'+ catalogosRelacionadosVariables[index] +'"],';
+            }
+        }
+
+        $(selector).on("change", function() {
+            let dataCatalogo = catalogosByCatalogoId[$(this).val()];
+
+            let temp = tiposCatalogos.find(tipo => tipo.tipo_catalogo_relacionado_id == $(this).val());
+            console.log(temp);
+            /*if(temp.tipo_catalogo_relacionado_id != undefined){
+                $('#catalogo_id').selectpicker('destroy');
+                $("#catalogo_id").html('');
+                $("#catalogo_id").append('<option value="">Seleccione el Catálogo Relacionado</option>');
+                $.each(catalogosRelacionadosByTipoCatalogo[temp.tipo_catalogo_relacionado_id], function (key, value) {
+                    if(value.id == catalogo_id){
+                        $("#catalogo_id").append('<option value="' + value.id + '" selected>' + value.nombre + '</option>');
+                    }else{
+                        $("#catalogo_id").append('<option value="' + value.id + '">' + value.nombre + '</option>');
+                    }
+                    
+                });
+                $('#catalogo_id').selectpicker();
+                $('.selectpicker').selectpicker('refresh');
+
+            }else{
+                $('#catalogo_id').selectpicker('destroy');
+                $("#catalogo_id").html('');
+            }
+            
+            $('.selectpicker').selectpicker('refresh');*/
+
+        });
+
+        //$("#tipo_catalogo_id").trigger("change");
 
         /*for (let campo of listaCampos) {
             if(campo.tipo_campo == 'date'){
@@ -225,6 +267,12 @@ Editar Trámite - Admin Panel
     let id_beneficiario = 0;
     let count = 0;
 
+    let tiposCatalogos = '{{$tiposCatalogos}}';
+    tiposCatalogos = tiposCatalogos.replace(/&quot;/g, '"');
+    tiposCatalogos = JSON.parse(tiposCatalogos);
+    console.log('tiposCatalogos');
+    console.log(tiposCatalogos);
+
     let catalogos = '{{$catalogos}}';
     catalogos = catalogos.replace(/&quot;/g, '"');
     catalogos = JSON.parse(catalogos);
@@ -233,6 +281,25 @@ Editar Trámite - Admin Panel
     datos = datos.replace(/&quot;/g, '"');
     datos = datos.replace(/\\/g , '\\\\');
     datos = JSON.parse(datos);
+
+    let catalogosRelacionadosByTipoCatalogo = '{{$catalogosRelacionadosByTipoCatalogo}}';
+    catalogosRelacionadosByTipoCatalogo = catalogosRelacionadosByTipoCatalogo.replace(/&quot;/g, '"');
+    catalogosRelacionadosByTipoCatalogo = JSON.parse(catalogosRelacionadosByTipoCatalogo);
+    console.log('catalogosRelacionadosByTipoCatalogo');
+    console.log(catalogosRelacionadosByTipoCatalogo);
+
+    let catalogosRelacionadosIds = [];
+    let catalogosRelacionadosVariables = [];
+
+    for (const key in catalogosRelacionadosByTipoCatalogo) {
+        catalogosRelacionadosIds.push(key);
+    }
+
+    let catalogosByCatalogoId = '{{$catalogosByCatalogoId}}';
+    catalogosByCatalogoId = catalogosByCatalogoId.replace(/&quot;/g, '"');
+    catalogosByCatalogoId = JSON.parse(catalogosByCatalogoId);
+    console.log('catalogosByCatalogoId');
+    console.log(catalogosByCatalogoId);
 
     let countBeneficiario = datos.data['BENEFICIARIOS'].length;
 
@@ -664,6 +731,9 @@ Editar Trámite - Admin Panel
                 let obj = {};
                 for (let campo of camposPorSeccion[seccion]) {
                     obj[campo.variable] = "";
+                    if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){
+                        catalogosRelacionadosVariables.push(campo.variable);
+                    }
                 }
                 objeto.data[seccion].push(obj);
                 objBeneficiarios = obj;
@@ -671,6 +741,9 @@ Editar Trámite - Admin Panel
                 objeto.data[seccion] = {};
                 for (let campo of camposPorSeccion[seccion]) {
                     objeto.data[seccion][campo.variable] = "";
+                    if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){
+                        catalogosRelacionadosVariables.push(campo.variable);
+                    }
                 }
             }
         }

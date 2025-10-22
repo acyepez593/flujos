@@ -139,9 +139,22 @@ class TramitesController extends Controller
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $configuracionSecuencia = $secuenciaProceso->configuracion;
         $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
-        $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
-        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
+        $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre","catalogo_id"]);
         $beneficiarios = Beneficiario::where('tramite_id',$tramite->id)->get();
+
+        $tiposCatalogosRelacionadosIds = [];
+        $tiposCatalogosIds = [];
+        foreach($tiposCatalogos as $tipoCatalogo){
+            if(!empty($tipoCatalogo->tipo_catalogo_relacionado_id)){
+                $tiposCatalogosRelacionadosIds[] = $tipoCatalogo->tipo_catalogo_relacionado_id;
+            }
+            $tiposCatalogosIds[] = $tipoCatalogo->id;
+        }
+
+        $catalogosRelacionadosByTipoCatalogo = Catalogo::whereIn('tipo_catalogo_id',$tiposCatalogosRelacionadosIds)->where('estatus','ACTIVO')->get(['tipo_catalogo_id','catalogo_id','id','nombre'])->groupBy('tipo_catalogo_id');
+
+        $catalogosByCatalogoId = Catalogo::where('estatus','ACTIVO')->whereNotNull('catalogo_id')->get(['id','catalogo_id','nombre'])->groupBy('catalogo_id');
 
         return view('backend.pages.tramites.edit', [
             'tramite' => $tramite,
@@ -152,6 +165,8 @@ class TramitesController extends Controller
             'listaCampos' => $listaCampos[0],
             'tiposCatalogos' => $tiposCatalogos,
             'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
+            'catalogosRelacionadosByTipoCatalogo' => $catalogosRelacionadosByTipoCatalogo,
+            'catalogosByCatalogoId' => $catalogosByCatalogoId,
             'proceso_id' => $proceso_id
         ]);
     }
