@@ -867,9 +867,103 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
 
+    for (let campo of listaCampos) {
+        if(campo.configuracion === undefined){
+            campo = inicializarConfiguracionCamposNuevos(campo);
+        }
+    }
+
     let campo_id = "";
     let select_field_default_value = "";
     let select_field_tipo_catalogo = "";
+
+    function inicializarConfiguracionCamposNuevos(campo){
+        
+        campo.requerido = false;
+        campo.editable = false;
+        campo.visible = false;
+        campo.configuracion = {};
+        switch (campo.tipo_campo) {
+            case "text":
+                campo.configuracion = {
+                    text_field_id: campo.id,
+                    text_field_label: campo.nombre,
+                    text_field_value: "",
+                    text_field_helper_text: "",
+                    text_field_placeholder: "",
+                    text_field_class: "form-control",
+                    text_field_name: campo.variable,
+                    text_field_min_legth: "",
+                    text_field_max_legth: ""
+                };
+            break;
+            case "date":
+                campo.configuracion = {
+                    date_field_id: campo.id,
+                    date_field_label: campo.nombre,
+                    date_field_value: "",
+                    date_field_helper_text: "",
+                    date_field_placeholder: "",
+                    date_field_class: "form-control",
+                    date_field_name: campo.variable,
+                    date_field_min_legth: "",
+                    date_field_max_legth: ""
+                };
+            break;
+            case "number":
+                campo.configuracion = {
+                    number_field_id: campo.id,
+                    number_field_label: campo.nombre,
+                    number_field_value: "",
+                    number_field_helper_text: "",
+                    number_field_placeholder: "",
+                    number_field_class: "form-control",
+                    number_field_name: campo.variable,
+                    number_field_min: "",
+                    number_field_max: "",
+                    number_field_step: "",
+                };
+            break;
+            case "email":
+                campo.configuracion = {
+                    email_field_id: campo.id,
+                    email_field_label: campo.nombre,
+                    email_field_value: "",
+                    email_field_helper_text: "",
+                    email_field_placeholder: "",
+                    email_field_class: "form-control",
+                    email_field_name: campo.variable,
+                    email_field_max_legth: ""
+                };
+            break;
+            case "file":
+                campo.configuracion = {
+                    file_field_id: campo.id,
+                    file_field_label: campo.nombre,
+                    file_field_helper_text: "",
+                    file_field_placeholder: "",
+                    file_field_class: "form-control",
+                    file_field_name: campo.variable,
+                    file_field_multiple_file_upload: false
+                };
+            break;
+            case "select":
+                campo.configuracion = {
+                    select_field_id: campo.id,
+                    select_field_tipo_catalogo: "",
+                    select_field_default_value: "",
+                    select_field_label: campo.nombre,
+                    select_field_helper_text: "",
+                    select_field_placeholder: "",
+                    select_field_class: "form-control",
+                    select_field_name: campo.variable,
+                    select_field_multiple_selection: false
+                };
+            break;
+        }
+        return campo;  
+        
+    }
 
     function getField(id){
         campo_id = id;

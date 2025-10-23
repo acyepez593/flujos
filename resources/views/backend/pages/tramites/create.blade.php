@@ -156,6 +156,9 @@ Crear Trámite - Admin Panel
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script>
+    let selectorPadre = '.catalogo_padre';
+    let selectorHijo = '';
+
     $(document).ready(function() {
         $('.select2').select2();
 
@@ -176,6 +179,9 @@ Crear Trámite - Admin Panel
 		    weekStart: 1
 		};
 
+        /*let selectorPadre = '';
+        let selectorHijo = '';*/
+
         //creacion_tramite
         renderFormPorSecuenciaProceso();
 
@@ -186,6 +192,47 @@ Crear Trámite - Admin Panel
             todayHighlight: true,
             endDate: 0
         });
+
+        for (let index in catalogosRelacionadosVariables) {
+
+            if(index == catalogosRelacionadosVariables.length-1){
+                selectorPadre += 'select[name="'+ catalogosRelacionadosVariables[index] +'"]' ;
+            }else{
+                selectorPadre += 'select[name="'+ catalogosRelacionadosVariables[index] +'"],';
+            }
+        }
+
+        $(selectorPadre).on("change", function() {
+            let dataCatalogo = catalogosByCatalogoId[$(this).val()];
+            let seccion = $(this).parents('.collapse').attr('id');
+
+            if(dataCatalogo != undefined){
+                let id = dataCatalogo[0].tipo_catalogo_id;
+                let variable = camposPorSeccion[seccion].find(campo => campo.configuracion.select_field_tipo_catalogo == id).variable;
+
+                if(seccion == 'BENEFICIARIOS'){
+                    let id_ben = $(this).parents('.card').attr('id');
+                    selectorHijo = '#' + id_ben + ' select[name="'+ variable +'"]';
+                }else{
+                    selectorHijo = 'select[name="'+ variable +'"]';
+                }
+                
+                $(selectorHijo).selectpicker('destroy');
+                $(selectorHijo).html('');
+                $(selectorHijo).append('<option value="">Seleccione el Catálogo Relacionado</option>');
+                $.each(dataCatalogo, function (key, value) {
+                    $(selectorHijo).append('<option value="' + value.id + '">' + value.nombre + '</option>');
+                });
+                $(selectorHijo).selectpicker();
+                $('.selectpicker').selectpicker('refresh');
+            }else{
+                $(selectorHijo).selectpicker('destroy');
+                $(selectorHijo).html('');
+            }
+
+        });
+
+        $(selectorPadre).trigger("change");
 
         /*for (let campo of listaCampos) {
             if(campo.tipo_campo == 'date'){
@@ -222,9 +269,34 @@ Crear Trámite - Admin Panel
     let camposPorSeccion = [];
     let objBeneficiarios = [];
 
+    let tiposCatalogos = '{{$tiposCatalogos}}';
+    tiposCatalogos = tiposCatalogos.replace(/&quot;/g, '"');
+    tiposCatalogos = JSON.parse(tiposCatalogos);
+    console.log('tiposCatalogos');
+    console.log(tiposCatalogos);
+    
     let catalogos = '{{$catalogos}}';
     catalogos = catalogos.replace(/&quot;/g, '"');
     catalogos = JSON.parse(catalogos);
+
+    let catalogosRelacionadosByTipoCatalogo = '{{$catalogosRelacionadosByTipoCatalogo}}';
+    catalogosRelacionadosByTipoCatalogo = catalogosRelacionadosByTipoCatalogo.replace(/&quot;/g, '"');
+    catalogosRelacionadosByTipoCatalogo = JSON.parse(catalogosRelacionadosByTipoCatalogo);
+    console.log('catalogosRelacionadosByTipoCatalogo');
+    console.log(catalogosRelacionadosByTipoCatalogo);
+
+    let catalogosRelacionadosIds = [];
+    let catalogosRelacionadosVariables = [];
+
+    for (const key in catalogosRelacionadosByTipoCatalogo) {
+        catalogosRelacionadosIds.push(key);
+    }
+
+    let catalogosByCatalogoId = '{{$catalogosByCatalogoId}}';
+    catalogosByCatalogoId = catalogosByCatalogoId.replace(/&quot;/g, '"');
+    catalogosByCatalogoId = JSON.parse(catalogosByCatalogoId);
+    console.log('catalogosByCatalogoId');
+    console.log(catalogosByCatalogoId);
 
     let countBeneficiario = 1;
     let id_beneficiario = 0;
@@ -535,7 +607,8 @@ Crear Trámite - Admin Panel
         let seccion = 'BENEFICIARIOS';
         let count = 1;
         let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
-        let html_components = '<div id="beneficiario_' + countBeneficiario + '" class="card">';
+        let id_ben = 'beneficiario_' + countBeneficiario;
+        let html_components = '<div id="' + id_ben + '" class="card">';
         html_components += '<div class="card-header">'+
         'Beneficiario'+
         '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Eliminar" href="javascript:void(0);" onclick="event.preventDefault(); eliminarBeneficiario(this)"><i class="fa fa-trash fa-2x"></i></a>'+
@@ -549,6 +622,36 @@ Crear Trámite - Admin Panel
         html_components += '</div></div></div>';
 
         $("#BENEFICIARIOS .card-body:first").append(html_components);
+
+        $('#' + id_ben +' select.catalogo_padre').on("change", function() {
+            let dataCatalogo = catalogosByCatalogoId[$(this).val()];
+            let seccion = $(this).parents('.collapse').attr('id');
+
+            if(dataCatalogo != undefined){
+                let id = dataCatalogo[0].tipo_catalogo_id;
+                let variable = camposPorSeccion[seccion].find(campo => campo.configuracion.select_field_tipo_catalogo == id).variable;
+
+                if(seccion == 'BENEFICIARIOS'){
+                    let id_ben = $(this).parents('.card').attr('id');
+                    selectorHijo = '#' + id_ben + ' select[name="'+ variable +'"]';
+                }else{
+                    selectorHijo = 'select[name="'+ variable +'"]';
+                }
+                
+                $(selectorHijo).selectpicker('destroy');
+                $(selectorHijo).html('');
+                $(selectorHijo).append('<option value="">Seleccione el Catálogo Relacionado</option>');
+                $.each(dataCatalogo, function (key, value) {
+                    $(selectorHijo).append('<option value="' + value.id + '">' + value.nombre + '</option>');
+                });
+                $(selectorHijo).selectpicker();
+                $('.selectpicker').selectpicker('refresh');
+            }else{
+                $(selectorHijo).selectpicker('destroy');
+                $(selectorHijo).html('');
+            }
+
+        });
     }
 
     function eliminarBeneficiario(input){
@@ -622,6 +725,9 @@ Crear Trámite - Admin Panel
                 let obj = {};
                 for (let campo of camposPorSeccion[seccion]) {
                     obj[campo.variable] = "";
+                    if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){
+                        catalogosRelacionadosVariables.push(campo.variable);
+                    }
                 }
                 objeto.data[seccion].push(obj);
                 objBeneficiarios = obj;
@@ -629,6 +735,9 @@ Crear Trámite - Admin Panel
                 objeto.data[seccion] = {};
                 for (let campo of camposPorSeccion[seccion]) {
                     objeto.data[seccion][campo.variable] = "";
+                    if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){
+                        catalogosRelacionadosVariables.push(campo.variable);
+                    }
                 }
             }
         }

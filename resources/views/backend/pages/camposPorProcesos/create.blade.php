@@ -50,8 +50,8 @@ Crear Campo por Proceso - Admin Panel
                     <form action="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group col-md-6 col-sm-12">
-                            <label for="seccion_campo">Seleccione el Tipo de Campo:</label>
-                            <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
+                            <label for="tipo_campo">Seleccione el Tipo de Campo:</label>
+                            <select id="tipo_campo" name="tipo_campo" class="form-control selectpicker @error('tipo_campo') is-invalid @enderror" data-live-search="true" required>
                                 <option value="text">TEXTO</option>
                                 <option value="textarea">ÁREA DE TEXTO</option>
                                 <option value="hidden">OCULTO</option>
@@ -62,7 +62,7 @@ Crear Campo por Proceso - Admin Panel
                                 <option value="file">ARCHIVO</option>
                                 <option value="select">SELECCIONABLE</option>
                             </select>
-                            @error('seccion_campo')
+                            @error('tipo_campo')
                                 <div class="alert alert-danger">{{ $message }}</div>
                             @enderror
                         </div>

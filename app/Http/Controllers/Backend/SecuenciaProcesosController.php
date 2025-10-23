@@ -134,7 +134,17 @@ class SecuenciaProcesosController extends Controller
 
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->where('id','<>',$id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
-        $listaCampos = $secuenciaProceso->configuracion_campos;
+        $configuracion_campos = json_decode($secuenciaProceso->configuracion_campos,true);
+        $listadoCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
+        $temp = [];
+
+        foreach($listadoCampos as $index => $lista){
+            if(!isset($configuracion_campos[$index])){
+                $temp[] = $lista;
+            }
+        }
+        $listaCampos = array_merge($configuracion_campos, $temp);
+
         $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
 
@@ -143,7 +153,7 @@ class SecuenciaProcesosController extends Controller
             'secuenciaProceso' => $secuenciaProceso,
             'proceso_id' => $proceso_id,
             'listaActividades' => $listaActividades,
-            'listaCampos' => $listaCampos,
+            'listaCampos' => json_encode($listaCampos),
             'tiposCatalogos' => $tiposCatalogos,
             'campos' => $campos
         ]);
