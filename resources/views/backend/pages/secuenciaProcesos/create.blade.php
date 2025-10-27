@@ -261,6 +261,46 @@ Crear Secuencia Proceso - Admin Panel
 
                         <div class="clearfix"></div>
 
+                        <h4 class="header-title">Configuración de Correo</h4>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="habilitar_envio">Habilitar Envio?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="habilitar_envio">
+                                    <label class="custom-control-label" for="habilitar_envio"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="subject">Subject</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control @error('subject') is-invalid @enderror" id="subject" name="subject" value="{{ old('subject') }}" required>
+                                    @error('subject')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="subject">CC</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control @error('cc') is-invalid @enderror" id="cc" name="subject" value="{{ old('cc') }}" required>
+                                    @error('cc')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="content" class="form-label">Contenido Html del Correo</label>
+                                <textarea class="form-control" id="content" name="content" rows="6"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+
                         <h4 class="header-title">Configuración de campos</h4>
                         
                         <div class="data-tables">
@@ -284,6 +324,7 @@ Crear Secuencia Proceso - Admin Panel
                         
                         <input type="hidden" id="configuracion" name="configuracion">
                         <input type="hidden" id="configuracion_campos" name="configuracion_campos">
+                        <input type="hidden" id="configuracion_correo" name="configuracion_correo">
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>

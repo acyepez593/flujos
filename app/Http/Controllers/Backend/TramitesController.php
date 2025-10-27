@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Backend;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TramiteRequest;
+use App\Mail\Notification;
 use App\Models\Admin;
 use App\Models\Beneficiario;
 use App\Models\CamposPorProceso;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -325,9 +327,17 @@ class TramitesController extends Controller
                 $tramite->save();
 
             }
+
+            $proceso = Proceso::find($tramite->proceso_id);
+
+            $subject = 'Trámites asigndos del Proceso ' . $proceso->nombre;
+            $content = '<!doctypehtml><title>Proceso '. $proceso->nombre .'</title><h1>Trámites pendientes</h1><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<p>Thank you</p>';
+            //Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
+            Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
+
             return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
+            return response()->json(['error' => 'Algo salió mal, por favor intente nuevamenteee.'.env('MAIL_HOST').'--'.env('MAIL_PORT'). '------'.$e], 500);
         } catch (Throwable $e) {
             return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
         }
