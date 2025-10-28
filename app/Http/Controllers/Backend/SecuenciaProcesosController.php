@@ -141,6 +141,7 @@ class SecuenciaProcesosController extends Controller
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->where('id','<>',$id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $configuracion_campos = json_decode($secuenciaProceso->configuracion_campos,true);
+        $configuracion_correo = json_decode($secuenciaProceso->configuracion_correo,true);
         $listadoCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
         $temp = [];
 
@@ -150,6 +151,13 @@ class SecuenciaProcesosController extends Controller
             }
         }
         $listaCampos = array_merge($configuracion_campos, $temp);
+
+        $contenido_html = $configuracion_correo['contenido_html'];
+        foreach($configuracion_correo as $index => $conf){
+            if($index == 'contenido_html'){
+                $configuracion_correo[$index] = '';
+            }
+        }
 
         $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
@@ -161,7 +169,9 @@ class SecuenciaProcesosController extends Controller
             'listaActividades' => $listaActividades,
             'listaCampos' => json_encode($listaCampos),
             'tiposCatalogos' => $tiposCatalogos,
-            'campos' => $campos
+            'campos' => $campos,
+            'configuracion_correo' => json_encode($configuracion_correo),
+            'contenido_html' => $contenido_html
         ]);
     }
 
@@ -204,6 +214,11 @@ class SecuenciaProcesosController extends Controller
         }else{
             $configuracion_campos = $request->configuracion_campos;
         }
+        if(!$request->configuracion_correo || !isset($request->configuracion_correo) || empty($request->configuracion_correo) || is_null($request->configuracion_correo)){
+            $configuracion_correo = "";
+        }else{
+            $configuracion_correo = $request->configuracion_correo;
+        }
 
         $secuenciaProceso = SecuenciaProceso::findOrFail($id);
         $secuenciaProceso->nombre = $nombre;
@@ -213,6 +228,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->actores = $actores;
         $secuenciaProceso->configuracion = $configuracion;
         $secuenciaProceso->configuracion_campos = $configuracion_campos;
+        $secuenciaProceso->configuracion_correo = $configuracion_correo;
         $secuenciaProceso->save();
 
         session()->flash('success', 'Secuencia Proceso ha sido actualizado satisfactoriamente.');

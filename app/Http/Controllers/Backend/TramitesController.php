@@ -329,9 +329,10 @@ class TramitesController extends Controller
             }
 
             $proceso = Proceso::find($tramite->proceso_id);
+            $configuracion_correo = json_decode($secuencia_proceso->configuracion_correo,true);
 
-            $subject = 'Trámites asigndos del Proceso ' . $proceso->nombre;
-            $content = '<!doctypehtml><title>Proceso '. $proceso->nombre .'</title><h1>Trámites pendientes</h1><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<p>Thank you</p>';
+            $subject = $configuracion_correo['subject'] . ' ' . $proceso->nombre;
+            $content = $configuracion_correo['contenido_html'];
             //Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
             Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
 

@@ -258,6 +258,46 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 
                         <div class="clearfix"></div>
 
+                        <h4 class="header-title">Configuración de Correo</h4>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="habilitar_envio">Habilitar Envio?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" onchange="generarConfiguracionObjetoCorreo('habilitar_envio',this.checked)" class="custom-control-input" id="habilitar_envio">
+                                    <label class="custom-control-label" for="habilitar_envio"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="subject">Subject</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('subject',this.value)" class="form-control @error('subject') is-invalid @enderror" id="subject" name="subject" value="{{ old('subject') }}" required>
+                                    @error('subject')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="cc">CC</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('cc',this.value)" class="form-control @error('cc') is-invalid @enderror" id="cc" name="subject" value="{{ old('cc') }}" required>
+                                    @error('cc')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="contenido_html" class="form-label">Contenido Html del Correo</label>
+                                <textarea onchange="generarConfiguracionObjetoCorreo('contenido_html',this.value)" class="form-control" id="contenido_html" name="contenido_html" rows="6" value="old('contenido_html', $contenido_html)"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+
                         <h4 class="header-title">Configuración de campos</h4>
                         
                         <div class="data-tables">
@@ -281,6 +321,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                         
                         <input type="hidden" id="configuracion" name="configuracion">
                         <input type="hidden" id="configuracion_campos" name="configuracion_campos">
+                        <input type="hidden" id="configuracion_correo" name="configuracion_correo">
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
@@ -679,6 +720,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 
         $('#requiere_evaluacion').change();
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
+        $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
 
         tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
 
@@ -867,6 +909,20 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
 
+    let objetoCorreo = '{{$configuracion_correo}}';
+    objetoCorreo = objetoCorreo.replace(/&quot;/g, '"');
+    objetoCorreo = JSON.parse(objetoCorreo);
+
+    let contenido_html = '{{$contenido_html}}';
+    contenido_html = contenido_html.replace(/&quot;/g, '"');
+    contenido_html = contenido_html.replace(/&lt;/g, '<');
+    contenido_html = contenido_html.replace(/&gt;/g, '>');
+
+    for (let prop in objetoCorreo) {
+        console.log(`${prop}: ${objetoCorreo[prop]}`);
+        setearConfiguracionObjetoCorreo(prop,objetoCorreo[prop]);
+    }
+
     for (let campo of listaCampos) {
         if(campo.configuracion === undefined){
             campo = inicializarConfiguracionCamposNuevos(campo);
@@ -1037,6 +1093,17 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         $('#'+campo).val(valor);
     }
 
+    function setearConfiguracionObjetoCorreo(campo,valor){
+        if(campo == 'habilitar_envio'){
+            $('#'+campo).prop('checked', valor);
+        }else if(campo == 'contenido_html'){
+            $('#'+campo).val(contenido_html);
+            objetoCorreo[campo] = contenido_html;
+        }else{
+            $('#'+campo).val(valor);
+        }
+    }
+
     function generarConfiguracionCamposObjeto(id,obj){
         let campo = listaCampos.find(campo => campo.id === id);
         if(obj.id == id + '_requerido'){
@@ -1048,6 +1115,11 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         }
         
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
+    }
+
+    function generarConfiguracionObjetoCorreo(campo,valor){
+        objetoCorreo[campo] = valor;
+        $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
     }
 </script>
 @endsection

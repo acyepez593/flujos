@@ -267,7 +267,7 @@ Crear Secuencia Proceso - Admin Panel
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="habilitar_envio">Habilitar Envio?:</label>
                                 <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="habilitar_envio">
+                                    <input type="checkbox" onchange="generarConfiguracionObjetoCorreo('habilitar_envio',this.checked)" class="custom-control-input" id="habilitar_envio">
                                     <label class="custom-control-label" for="habilitar_envio"></label>
                                 </div>
                             </div>
@@ -276,16 +276,16 @@ Crear Secuencia Proceso - Admin Panel
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="subject">Subject</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('subject') is-invalid @enderror" id="subject" name="subject" value="{{ old('subject') }}" required>
+                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('subject',this.value)" class="form-control @error('subject') is-invalid @enderror" id="subject" name="subject" value="{{ old('subject') }}" required>
                                     @error('subject')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="subject">CC</label>
+                                <label for="cc">CC</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('cc') is-invalid @enderror" id="cc" name="subject" value="{{ old('cc') }}" required>
+                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('cc',this.value)" class="form-control @error('cc') is-invalid @enderror" id="cc" name="subject" value="{{ old('cc') }}" required>
                                     @error('cc')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
@@ -294,8 +294,8 @@ Crear Secuencia Proceso - Admin Panel
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="content" class="form-label">Contenido Html del Correo</label>
-                                <textarea class="form-control" id="content" name="content" rows="6"></textarea>
+                                <label for="contenido_html" class="form-label">Contenido Html del Correo</label>
+                                <textarea onchange="generarConfiguracionObjetoCorreo('contenido_html',this.value)" class="form-control" id="contenido_html" name="contenido_html" rows="6"></textarea>
                             </div>
                         </div>
 
@@ -890,6 +890,13 @@ Crear Secuencia Proceso - Admin Panel
         camino_sin_evaluacion: ""
     }
 
+    let objetoCorreo = {
+        habilitar_envio: false,
+        subject: "",
+        cc: "",
+        contenido_html: ""
+    }
+
     let listaCampos = '{{$listaCampos}}';
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
@@ -1062,6 +1069,11 @@ Crear Secuencia Proceso - Admin Panel
         }
         
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
+    }
+
+    function generarConfiguracionObjetoCorreo(campo,valor){
+        objetoCorreo[campo] = valor;
+        $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
     }
 
 </script>
