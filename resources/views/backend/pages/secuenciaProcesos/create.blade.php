@@ -178,6 +178,16 @@ Crear Secuencia Proceso - Admin Panel
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="habilitar_envio">Asignación Automática?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" onchange="generarConfiguracionObjetoCorreo('habilitar_envio',this.checked)" class="custom-control-input" id="habilitar_envio">
+                                    <label class="custom-control-label" for="habilitar_envio"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="actores">Seleccione un Actor:</label>
                                 <select id="actores" name="actores" class="form-control selectpicker @error('actores') is-invalid @enderror" data-live-search="true" required>
                                     <option value="">Seleccione un Actor</option>
