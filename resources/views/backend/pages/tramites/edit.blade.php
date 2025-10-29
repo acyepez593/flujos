@@ -157,7 +157,7 @@ Editar Trámite - Admin Panel
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script>
-    let selectorPadre = '.catalogo_padre';
+    let selectorPadre = '';
     let selectorHijo = '';
 
     $(document).ready(function() {
@@ -197,13 +197,13 @@ Editar Trámite - Admin Panel
         for (let index in catalogosRelacionadosVariables) {
 
             if(index == catalogosRelacionadosVariables.length-1){
-                selector += 'select[name="'+ catalogosRelacionadosVariables[index] +'"]' ;
+                selectorPadre += 'select[name="'+ catalogosRelacionadosVariables[index] +'"]' ;
             }else{
-                selector += 'select[name="'+ catalogosRelacionadosVariables[index] +'"],';
+                selectorPadre += 'select[name="'+ catalogosRelacionadosVariables[index] +'"],';
             }
         }
 
-        $(selector).on("change", function() {
+        $(selectorPadre).on("change", function() {
             let dataCatalogo = catalogosByCatalogoId[$(this).val()];
             let seccion = $(this).parents('.collapse').attr('id');
 
@@ -213,27 +213,27 @@ Editar Trámite - Admin Panel
 
                 if(seccion == 'BENEFICIARIOS'){
                     let id_ben = $(this).parents('.card').attr('id');
-                    selector = '#' + id_ben + ' select[name="'+ variable +'"]';
+                    selectorHijo = '#' + id_ben + ' select[name="'+ variable +'"]';
                 }else{
-                    selector = 'select[name="'+ variable +'"]';
+                    selectorHijo = 'select[name="'+ variable +'"]';
                 }
 
-                $(selector).selectpicker('destroy');
-                $(selector).html('');
-                $(selector).append('<option value="">Seleccione el Catálogo Relacionado</option>');
+                $(selectorHijo).selectpicker('destroy');
+                $(selectorHijo).html('');
+                $(selectorHijo).append('<option value="">Seleccione el Catálogo Relacionado</option>');
                 $.each(dataCatalogo, function (key, value) {
-                    $(selector).append('<option value="' + value.id + '">' + value.nombre + '</option>');
+                    $(selectorHijo).append('<option value="' + value.id + '">' + value.nombre + '</option>');
                 });
-                $(selector).selectpicker();
+                $(selectorHijo).selectpicker();
                 $('.selectpicker').selectpicker('refresh');
             }else{
-                $(selector).selectpicker('destroy');
-                $(selector).html('');
+                $(selectorHijo).selectpicker('destroy');
+                $(selectorHijo).html('');
             }
 
         });
 
-        $(selector).trigger("change");
+        $(selectorPadre).trigger("change");
 
         //$("#tipo_catalogo_id").trigger("change");
 

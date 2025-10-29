@@ -156,7 +156,7 @@ Crear Trámite - Admin Panel
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script>
-    let selectorPadre = '.catalogo_padre';
+    let selectorPadre = '';
     let selectorHijo = '';
 
     $(document).ready(function() {

@@ -331,10 +331,16 @@ class TramitesController extends Controller
             $proceso = Proceso::find($tramite->proceso_id);
             $configuracion_correo = json_decode($secuencia_proceso->configuracion_correo,true);
 
+            $funcionario_actual = Admin::find($tramite->funcionario_actual_id);
+
             $subject = $configuracion_correo['subject'] . ' ' . $proceso->nombre;
             $content = $configuracion_correo['contenido_html'];
-            //Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
-            Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
+            $content = str_replace("<funcionario>", $funcionario_actual->name, $content);
+            $content = str_replace("<numero_tramites>", strval(sizeof($tramites_ids)), $content);
+            $content = str_replace("<numero_dias>", strval($secuencia_proceso->tiempo_procesamiento), $content);
+            Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
+            Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
+            //Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
 
             return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
         } catch (\Exception $e) {
