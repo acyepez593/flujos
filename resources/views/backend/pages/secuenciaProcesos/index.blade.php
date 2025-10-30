@@ -113,7 +113,7 @@
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="actores_search">Buscar por Actor:</label>
-                                                <select id="actores_search" name="actores_search" class="form-control selectpicker" data-live-search="true">
+                                                <select id="actores_search" name="actores_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="">Seleccione un Actor</option>
                                                     @foreach ($actores as $key => $value)
                                                         <option value="{{ $value->id }}">{{ $value->name }}</option>
@@ -121,8 +121,23 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
+                                                <label for="roles_search">Buscar por Rol:</label>
+                                                <select id="roles_search" name="roles_search" class="form-control selectpicker" data-live-search="true" multiple>
+                                                    <option value="">Seleccione un Rol</option>
+                                                    @foreach ($roles as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
                                                 <label for="configuracion_search">Buscar por Configuración</label>
                                                 <input type="text" class="form-control" id="configuracion_search" name="configuracion_search">
+                                            </div>
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="configuracion_correo_search">Buscar por Configuración Correo</label>
+                                                <input type="text" class="form-control" id="configuracion_correo_search" name="configuracion_correo_search">
                                             </div>
                                         </div>
                                         <div class="form-row">

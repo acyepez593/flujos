@@ -184,6 +184,198 @@ class RolePermissionSeeder extends Seeder
         if ($admin) {
             $admin->assignRole($roleSuperAdmin);
         }
+
+        // Permission List as array
+        $permissionsToIniciadorFallecimientos = [
+
+            [
+                'group_name' => 'dashboard',
+                'permissions' => [
+                    'dashboard.view'
+                ]
+            ],
+            [
+                'group_name' => 'flujo',
+                'permissions' => [
+                    // profile Permissions
+                    'flujo.fallecimientos'
+                ]
+            ],
+            [
+                'group_name' => 'proceso',
+                'permissions' => [
+                    // proceso Permissions
+                    'proceso.view'
+                ]
+            ],
+            [
+                'group_name' => 'tramite',
+                'permissions' => [
+                    // tramite Permissions
+                    'tramite.create',
+                    'tramite.view',
+                    'tramite.edit'
+                ]
+            ],
+        ];
+
+        // Permission List as array
+        $permissionsToIniciadorFunerarios = [
+
+            [
+                'group_name' => 'dashboard',
+                'permissions' => [
+                    'dashboard.view'
+                ]
+            ],
+            [
+                'group_name' => 'flujo',
+                'permissions' => [
+                    // profile Permissions
+                    'flujo.funerarios'
+                ]
+            ],
+            [
+                'group_name' => 'proceso',
+                'permissions' => [
+                    // proceso Permissions
+                    'proceso.view'
+                ]
+            ],
+            [
+                'group_name' => 'tramite',
+                'permissions' => [
+                    // tramite Permissions
+                    'tramite.create',
+                    'tramite.view',
+                    'tramite.edit'
+                ]
+            ],
+        ];
+
+        // Permission List as array
+        $permissionsToIniciadorDiscapacidad = [
+
+            [
+                'group_name' => 'dashboard',
+                'permissions' => [
+                    'dashboard.view'
+                ]
+            ],
+            [
+                'group_name' => 'flujo',
+                'permissions' => [
+                    // profile Permissions
+                    'flujo.discapacidad'
+                ]
+            ],
+            [
+                'group_name' => 'proceso',
+                'permissions' => [
+                    // proceso Permissions
+                    'proceso.view'
+                ]
+            ],
+            [
+                'group_name' => 'tramite',
+                'permissions' => [
+                    // tramite Permissions
+                    'tramite.create',
+                    'tramite.view',
+                    'tramite.edit'
+                ]
+            ],
+        ];
+
+        // Permission List as array
+        $permissionsToConsultorFlujos = [
+
+            [
+                'group_name' => 'dashboard',
+                'permissions' => [
+                    'dashboard.view'
+                ]
+            ],
+            [
+                'group_name' => 'flujo',
+                'permissions' => [
+                    // profile Permissions
+                    'flujo.fallecimientos',
+                    'flujo.funerarios',
+                    'flujo.discapacidad'
+                ]
+            ],
+            [
+                'group_name' => 'tramite',
+                'permissions' => [
+                    // tramite Permissions
+                    'tramite.view',
+                ]
+            ],
+        ];
+
+        // Permission List as array
+        $permissionsToGestorFlujo = [
+
+            [
+                'group_name' => 'dashboard',
+                'permissions' => [
+                    'dashboard.view'
+                ]
+            ],
+            [
+                'group_name' => 'tramite',
+                'permissions' => [
+                    // tramite Permissions
+                    'tramite.create',
+                    'tramite.view',
+                    'tramite.edit'
+                ]
+            ],
+        ];
+
+        // Create additional roles
+        $roles = ['INICIADOR FALLECIMIENTOS','INICIADOR FUNERARIOS','INICIADOR DISCAPACIDAD','CONSULTOR FLUJOS','GESTOR FLUJO'];
+        foreach($roles as $rol){
+            $roleSuperAdmin = Role::create(['name' => $rol, 'guard_name' => 'admin']);
+            $permissions = [];
+            switch ($rol) {
+                case 'INICIADOR FALLECIMIENTOS':
+                    $permissions = $permissionsToIniciadorFallecimientos;
+                    break;
+                case 'INICIADOR FUNERARIOS':
+                    $permissions = $permissionsToIniciadorFunerarios;
+                    break;
+                case 'INICIADOR DISCAPACIDAD':
+                    $permissions = $permissionsToIniciadorDiscapacidad;
+                    break;
+                case 'CONSULTOR FLUJOS':
+                    $permissions = $permissionsToConsultorFlujos;
+                    break;
+                case 'GESTOR FLUJO':
+                    $permissions = $permissionsToGestorFlujo;
+                    break;
+            }
+
+            // Create and Assign Permissions
+            for ($i = 0; $i < count($permissions); $i++) {
+                $permissionGroup = $permissions[$i]['group_name'];
+                for ($j = 0; $j < count($permissions[$i]['permissions']); $j++) {
+                    $permissionExist = Permission::where('name', $permissions[$i]['permissions'][$j])->first();
+                    if (is_null($permissionExist)) {
+                        $permission = Permission::create(
+                            [
+                                'name' => $permissions[$i]['permissions'][$j],
+                                'group_name' => $permissionGroup,
+                                'guard_name' => 'admin'
+                            ]
+                        );
+                        $roleSuperAdmin->givePermissionTo($permission);
+                        $permission->assignRole($roleSuperAdmin);
+                    }
+                }
+            }
+        }
     }
 
     private function maybeCreateSuperAdminRole($admin): Role

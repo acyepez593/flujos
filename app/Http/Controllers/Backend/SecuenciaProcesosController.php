@@ -34,10 +34,12 @@ class SecuenciaProcesosController extends Controller
 
         $creadores = Admin::get(["name", "id"]);
         $actores = Admin::get(["name", "id"]);
+        $roles = Role::get(["name", "id"]);
 
         return view('backend.pages.secuenciaProcesos.index', [
             'creadores' => $creadores,
             'actores' => $actores,
+            'roles' => $roles,
             'proceso_id' => $proceso_id,
             'secuenciaProceso' => $secuenciaProceso
         ]);
@@ -53,9 +55,11 @@ class SecuenciaProcesosController extends Controller
         $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
         $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
+        $roles = Role::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.create', [
             'actores' => $actores,
+            'roles' => $roles,
             'proceso_id' => $proceso_id,
             'secuenciaProceso' => $secuenciaProceso,
             'listaActividades' => $listaActividades,
@@ -91,10 +95,15 @@ class SecuenciaProcesosController extends Controller
         }else{
             $tiempo_procesamiento = $request->tiempo_procesamiento;
         }
-        if(!$request->actores || !isset($request->actores) || empty($request->actores) || is_null($request->actores)){
-            $actores = "";
+        if(!$request->rol || !isset($request->rol) || empty($request->rol) || is_null($request->rol)){
+            $rol = "";
         }else{
-            $actores = $request->actores;
+            $rol = $request->rol;
+        }
+        if(!$request->actor || !isset($request->actor) || empty($request->actor) || is_null($request->actor)){
+            $actor = "";
+        }else{
+            $actor = $request->actor;
         }
         if(!$request->configuracion || !isset($request->configuracion) || empty($request->configuracion) || is_null($request->configuracion)){
             $configuracion = "";
@@ -118,7 +127,8 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->descripcion = $descripcion;
         $secuenciaProceso->estatus = $estatus;
         $secuenciaProceso->tiempo_procesamiento = $tiempo_procesamiento;
-        $secuenciaProceso->actores = $actores;
+        $secuenciaProceso->actor = $actor;
+        $secuenciaProceso->rol = $rol;
         $secuenciaProceso->configuracion = $configuracion;
         $secuenciaProceso->configuracion_campos = $configuracion_campos;
         $secuenciaProceso->configuracion_correo = $configuracion_correo;
@@ -161,9 +171,11 @@ class SecuenciaProcesosController extends Controller
 
         $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
+        $roles = Role::get(["name", "id"])->pluck('name','id');
 
         return view('backend.pages.secuenciaProcesos.edit', [
             'actores' => $actores,
+            'roles' => $roles,
             'secuenciaProceso' => $secuenciaProceso,
             'proceso_id' => $proceso_id,
             'listaActividades' => $listaActividades,
@@ -199,10 +211,15 @@ class SecuenciaProcesosController extends Controller
         }else{
             $tiempo_procesamiento = $request->tiempo_procesamiento;
         }
-        if(!$request->actores || !isset($request->actores) || empty($request->actores) || is_null($request->actores)){
-            $actores = "";
+        if(!$request->rol || !isset($request->rol) || empty($request->rol) || is_null($request->rol)){
+            $rol = "";
         }else{
-            $actores = $request->actores;
+            $rol = $request->rol;
+        }
+        if(!$request->actor || !isset($request->actor) || empty($request->actor) || is_null($request->actor)){
+            $actor = "";
+        }else{
+            $actor = $request->actor;
         }
         if(!$request->configuracion || !isset($request->configuracion) || empty($request->configuracion) || is_null($request->configuracion)){
             $configuracion = "";
@@ -225,7 +242,8 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->descripcion = $descripcion;
         $secuenciaProceso->estatus = $estatus;
         $secuenciaProceso->tiempo_procesamiento = $tiempo_procesamiento;
-        $secuenciaProceso->actores = $actores;
+        $secuenciaProceso->actor = $actor;
+        $secuenciaProceso->rol = $rol;
         $secuenciaProceso->configuracion = $configuracion;
         $secuenciaProceso->configuracion_campos = $configuracion_campos;
         $secuenciaProceso->configuracion_correo = $configuracion_correo;
@@ -280,6 +298,8 @@ class SecuenciaProcesosController extends Controller
         $filtroEstatus = json_decode($request->estatus_search, true);
         $filtroTiempoProcesamiento = $request->tiempo_procesamiento_search;
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
+        $filtroActores = json_decode($request->actores_search, true);
+        $filtroRoles = json_decode($request->roles_search, true);
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
             $secuenciaProcesos = $secuenciaProcesos->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
@@ -293,13 +313,19 @@ class SecuenciaProcesosController extends Controller
         if(isset($filtroTiempoProcesamiento) && !empty($filtroTiempoProcesamiento)){
             $secuenciaProcesos = $secuenciaProcesos->where('tiempo_procesamiento', $filtroTiempoProcesamiento);
         }
-        if(isset($request->actores) && !empty($request->actores)){
-            $filtroActores = json_decode($request->actores, true);
-            $secuenciaProcesos = $secuenciaProcesos->whereIn('actores', $filtroActores);
+        if(isset($filtroActores) && !empty($filtroActores)){
+            $secuenciaProcesos = $secuenciaProcesos->whereIn('actor_id', $filtroActores);
+        }
+        if(isset($filtroRoles) && !empty($filtroRoles)){
+            $secuenciaProcesos = $secuenciaProcesos->whereIn('rol_id', $filtroRoles);
         }
         if(isset($request->configuracion) && !empty($request->configuracion)){
             $filtroConfiguracion = $request->configuracion;
             $secuenciaProcesos = $secuenciaProcesos->where('configuracion', 'like', '%'.$filtroConfiguracion.'%');
+        }
+        if(isset($request->configuracion_correo) && !empty($request->configuracion_correo)){
+            $filtroConfiguracionCorreo = $request->configuracion_correo;
+            $secuenciaProcesos = $secuenciaProcesos->where('configuracion_correo', 'like', '%'.$filtroConfiguracionCorreo.'%');
         }
         if(isset($request->configuracion_campos) && !empty($request->configuracion_campos)){
             $filtroConfiguracionCampos = $request->configuracion_campos;
@@ -318,16 +344,25 @@ class SecuenciaProcesosController extends Controller
             $actores_temp[$actor->id] = $actor->name;
         }
 
+        $roles = Role::all();
+
+        $roles_temp = [];
+        foreach($roles as $rol){
+            $roles_temp[$rol->id] = $rol->name;
+        }
+
         $usuario_actual_id = Auth::id();
 
         foreach($secuenciaProcesos as $secuenciaProceso){
             $secuenciaProceso->creado_por_nombre = array_key_exists($secuenciaProceso->creado_por, $actores_temp) ? $actores_temp[$secuenciaProceso->creado_por] : "";
-            $secuenciaProceso->actores_nombre = array_key_exists($secuenciaProceso->actores, $actores_temp) ? $actores_temp[$secuenciaProceso->actores] : "";
+            $secuenciaProceso->actor_nombre = array_key_exists($secuenciaProceso->actor_id, $actores_temp) ? $actores_temp[$secuenciaProceso->actor_id] : "";
+            $secuenciaProceso->rol_nombre = array_key_exists($secuenciaProceso->rol_id, $roles_temp) ? $roles_temp[$secuenciaProceso->rol_id] : "";
             $secuenciaProceso->esCreadorRegistro = $usuario_actual_id == $secuenciaProceso->creado_por ? true : false;
         }
 
         $data['secuenciaProcesos'] = $secuenciaProcesos;
         $data['actores'] = $actores;
+        $data['roles'] = $roles;
   
         return response()->json($data);
     }

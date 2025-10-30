@@ -321,7 +321,7 @@ class TramitesController extends Controller
                 if($configuracion_secuencia['requiere_evaluacion'] == false){
                     $siguiente_secuencia_proceso = SecuenciaProceso::findOrFail($configuracion_secuencia['camino_sin_evaluacion']);
                     $tramite->secuencia_proceso_id = $configuracion_secuencia['camino_sin_evaluacion'];
-                    $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actores;
+                    $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
                     $tramite->estatus = 'EN PROCESO DAP';
                 }
                 $tramite->save();

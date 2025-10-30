@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('descripcion');
             $table->foreignId('proceso_id')->constrained('procesos');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
-            $table->json('actores');
+            $table->foreignId('actor_id')->constrained('admins');
+            $table->foreignId('rol_id')->constrained('roles');
             $table->integer('tiempo_procesamiento')->default(1);
             $table->json('configuracion');
             $table->json('configuracion_campos');

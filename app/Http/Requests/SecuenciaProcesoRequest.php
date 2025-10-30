@@ -28,7 +28,6 @@ class SecuenciaProcesoRequest extends FormRequest
             'descripcion' => 'required',
             'estatus' => 'required',
             'tiempo_procesamiento' => 'required',
-            'actores' => 'required',
             'configuracion' => 'required',
             'configuracion_campos' => 'required'
         ];
@@ -46,7 +45,6 @@ class SecuenciaProcesoRequest extends FormRequest
             'descripcion.required' => 'El campo :attribute es requerido',
             'estatus.required' => 'El campo :attribute es requerido',
             'tiempo_procesamiento.required' => 'El campo :attribute es requerido',
-            'actores.required' => 'El campo :attribute es requerido',
             'configuracion.required' => 'El campo :attribute es requerido',
             'configuracion_campos.required' => 'El campo :attribute es requerido',
         ];

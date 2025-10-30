@@ -178,29 +178,41 @@ Crear Secuencia Proceso - Admin Panel
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="habilitar_envio">Asignación Automática?:</label>
+                                <label for="distribuir_automaticamente_tramites">¿Se Distribuyen Automáticamente los Trámites?:</label>
                                 <div class="custom-control custom-switch">
-                                    <input type="checkbox" onchange="generarConfiguracionObjetoCorreo('habilitar_envio',this.checked)" class="custom-control-input" id="habilitar_envio">
-                                    <label class="custom-control-label" for="habilitar_envio"></label>
+                                    <input type="checkbox" onchange="generarConfiguracionObjeto('distribuir_automaticamente_tramites',this.checked)" class="custom-control-input" id="distribuir_automaticamente_tramites">
+                                    <label class="custom-control-label" for="distribuir_automaticamente_tramites"></label>
                                 </div>
+                            </div>
+                            <div id="con_distribucion_automatica" class="form-group col-md-6 col-sm-12">
+                                <label for="rol">Seleccione un Rol:</label>
+                                <select id="rol" name="rol" class="form-control selectpicker @error('rol') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="">Seleccione un Rol</option>
+                                    @foreach ($roles as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('rol')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div id="sin_distribucion_automatica" class="form-group col-md-6 col-sm-12">
+                                <label for="actor">Seleccione un Actor de la Actividad:</label>
+                                <select id="actor" name="actor" class="form-control selectpicker @error('actor') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="">Seleccione un Actor de la Actividad</option>
+                                    @foreach ($actores as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('actor')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="actores">Seleccione un Actor:</label>
-                                <select id="actores" name="actores" class="form-control selectpicker @error('actores') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="">Seleccione un Actor</option>
-                                    @foreach ($actores as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('actores')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="requiere_evaluacion">Requiere evaluación?:</label>
+                                <label for="requiere_evaluacion">¿Requiere evaluación?:</label>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="requiere_evaluacion">
                                     <label class="custom-control-label" for="requiere_evaluacion"></label>
@@ -734,7 +746,19 @@ Crear Secuencia Proceso - Admin Panel
             generarConfiguracionObjeto('requiere_evaluacion',this.checked);
         });
 
+        $('#distribuir_automaticamente_tramites').change(function() {
+            if(this.checked){
+                $('#con_distribucion_automatica').show();
+                $('#sin_distribucion_automatica').hide();
+            }else{
+                $('#con_distribucion_automatica').hide();
+                $('#sin_distribucion_automatica').show();
+            }
+            generarConfiguracionObjeto('distribuir_automaticamente_tramites',this.checked);
+        });
+
         $('#requiere_evaluacion').change();
+        $('#distribuir_automaticamente_tramites').change();
 
         tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
 
@@ -892,6 +916,7 @@ Crear Secuencia Proceso - Admin Panel
     let conf = {};
 
     let objeto = {
+        distribuir_automaticamente_tramites: false,
         requiere_evaluacion: false,
         pregunta_evaluacion: "",
         variable_evaluacion: "",
