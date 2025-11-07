@@ -256,6 +256,7 @@
                     estatus_search: JSON.stringify($('#estatus_search').val()),
                     tiempo_procesamiento_search: $('#tiempo_procesamiento_search').val(),
                     actores_search: JSON.stringify($('#actores_search').val()),
+                    roles_search: JSON.stringify($('#roles_search').val()),
                     configuracion_search: JSON.stringify($('#configuracion_search').val()),
                     configuracion_campos_search: JSON.stringify($('#configuracion_campos_search').val()),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
@@ -278,7 +279,8 @@
                         "<th>Descripción</th>"+
                         "<th>Estatus</th>"+
                         "<th>Tiempo Procesamiento</th>"+
-                        "<th>Actores</th>"+
+                        "<th>Encargado</th>"+
+                        "<th>Rol</th>"+
                         "<th>Creador Por</th>"+
                         "<th>Acción</th>";
 
@@ -301,7 +303,8 @@
                             "<td>"+ secuenciaProceso.descripcion+ "</td>"+
                             "<td>"+ secuenciaProceso.estatus+ "</td>"+
                             "<td>"+ secuenciaProceso.tiempo_procesamiento+ "</td>"+
-                            "<td>"+ secuenciaProceso.actores_nombre+ "</td>"+
+                            "<td>"+ secuenciaProceso.actor_nombre+ "</td>"+
+                            "<td>"+ secuenciaProceso.rol_nombre+ "</td>"+
                             "<td>"+ moment(secuenciaProceso.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
                             if(secuenciaProceso.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";

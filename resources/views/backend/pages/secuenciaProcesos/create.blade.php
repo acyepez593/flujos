@@ -185,31 +185,30 @@ Crear Secuencia Proceso - Admin Panel
                                 </div>
                             </div>
                             <div id="con_distribucion_automatica" class="form-group col-md-6 col-sm-12">
-                                <label for="rol">Seleccione un Rol:</label>
-                                <select id="rol" name="rol" class="form-control selectpicker @error('rol') is-invalid @enderror" data-live-search="true" required>
+                                <label for="rol_id">Seleccione un Rol:</label>
+                                <select id="rol_id" name="rol_id" class="form-control selectpicker @error('rol_id') is-invalid @enderror" data-live-search="true">
                                     <option value="">Seleccione un Rol</option>
                                     @foreach ($roles as $key => $value)
                                         <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
                                 </select>
-                                @error('rol')
+                                @error('rol_id')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div id="sin_distribucion_automatica" class="form-group col-md-6 col-sm-12">
-                                <label for="actor">Seleccione un Actor de la Actividad:</label>
-                                <select id="actor" name="actor" class="form-control selectpicker @error('actor') is-invalid @enderror" data-live-search="true" required>
+                                <label for="actor_id">Seleccione un Actor de la Actividad:</label>
+                                <select id="actor_id" name="actor_id" class="form-control selectpicker @error('actor_id') is-invalid @enderror" data-live-search="true">
                                     <option value="">Seleccione un Actor de la Actividad</option>
                                     @foreach ($actores as $key => $value)
                                         <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
                                 </select>
-                                @error('actor')
+                                @error('actor_id')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="requiere_evaluacion">¿Requiere evaluación?:</label>
@@ -307,7 +306,7 @@ Crear Secuencia Proceso - Admin Panel
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="cc">CC</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('cc',this.value)" class="form-control @error('cc') is-invalid @enderror" id="cc" name="subject" value="{{ old('cc') }}" required>
+                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('cc',this.value)" class="form-control @error('cc') is-invalid @enderror" id="cc" name="subject" value="{{ old('cc') }}">
                                     @error('cc')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror

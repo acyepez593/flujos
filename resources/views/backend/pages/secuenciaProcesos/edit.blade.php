@@ -175,17 +175,38 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="actores">Seleccione un Actor:</label>
-                                <select id="actores" name="actores" class="form-control selectpicker @error('actores') is-invalid @enderror" data-live-search="true" required>
-                                    <option value="">Seleccione un Actor</option>
-                                    @foreach ($actores as $key => $value)
-                                        <option value="{{ $key }}" {{ old('actores', $secuenciaProceso->actores) == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                <label for="distribuir_automaticamente_tramites">¿Se Distribuyen Automáticamente los Trámites?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" onchange="generarConfiguracionObjeto('distribuir_automaticamente_tramites',this.checked)" class="custom-control-input" id="distribuir_automaticamente_tramites">
+                                    <label class="custom-control-label" for="distribuir_automaticamente_tramites"></label>
+                                </div>
+                            </div>
+                            <div id="con_distribucion_automatica" class="form-group col-md-6 col-sm-12">
+                                <label for="rol_id">Seleccione un Rol:</label>
+                                <select id="rol_id" name="rol_id" class="form-control selectpicker @error('rol_id') is-invalid @enderror" data-live-search="true">
+                                    <option value="">Seleccione un Rol</option>
+                                    @foreach ($roles as $key => $value)
+                                        <option value="{{ $key }}" {{ old('rol_id', $secuenciaProceso->rol_id) == $key ? 'selected' : '' }}>{{ $value }}</option>
                                     @endforeach
                                 </select>
-                                @error('actores')
+                                @error('rol_id')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div id="sin_distribucion_automatica" class="form-group col-md-6 col-sm-12">
+                                <label for="actor_id">Seleccione un Actor de la Actividad:</label>
+                                <select id="actor_id" name="actor_id" class="form-control selectpicker @error('actor_id') is-invalid @enderror" data-live-search="true">
+                                    <option value="">Seleccione un Actor de la Actividad</option>
+                                    @foreach ($actores as $key => $value)
+                                        <option value="{{ $key }}" {{ old('actor_id', $secuenciaProceso->actor_id) == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('actor_id')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="requiere_evaluacion">Requiere evaluación?:</label>
                                 <div class="custom-control custom-switch">
@@ -273,7 +294,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="subject">Subject</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('subject',this.value)" class="form-control @error('subject') is-invalid @enderror" id="subject" name="subject" value="{{ old('subject') }}" required>
+                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('subject',this.value)" class="form-control @error('subject') is-invalid @enderror" id="subject" name="subject" value="{{ old('subject') }}">
                                     @error('subject')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
@@ -282,7 +303,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="cc">CC</label>
                                 <div class="input-group mb-3">
-                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('cc',this.value)" class="form-control @error('cc') is-invalid @enderror" id="cc" name="subject" value="{{ old('cc') }}" required>
+                                    <input type="text" onchange="generarConfiguracionObjetoCorreo('cc',this.value)" class="form-control @error('cc') is-invalid @enderror" id="cc" name="subject" value="{{ old('cc') }}">
                                     @error('cc')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
@@ -718,7 +739,22 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             generarConfiguracionObjeto('requiere_evaluacion',this.checked);
         });
 
+        $('#distribuir_automaticamente_tramites').change(function() {
+            if(this.checked){
+                $('#con_distribucion_automatica').show();
+                $('#sin_distribucion_automatica').hide();
+            }else{
+                $('#con_distribucion_automatica').hide();
+                $('#sin_distribucion_automatica').show();
+            }
+            generarConfiguracionObjeto('distribuir_automaticamente_tramites',this.checked);
+        });
+
+        $('#requiere_evaluacion').prop('checked', configuraciones.requiere_evaluacion);
+        $('#distribuir_automaticamente_tramites').prop('checked', configuraciones.distribuir_automaticamente_tramites);
+
         $('#requiere_evaluacion').change();
+        $('#distribuir_automaticamente_tramites').change();
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
         $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
 

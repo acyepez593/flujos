@@ -95,15 +95,15 @@ class SecuenciaProcesosController extends Controller
         }else{
             $tiempo_procesamiento = $request->tiempo_procesamiento;
         }
-        if(!$request->rol || !isset($request->rol) || empty($request->rol) || is_null($request->rol)){
-            $rol = "";
+        if(!$request->rol_id || !isset($request->rol_id) || empty($request->rol_id) || is_null($request->rol_id)){
+            $rol_id = NULL;
         }else{
-            $rol = $request->rol;
+            $rol_id = $request->rol_id;
         }
-        if(!$request->actor || !isset($request->actor) || empty($request->actor) || is_null($request->actor)){
-            $actor = "";
+        if(!$request->actor_id || !isset($request->actor_id) || empty($request->actor_id) || is_null($request->actor_id)){
+            $actor_id = NULL;
         }else{
-            $actor = $request->actor;
+            $actor_id = $request->actor_id;
         }
         if(!$request->configuracion || !isset($request->configuracion) || empty($request->configuracion) || is_null($request->configuracion)){
             $configuracion = "";
@@ -127,8 +127,8 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->descripcion = $descripcion;
         $secuenciaProceso->estatus = $estatus;
         $secuenciaProceso->tiempo_procesamiento = $tiempo_procesamiento;
-        $secuenciaProceso->actor = $actor;
-        $secuenciaProceso->rol = $rol;
+        $secuenciaProceso->actor_id = $actor_id;
+        $secuenciaProceso->rol_id = $rol_id;
         $secuenciaProceso->configuracion = $configuracion;
         $secuenciaProceso->configuracion_campos = $configuracion_campos;
         $secuenciaProceso->configuracion_correo = $configuracion_correo;
@@ -211,15 +211,15 @@ class SecuenciaProcesosController extends Controller
         }else{
             $tiempo_procesamiento = $request->tiempo_procesamiento;
         }
-        if(!$request->rol || !isset($request->rol) || empty($request->rol) || is_null($request->rol)){
-            $rol = "";
+        if(!$request->rol_id || !isset($request->rol_id) || empty($request->rol_id) || is_null($request->rol_id)){
+            $rol_id = NULL;
         }else{
-            $rol = $request->rol;
+            $rol_id = $request->rol_id;
         }
-        if(!$request->actor || !isset($request->actor) || empty($request->actor) || is_null($request->actor)){
-            $actor = "";
+        if(!$request->actor_id || !isset($request->actor_id) || empty($request->actor_id) || is_null($request->actor_id)){
+            $actor_id = NULL;
         }else{
-            $actor = $request->actor;
+            $actor_id = $request->actor_id;
         }
         if(!$request->configuracion || !isset($request->configuracion) || empty($request->configuracion) || is_null($request->configuracion)){
             $configuracion = "";
@@ -242,8 +242,8 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->descripcion = $descripcion;
         $secuenciaProceso->estatus = $estatus;
         $secuenciaProceso->tiempo_procesamiento = $tiempo_procesamiento;
-        $secuenciaProceso->actor = $actor;
-        $secuenciaProceso->rol = $rol;
+        $secuenciaProceso->actor_id = $actor_id;
+        $secuenciaProceso->rol_id = $rol_id;
         $secuenciaProceso->configuracion = $configuracion;
         $secuenciaProceso->configuracion_campos = $configuracion_campos;
         $secuenciaProceso->configuracion_correo = $configuracion_correo;

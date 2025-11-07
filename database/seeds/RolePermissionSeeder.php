@@ -145,19 +145,6 @@ class RolePermissionSeeder extends Seeder
             
         ];
 
-
-        // Create and Assign Permissions
-        // for ($i = 0; $i < count($permissions); $i++) {
-        //     $permissionGroup = $permissions[$i]['group_name'];
-        //     for ($j = 0; $j < count($permissions[$i]['permissions']); $j++) {
-        //         // Create Permission
-        //         $permission = Permission::create(['name' => $permissions[$i]['permissions'][$j], 'group_name' => $permissionGroup]);
-        //         $roleSuperAdmin->givePermissionTo($permission);
-        //         $permission->assignRole($roleSuperAdmin);
-        //     }
-        // }
-
-        // Do same for the admin guard for tutorial purposes.
         $admin = Admin::where('username', 'superadmin')->first();
         $roleSuperAdmin = $this->maybeCreateSuperAdminRole($admin);
 
@@ -370,6 +357,10 @@ class RolePermissionSeeder extends Seeder
                                 'guard_name' => 'admin'
                             ]
                         );
+                        $roleSuperAdmin->givePermissionTo($permission);
+                        $permission->assignRole($roleSuperAdmin);
+                    }else{
+                        $permission = $permissionExist;
                         $roleSuperAdmin->givePermissionTo($permission);
                         $permission->assignRole($roleSuperAdmin);
                     }
