@@ -80,4 +80,13 @@ class Admin extends Authenticatable
         }
         return $hasPermission;
     }
+
+    public static function getRolesByUserId($userId)
+    {
+        $rolesByUser = DB::table('model_has_roles')
+            ->select('role_id')
+            ->where('model_id', $userId)
+            ->get();
+        return $rolesByUser;
+    }
 }

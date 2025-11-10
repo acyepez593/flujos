@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
@@ -302,9 +303,13 @@ class TramitesController extends Controller
 
             $tramites = Tramite::whereIn('id',$tramites_ids)->get();
 
+            $numeroTramites = $tramites->count();
             $secuencia_proceso_id = $tramites[0]['secuencia_proceso_id'];
             $secuencia_proceso = SecuenciaProceso::findOrFail($secuencia_proceso_id);
             $configuracion_secuencia = json_decode($secuencia_proceso->configuracion, true);
+
+            $contadorTramite = 0;
+            $cont = 0;
 
             foreach($tramites as $tramite){
                 $datos = json_decode($tramite->datos, true);
@@ -320,11 +325,27 @@ class TramitesController extends Controller
 
                 if($configuracion_secuencia['requiere_evaluacion'] == false){
                     $siguiente_secuencia_proceso = SecuenciaProceso::findOrFail($configuracion_secuencia['camino_sin_evaluacion']);
+                    $configuracion_siguiente_secuencia = json_decode($siguiente_secuencia_proceso->configuracion, true);
                     $tramite->secuencia_proceso_id = $configuracion_secuencia['camino_sin_evaluacion'];
-                    $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                    if($configuracion_siguiente_secuencia['distribuir_automaticamente_tramites'] == false){
+                        $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                    }else{
+                        //distribucion automatica de tramites
+                        $rolId = $siguiente_secuencia_proceso->rol_id;
+                        $usersId = Role::getUsersByRol($rolId);
+                        $numeroUsuariosConRol = $usersId->count();
+                        $tramitesPorUsuario = ceil($numeroTramites/$numeroUsuariosConRol);
+
+                        if($contadorTramite == $tramitesPorUsuario){
+                            $cont += 1;
+                        }
+                        $tramite->funcionario_actual_id = $usersId[$cont];
+                    }
+                    
                     $tramite->estatus = 'EN PROCESO DAP';
                 }
                 $tramite->save();
+                $contadorTramite += 1;
 
             }
 
@@ -342,7 +363,7 @@ class TramitesController extends Controller
             Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
             //Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
 
-            return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
+            return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!' . '----'. $tramitesPorUsuario . '--' . $numeroTramites . '-' . $numeroUsuariosConRol], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Algo salió mal, por favor intente nuevamenteee.'.env('MAIL_HOST').'--'.env('MAIL_PORT'). '------'.$e], 500);
         } catch (Throwable $e) {
