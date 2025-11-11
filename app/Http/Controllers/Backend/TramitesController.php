@@ -449,7 +449,7 @@ class TramitesController extends Controller
 
     public function consultarSCI(Request $request): JsonResponse
     {
-        $this->checkAuthorization(auth()->user(), ['tramite.create']);
+        //$this->checkAuthorization(auth()->user(), ['tramite.create']);
 
         $url = env('URL_LOGIN_SCI');
         $username = env('SCI_USERNAME');
