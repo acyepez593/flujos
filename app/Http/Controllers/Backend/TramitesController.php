@@ -329,6 +329,7 @@ class TramitesController extends Controller
                     $tramite->secuencia_proceso_id = $configuracion_secuencia['camino_sin_evaluacion'];
                     if($configuracion_siguiente_secuencia['distribuir_automaticamente_tramites'] == false){
                         $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                        $tramite->estatus = 'EN PROCESO DAP';
                     }else{
                         //distribucion automatica de tramites
                         $rolId = $siguiente_secuencia_proceso->rol_id;
@@ -340,9 +341,9 @@ class TramitesController extends Controller
                             $cont += 1;
                         }
                         $tramite->funcionario_actual_id = $usersId[$cont];
+                        $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
                     }
                     
-                    $tramite->estatus = 'EN PROCESO DAP';
                 }
                 $tramite->save();
                 $contadorTramite += 1;
@@ -360,10 +361,10 @@ class TramitesController extends Controller
             $content = str_replace("<numero_tramites>", strval(sizeof($tramites_ids)), $content);
             $content = str_replace("<numero_dias>", strval($secuencia_proceso->tiempo_procesamiento), $content);
             Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
-            Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
+            //Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
             //Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
 
-            return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!' . '----'. $tramitesPorUsuario . '--' . $numeroTramites . '-' . $numeroUsuariosConRol], 200);
+            return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Algo salió mal, por favor intente nuevamenteee.'.env('MAIL_HOST').'--'.env('MAIL_PORT'). '------'.$e], 500);
         } catch (Throwable $e) {

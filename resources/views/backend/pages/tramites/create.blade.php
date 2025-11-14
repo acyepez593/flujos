@@ -686,6 +686,9 @@ Crear Trámite - Admin Panel
                     let estado_civil = respuestaWS.find(dato => dato.campo === 'estadoCivil').valor;
                     let sexo = respuestaWS.find(dato => dato.campo === 'sexo').valor;
                     let genero = '';
+                    let fecha_nacimiento = respuestaWS.find(dato => dato.campo === 'fechaNacimiento').valor;
+                    fecha_nacimiento = moment(fecha_nacimiento,'DD/MM/YYYY').format("YYYY-MM-DD");
+                    let edad = calcularEdad(fecha_nacimiento);
 
                     if(seccion == 'BENEFICIARIOS'){
                         $('#' + id_beneficiario + ' input[name="nombre_completo"]').val(nombre_completo);
@@ -699,6 +702,14 @@ Crear Trámite - Admin Panel
                             return $(this).text() === genero;
                         }).prop('selected', true);
                         $('#' + id_beneficiario + ' select[name="genero_id"]').trigger("change");
+
+                        $('#' + id_beneficiario + ' select[name="estado_civil_id"] option').filter(function() {
+                            return $(this).text().includes(estado_civil);
+                        }).prop('selected', true);
+                        $('#' + id_beneficiario + ' select[name="estado_civil_id"]').trigger("change");
+
+                        $('#' + id_beneficiario + ' input[name="fecha_nacimiento"]').datepicker("setDate",fecha_nacimiento);
+                        $('#' + id_beneficiario + ' input[name="edad"]').val(edad);
                     }else{
                         $('#' + seccion + ' input[name="nombre_completo"]').val(nombre_completo);
                         if(sexo == 'HOMBRE'){
@@ -711,11 +722,28 @@ Crear Trámite - Admin Panel
                             return $(this).text() === genero;
                         }).prop('selected', true);
                         $('#' + seccion + ' select[name="genero_id"]').trigger("change");
+
+                        $('#' + seccion + ' select[name="estado_civil_id"] option').filter(function() {
+                            return $(this).text().includes(estado_civil);
+                        }).prop('selected', true);
+                        $('#' + seccion + ' select[name="estado_civil_id"]').trigger("change");
+
+                        $('#' + seccion + ' input[name="fecha_nacimiento"]').datepicker("setDate",fecha_nacimiento);
+
+                        $('#' + seccion + ' input[name="edad"]').val(edad);
                     }
                 }
             });
         }
         
+    }
+
+    function calcularEdad(fecha_de_nacimiento) {
+        let fecha_actual = moment();
+        let fecha_nacimiento = moment(fecha_de_nacimiento,'YYYY-MM-DD');
+        let edad = moment.duration(fecha_actual.diff(fecha_nacimiento));
+
+        return edad.years();
     }
 
     function inicializarObjeto(camposPorSeccion){

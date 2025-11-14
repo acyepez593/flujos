@@ -102,7 +102,7 @@
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="INGRESADO">INGRESADO</option>
                                                     <option value="EN PROCESO DAP">EN PROCESO DAP</option>
-                                                    <option value="EN PROCESO AUDITORIA">EN PROCESO AUDITORIA</option>
+                                                    <option value="EN ANALISIS DE PROCEDENCIA">EN ANALISIS DE PROCEDENCIA</option>
                                                     <option value="EN PROCESO FINANCIERO">EN PROCESO FINANCIERO</option>
                                                     <option value="PAGADO">PAGADO</option>
                                                 </select>
