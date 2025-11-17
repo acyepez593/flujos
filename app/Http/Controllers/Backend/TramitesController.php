@@ -342,6 +342,8 @@ class TramitesController extends Controller
                         }
                         $tramite->funcionario_actual_id = $usersId[$cont];
                         $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
+
+                        $this->enviarCorreo($secuencia_proceso_id, $tramite->id, strval(sizeof($tramites_ids)));
                     }
                     
                 }
@@ -350,7 +352,7 @@ class TramitesController extends Controller
 
             }
 
-            $proceso = Proceso::find($tramite->proceso_id);
+            /*$proceso = Proceso::find($tramite->proceso_id);
             $configuracion_correo = json_decode($secuencia_proceso->configuracion_correo,true);
 
             $funcionario_actual = Admin::find($tramite->funcionario_actual_id);
@@ -360,7 +362,7 @@ class TramitesController extends Controller
             $content = str_replace("<funcionario>", $funcionario_actual->name, $content);
             $content = str_replace("<numero_tramites>", strval(sizeof($tramites_ids)), $content);
             $content = str_replace("<numero_dias>", strval($secuencia_proceso->tiempo_procesamiento), $content);
-            Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
+            Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));*/
             //Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
             //Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
 
@@ -371,6 +373,36 @@ class TramitesController extends Controller
             return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
         }
 
+    }
+
+    public function enviarCorreo($secuencia_proceso_id, $tramite_id, $num_tramites)
+    {
+        try {
+            $secuencia_proceso = SecuenciaProceso::findOrFail($secuencia_proceso_id);
+            $tramite = Tramite::find($tramite_id);
+            $proceso = Proceso::find($tramite->proceso_id);
+            $configuracion_correo = json_decode($secuencia_proceso->configuracion_correo,true);
+
+            $funcionario_actual = Admin::find($tramite->funcionario_actual_id);
+            $numero_tramites = $num_tramites;
+            $tiempo_procesamiento = strval($secuencia_proceso->tiempo_procesamiento);
+
+            $subject = $configuracion_correo['subject'] . ' ' . $proceso->nombre;
+            $content = $configuracion_correo['contenido_html'];
+            $content = eval($content);
+
+
+            /*$content = str_replace("<funcionario>", $funcionario_actual->name, $content);
+            $content = str_replace("<numero_tramites>", strval($numero_tramites), $content);
+            $content = str_replace("<numero_dias>", strval($secuencia_proceso->tiempo_procesamiento), $content);*/
+            Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
+            //Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
+            //Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
+        } catch (\Exception $e) {
+            //return response()->json(['error' => 'Algo salió mal, por favor intente nuevamenteee.'.env('MAIL_HOST').'--'.env('MAIL_PORT'). '------'.$e], 500);
+        } catch (Throwable $e) {
+            //return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
+        }
     }
 
     public function getTramitesByFilters(Request $request): JsonResponse
