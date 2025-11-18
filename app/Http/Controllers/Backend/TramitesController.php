@@ -310,6 +310,8 @@ class TramitesController extends Controller
 
             $contadorTramite = 0;
             $cont = 0;
+            $esDistribucionAutomatica = false;
+            $tramitesPorUsuario = [];
 
             foreach($tramites as $tramite){
                 $datos = json_decode($tramite->datos, true);
@@ -330,20 +332,33 @@ class TramitesController extends Controller
                     if($configuracion_siguiente_secuencia['distribuir_automaticamente_tramites'] == false){
                         $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
                         $tramite->estatus = 'EN PROCESO DAP';
+
+                        if($contadorTramite == 0){
+                            $tramitesPorUsuario[$tramite->funcionario_actual_id] = [];
+                        }
+                        array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
                     }else{
                         //distribucion automatica de tramites
+                        $esDistribucionAutomatica = true;
                         $rolId = $siguiente_secuencia_proceso->rol_id;
                         $usersId = Role::getUsersByRol($rolId);
+                        if($contadorTramite == 0){
+                            foreach($usersId as $userId){
+                                $tramitesPorUsuario[$userId] = [];
+                            }
+                        }
                         $numeroUsuariosConRol = $usersId->count();
-                        $tramitesPorUsuario = ceil($numeroTramites/$numeroUsuariosConRol);
-
-                        if($contadorTramite == $tramitesPorUsuario){
+                        $numeroTramitesPorUsuario = ceil($numeroTramites/$numeroUsuariosConRol);
+                        
+                        if($contadorTramite == $numeroTramitesPorUsuario){
                             $cont += 1;
                         }
+
                         $tramite->funcionario_actual_id = $usersId[$cont];
                         $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
 
-                        $this->enviarCorreo($secuencia_proceso_id, $tramite->id, strval(sizeof($tramites_ids)));
+                        array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
+
                     }
                     
                 }
@@ -352,19 +367,10 @@ class TramitesController extends Controller
 
             }
 
-            /*$proceso = Proceso::find($tramite->proceso_id);
-            $configuracion_correo = json_decode($secuencia_proceso->configuracion_correo,true);
-
-            $funcionario_actual = Admin::find($tramite->funcionario_actual_id);
-
-            $subject = $configuracion_correo['subject'] . ' ' . $proceso->nombre;
-            $content = $configuracion_correo['contenido_html'];
-            $content = str_replace("<funcionario>", $funcionario_actual->name, $content);
-            $content = str_replace("<numero_tramites>", strval(sizeof($tramites_ids)), $content);
-            $content = str_replace("<numero_dias>", strval($secuencia_proceso->tiempo_procesamiento), $content);
-            Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));*/
-            //Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
-            //Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
+            foreach($tramitesPorUsuario as $tramitePorUsuario){
+                $numTramites = count($tramitePorUsuario);
+                $this->enviarCorreo($secuencia_proceso_id, $tramitePorUsuario[0], strval($numTramites));
+            }
 
             return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
         } catch (\Exception $e) {
@@ -383,18 +389,17 @@ class TramitesController extends Controller
             $proceso = Proceso::find($tramite->proceso_id);
             $configuracion_correo = json_decode($secuencia_proceso->configuracion_correo,true);
 
-            $funcionario_actual = Admin::find($tramite->funcionario_actual_id);
+            $funcionario_actual = Admin::find($tramite->funcionario_actual_id)->name;
             $numero_tramites = $num_tramites;
             $tiempo_procesamiento = strval($secuencia_proceso->tiempo_procesamiento);
 
             $subject = $configuracion_correo['subject'] . ' ' . $proceso->nombre;
             $content = $configuracion_correo['contenido_html'];
-            $content = eval($content);
 
 
-            /*$content = str_replace("<funcionario>", $funcionario_actual->name, $content);
-            $content = str_replace("<numero_tramites>", strval($numero_tramites), $content);
-            $content = str_replace("<numero_dias>", strval($secuencia_proceso->tiempo_procesamiento), $content);*/
+            $content = str_replace("[funcionario_actual]", $funcionario_actual, $content);
+            $content = str_replace("[numero_tramites]", strval($numero_tramites), $content);
+            $content = str_replace("[tiempo_procesamiento]", $tiempo_procesamiento, $content);
             Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
             //Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
             //Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
