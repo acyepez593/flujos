@@ -48,6 +48,7 @@ Dashboard Page - Admin Panel
                 </div>
             </div>
             @endif
+            @if ($usr->can('role.create') || $usr->can('role.view') ||  $usr->can('role.edit') ||  $usr->can('role.delete'))
             <div class="col-md-6 mt-3 mb-3">
                 <div class="card">
                     <div class="seo-fact sbg2">
@@ -60,6 +61,7 @@ Dashboard Page - Admin Panel
                     </div>
                 </div>
             </div>
+            @endif
         </div>
         <div class="row">
             @if ($usr->can('admin.create') || $usr->can('admin.view') ||  $usr->can('admin.edit') ||  $usr->can('admin.delete'))
@@ -76,90 +78,14 @@ Dashboard Page - Admin Panel
                 </div>
             </div>
             @endif
-            @if ($usr->can('prestadorSalud.create') || $usr->can('prestadorSalud.view') ||  $usr->can('prestadorSalud.edit') ||  $usr->can('prestadorSalud.delete'))
+            @if ($usr->can('tramite.create') || $usr->can('tramite.view') ||  $usr->can('tramite.edit') ||  $usr->can('tramite.delete'))
             <div class="col-md-6 mt-md-3 mb-3">
                 <div class="card">
                     <div class="seo-fact sbg4">
-                        <a href="{{ route('admin.prestadoresSalud.index') }}">
+                        <a href="{{ route('admin.tramites.inbox') }}">
                             <div class="p-4 d-flex justify-content-between align-items-center">
-                                <div class="seofct-icon"><i class="fa fa-university"></i> Prestadores de Salud</div>
-                                <h2>{{ $total_prestadores_salud }}</h2>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endif
-        </div>
-        <div class="row">
-            @if ($usr->can('oficio.create') || $usr->can('oficio.view') ||  $usr->can('oficio.edit') ||  $usr->can('oficio.delete'))
-            <div class="col-md-6 mt-md-3 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg1">
-                        <a href="{{ route('admin.oficios.index') }}">
-                            <div class="p-4 d-flex justify-content-between align-items-center">
-                                <div class="seofct-icon"><i class="fa fa-file-text"></i> Trámites Normales</div>
-                                <h2>{{ $total_oficios }}</h2>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endif
-            @if ($usr->can('rezagado.create') || $usr->can('rezagado.view') ||  $usr->can('rezagado.edit') ||  $usr->can('rezagado.delete'))
-            <div class="col-md-6 mt-md-3 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg5">
-                        <a href="{{ route('admin.rezagados.index') }}">
-                            <div class="p-4 d-flex justify-content-between align-items-center">
-                                <div class="seofct-icon"><i class="fa fa-file-text"></i> Trámites Rezagados</div>
-                                <h2>{{ $total_rezagados }}</h2>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endif
-        </div>
-        <div class="row">
-            @if ($usr->can('rezagadoLevantamientoObjecion.create') || $usr->can('rezagadoLevantamientoObjecion.view') ||  $usr->can('rezagadoLevantamientoObjecion.edit') ||  $usr->can('rezagadoLevantamientoObjecion.delete'))
-            <div class="col-md-6 mt-md-3 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg6">
-                        <a href="{{ route('admin.rezagadosLevantamientoObjeciones.index') }}">
-                            <div class="p-4 d-flex justify-content-between align-items-center">
-                                <div class="seofct-icon"><i class="fa fa-file-text"></i> Trámites Rezagados Levantamiento Objeciones</div>
-                                <h2>{{ $total_rezagados_levantamiento_objeciones }}</h2>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endif
-            @if ($usr->can('extemporaneo.create') || $usr->can('extemporaneo.view') ||  $usr->can('extemporaneo.edit') ||  $usr->can('extemporaneo.delete'))
-            <div class="col-md-6 mt-md-3 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg7">
-                        <a href="{{ route('admin.extemporaneos.index') }}">
-                            <div class="p-4 d-flex justify-content-between align-items-center">
-                                <div class="seofct-icon"><i class="fa fa-file-text"></i> Trámites Extemporaneos</div>
-                                <h2>{{ $total_extemporaneos }}</h2>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endif
-        </div>
-        <div class="row">
-            @if ($usr->can('bitacora.create') || $usr->can('bitacora.view') ||  $usr->can('bitacora.edit') ||  $usr->can('bitacora.delete'))
-            <div class="col-md-6 mt-md-3 mb-3">
-                <div class="card">
-                    <div class="seo-fact sbg1">
-                        <a href="{{ route('admin.registrosBitacora.index') }}">
-                            <div class="p-4 d-flex justify-content-between align-items-center">
-                                <div class="seofct-icon"><i class="fa fa-file-text"></i> Registros Bitácora</div>
-                                <h2>{{ $total_registros_bitacora }}</h2>
+                                <div class="seofct-icon"><i class="fa fa-file-text"></i> Trámites Pendientes</div>
+                                <h2>{{ $total_tramites_pendientes }}</h2>
                             </div>
                         </a>
                     </div>

@@ -94,6 +94,7 @@ class RolePermissionSeeder extends Seeder
                     'tramite.view',
                     'tramite.edit',
                     'tramite.delete',
+                    'tramite.reassign',
                 ]
             ],
             [
@@ -321,8 +322,27 @@ class RolePermissionSeeder extends Seeder
             ],
         ];
 
+        // Permission List as array
+        $permissionsToReasignarTramites = [
+
+            [
+                'group_name' => 'dashboard',
+                'permissions' => [
+                    'dashboard.view'
+                ]
+            ],
+            [
+                'group_name' => 'tramite',
+                'permissions' => [
+                    // tramite Permissions
+                    'tramite.view',
+                    'tramite.reassign',
+                ]
+            ],
+        ];
+
         // Create additional roles
-        $roles = ['INICIADOR FALLECIMIENTOS','INICIADOR FUNERARIOS','INICIADOR DISCAPACIDAD','CONSULTOR FLUJOS','GESTOR FLUJO'];
+        $roles = ['INICIADOR FALLECIMIENTOS','INICIADOR FUNERARIOS','INICIADOR DISCAPACIDAD','CONSULTOR FLUJOS','GESTOR FLUJO','REASIGNADOR TRAMITES'];
         foreach($roles as $rol){
             $roleSuperAdmin = Role::create(['name' => $rol, 'guard_name' => 'admin']);
             $permissions = [];
@@ -341,6 +361,9 @@ class RolePermissionSeeder extends Seeder
                     break;
                 case 'GESTOR FLUJO':
                     $permissions = $permissionsToGestorFlujo;
+                    break;
+                case 'REASIGNADOR TRAMITES':
+                    $permissions = $permissionsToReasignarTramites;
                     break;
             }
 

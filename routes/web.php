@@ -55,6 +55,7 @@ Route::post('/getSecuenciaProcesosByProceso','backend\SecuenciaProcesosControlle
 Route::post('/getBandejaTramitesByFilters','backend\TramitesController@getBandejaTramitesByFilters')->middleware('auth:admin');
 Route::post('/getTramitesByFilters','backend\TramitesController@getTramitesByFilters')->middleware('auth:admin');
 Route::post('/getListaCamposByTramite','backend\TramitesController@getListaCamposByTramite')->middleware('auth:admin');
+Route::post('/getTramitesParaReasignarByFilters','backend\TramitesController@getTramitesParaReasignarByFilters')->middleware('auth:admin');
 
 Route::post('/getTipoCatalogosByFilters','backend\TipoCatalogosController@getTipoCatalogosByFilters')->middleware('auth:admin');
 Route::post('/getCatalogosByFilters','backend\CatalogosController@getCatalogosByFilters')->middleware('auth:admin');
@@ -99,7 +100,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
     Route::get('/tramites', [TramitesController::class, 'index'])->name('tramites.index');
     Route::get('/tramites/inbox', [TramitesController::class, 'inbox'])->name('tramites.inbox');
+    Route::get('/tramites/reassign', [TramitesController::class, 'reassign'])->name('tramites.reassign');
     Route::post('/tramites/procesarTramites', [TramitesController::class, 'procesarTramites'])->name('tramites.procesarTramites');
+    Route::post('/tramites/reasignarTramites', [TramitesController::class, 'reasignarTramites'])->name('tramites.reasignarTramites');
     Route::get('/tramites/{proceso_id}/create', [TramitesController::class, 'create'])->name('tramites.create');
     Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store'])->name('tramites.store');
     Route::get('/tramites/{id}/edit', [TramitesController::class, 'edit'])->name('tramites.edit');

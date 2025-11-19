@@ -115,10 +115,10 @@
                         <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
                             Bandeje de Trámites
                         </span></a>
-                        <ul class="collapse {{ Route::is('admin.tramites.create') || Route::is('admin.tramites.index') || Route::is('admin.tramites.edit') || Route::is('admin.tramites.show') ? 'in' : '' }}">
+                        <ul class="collapse {{ Route::is('admin.tramites.create') || Route::is('admin.tramites.index') || Route::is('admin.tramites.edit') || Route::is('admin.tramites.show') || Route::is('admin.tramites.inbox')  ? 'in' : '' }}">
                             
                             @if ($usr->can('tramite.view'))
-                                <li class="{{ Route::is('admin.tramites.index')  || Route::is('admin.tramites.edit') ? 'active' : '' }}"><a href="{{ route('admin.tramites.inbox') }}">Bandeja de Trámites</a></li>
+                                <li class="{{ Route::is('admin.tramites.inbox') ? 'active' : '' }}"><a href="{{ route('admin.tramites.inbox') }}">Trámites Pendientes</a></li>
                             @endif
                         </ul>
                     </li>
@@ -132,6 +132,19 @@
                             
                             @if ($usr->can('tramite.view'))
                                 <li class="{{ Route::is('admin.tramites.index')  || Route::is('admin.tramites.edit') ? 'active' : '' }}"><a href="{{ route('admin.tramites.index') }}">Trámites</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($usr->can('tramite.reassign'))
+                    <li>
+                        <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
+                            Reasignar Trámites
+                        </span></a>
+                        <ul class="collapse {{ Route::is('admin.tramites.reassign') ? 'in' : '' }}">
+                            
+                            @if ($usr->can('tramite.reassign'))
+                                <li class="{{ Route::is('admin.tramites.reassign') ? 'active' : '' }}"><a href="{{ route('admin.tramites.reassign') }}">Reasignar</a></li>
                             @endif
                         </ul>
                     </li>

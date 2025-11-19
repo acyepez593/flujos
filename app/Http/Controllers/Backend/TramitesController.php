@@ -67,6 +67,23 @@ class TramitesController extends Controller
         ]);
     }
 
+    public function reassign(): Renderable
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.reassign']);
+
+        $procesos = Proceso::where('estatus','ACTIVO')->get(["nombre", "id"]);
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
+        $creadores = Admin::get(["name", "id"]);
+        $funcionarios = $creadores;
+
+        return view('backend.pages.tramites.reassign', [
+            'procesos' => $procesos,
+            'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
+            'funcionarios' => $funcionarios,
+            'creadores' => $creadores
+        ]);
+    }
+
     public function create(int $proceso_id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['tramite.create']);
@@ -292,6 +309,78 @@ class TramitesController extends Controller
         return response()->json($data);
     }
 
+    public function getTramitesParaReasignarByFilters(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.reassign']);
+
+        $funcionario_actual_id = Auth::id();
+        $tramites = Tramite::where('estatus','<>','PAGADO');
+
+        $filtroProcesoIdSearch = $request->proceso_id_search;
+        $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
+        $filtroEstatus = json_decode($request->estatus_search, true);
+        
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+        }
+        if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroSecuenciaIdProcesoSearch);
+        }
+        if(isset($filtroEstatus) && !empty($filtroEstatus)){
+            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+        }
+        
+        $tramites = $tramites->orderBy('id', 'asc')->get();
+
+        $procesos = Proceso::where('estatus','ACTIVO')->get();
+
+        $procesos_temp = [];
+        foreach($procesos as $proceso){
+            $procesos_temp[$proceso->id] = $proceso->nombre;
+        }
+
+        $secuenciasProceso = SecuenciaProceso::where('proceso_id',$filtroProcesoIdSearch)->where('estatus','ACTIVO')->get();
+
+        $secuencias_proceso_temp = [];
+        $configuracion_secuencia_temp = [];
+        foreach($secuenciasProceso as $secuencia){
+            $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+            $configuracion_secuencia_temp[$secuencia->id] = json_decode($secuencia->configuracion, true);
+        }
+
+        $creadores = Admin::all();
+
+        $creadores_temp = [];
+        foreach($creadores as $creador){
+            $creadores_temp[$creador->id] = $creador->name;
+        }
+
+        $usuario_actual_id = Auth::id();
+
+        $secuencia_proceso_id = 0;
+
+        foreach($tramites as $tramite){
+            $secuencia_proceso_id = $tramite->secuencia_proceso_id;
+            $tramite->proceso_nombre = array_key_exists($tramite->proceso_id, $procesos_temp) ? $procesos_temp[$tramite->proceso_id] : "";
+            $tramite->secuencia_nombre = array_key_exists($tramite->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$tramite->secuencia_proceso_id] : "";
+            $tramite->funcionario_actual_nombre = array_key_exists($tramite->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$tramite->funcionario_actual_id] : "";
+            $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
+            $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
+            $tramite->esEditorRegistro = $usuario_actual_id == $tramite->funcionario_actual_id ? true : false;
+            $tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
+            $tramite->requiere_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_memorando'] : "";
+            $tramite->requiere_fecha_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_fecha_memorando'] : "";
+            $tramite->requiere_adjuntar_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_adjuntar_memorando'] : "";
+        }
+
+        $secuencia = SecuenciaProceso::find($secuencia_proceso_id);        
+
+        $data['tramites'] = $tramites;
+        $data['secuencia'] = $secuencia;
+  
+        return response()->json($data);
+    }
+
     public function procesarTramites(Request $request): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['tramite.edit']);
@@ -310,7 +399,6 @@ class TramitesController extends Controller
 
             $contadorTramite = 0;
             $cont = 0;
-            $esDistribucionAutomatica = false;
             $tramitesPorUsuario = [];
 
             foreach($tramites as $tramite){
@@ -339,7 +427,6 @@ class TramitesController extends Controller
                         array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
                     }else{
                         //distribucion automatica de tramites
-                        $esDistribucionAutomatica = true;
                         $rolId = $siguiente_secuencia_proceso->rol_id;
                         $usersId = Role::getUsersByRol($rolId);
                         if($contadorTramite == 0){
@@ -378,6 +465,27 @@ class TramitesController extends Controller
         } catch (Throwable $e) {
             return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
         }
+
+    }
+
+    public function reasignarTramites(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.reassign']);
+        
+        $proceso_id = $request->proceso_id;
+        $tramites_ids = json_decode($request->tramites_ids, true);
+        $funcionario_a_reasignar = $request->funcionario_a_reasignar;
+        $comentario_reasignacion = $request->comentario_reasignacion;
+
+        $tramites = Tramite::whereIn('id',$tramites_ids)->get();
+
+        foreach($tramites as $tramite){
+            $tramite->funcionario_actual_id = $funcionario_a_reasignar;
+            $tramite->save();
+        }
+
+        session()->flash('success', __('Tramites reasignados exitosamente! '));
+        return response()->json(['tramites' => $tramites,'message' => 'Tramites reasignados exitosamente!'], 200);
 
     }
 
