@@ -16,6 +16,7 @@ use App\Models\Proceso;
 use App\Models\Tramite;
 use App\Models\SecuenciaProceso;
 use App\Models\TipoCatalogo;
+use App\Models\TrazabilidadTramite;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
@@ -159,6 +160,16 @@ class TramitesController extends Controller
             $beneficiario->save();
         }
 
+        $trazabilidad_tramite = new TrazabilidadTramite();
+        $trazabilidad_tramite->tramite_id = $tramite->id;
+        $trazabilidad_tramite->proceso_id = $proceso_id;
+        $trazabilidad_tramite->secuencia_proceso_id = $secuencia_proceso_id;
+        $trazabilidad_tramite->funcionario_actual_id = $funcionario_actual_id;
+        $trazabilidad_tramite->datos = $datos;
+        $trazabilidad_tramite->estatus = $estatus;
+        $trazabilidad_tramite->creado_por = $creado_por;
+        $trazabilidad_tramite->save();
+
         session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '));
         return redirect()->route('admin.tramites.inbox');
     }
@@ -232,6 +243,16 @@ class TramitesController extends Controller
             $beneficiario->creado_por = $creado_por;
             $beneficiario->save();
         }
+
+        $trazabilidad_tramite = new TrazabilidadTramite();
+        $trazabilidad_tramite->tramite_id = $tramite->id;
+        $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
+        $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
+        $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
+        $trazabilidad_tramite->datos = $tramite->datos;
+        $trazabilidad_tramite->estatus = $tramite->estatus;
+        $trazabilidad_tramite->creado_por = $tramite->creado_por;
+        $trazabilidad_tramite->save();
 
         session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.');
         return redirect()->route('admin.tramites.inbox');
