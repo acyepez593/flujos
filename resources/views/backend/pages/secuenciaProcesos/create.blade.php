@@ -98,6 +98,21 @@ Crear Secuencia Proceso - Admin Panel
     .icon-margin {
         cursor: pointer;
     }
+
+    .iframe-container{
+        background: white;
+        width: 50%;
+        height: 100vh;
+        margin: 3px;
+    }
+    #viewer{
+        width: 100%;
+        height: 90%;
+    }
+    .split {
+        width:100%;
+        height:100%;
+    }
 </style>
 @endsection
 
@@ -316,7 +331,13 @@ Crear Secuencia Proceso - Admin Panel
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="contenido_html" class="form-label">Contenido Html del Correo</label>
-                                <textarea onchange="generarConfiguracionObjetoCorreo('contenido_html',this.value)" class="form-control" id="contenido_html" name="contenido_html" rows="6"></textarea>
+                                <textarea onchange="generarConfiguracionObjetoCorreo('contenido_html',this.value)" oninput="updateIframe(0)" onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}if(event.keyCode==8){updateIframe(1);}" class="form-control" id="contenido_html" name="contenido_html" rows="12"></textarea>
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="cc">Visualizador Correo</label>
+                                <div class="iframe-container split">
+                                    <iframe id="viewer"></iframe>
+                                </div>
                             </div>
                         </div>
 
@@ -913,6 +934,7 @@ Crear Secuencia Proceso - Admin Panel
     let table = "";
     let tableRef = "";
     let conf = {};
+    let jj = 0;
 
     let objeto = {
         distribuir_automaticamente_tramites: false,
@@ -1108,6 +1130,24 @@ Crear Secuencia Proceso - Admin Panel
     function generarConfiguracionObjetoCorreo(campo,valor){
         objetoCorreo[campo] = valor;
         $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
+    }
+
+    function updateIframe(i) {
+        if(i==0){
+            let htmlCode=document.getElementById("contenido_html").value;
+            let text=htmlCode;
+            let iframe=document.getElementById('viewer').contentWindow.document;
+            iframe.open();
+            iframe.write(text);
+            iframe.close();
+        }else if(i==1){
+
+            let htmlCode=document.getElementById("contenido_html").value;
+            let html=htmlCode.slice(0,htmlCode.length);
+            document.getElementById("contenido_html").value=html;
+            jj=1;
+
+        }
     }
 
 </script>
