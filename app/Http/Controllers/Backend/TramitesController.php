@@ -503,6 +503,17 @@ class TramitesController extends Controller
         foreach($tramites as $tramite){
             $tramite->funcionario_actual_id = $funcionario_a_reasignar;
             $tramite->save();
+
+            $trazabilidad_tramite = new TrazabilidadTramite();
+            $trazabilidad_tramite->tramite_id = $tramite->id;
+            $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
+            $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
+            $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
+            $trazabilidad_tramite->datos = $tramite->datos;
+            $trazabilidad_tramite->estatus = $tramite->estatus;
+            $trazabilidad_tramite->creado_por = $tramite->creado_por;
+            $trazabilidad_tramite->comentario_reasignacion = $comentario_reasignacion;
+            $trazabilidad_tramite->save();
         }
 
         session()->flash('success', __('Tramites reasignados exitosamente! '));

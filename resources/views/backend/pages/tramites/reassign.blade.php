@@ -83,7 +83,7 @@
                 </div>
                 <div id="error_alert" class="alert alert-danger alert-dismissible fade show" role="alert">
                     <span class="message"></span>
-                    <button type="button" class="close" onclick="$('#success_alert').hide()" aria-label="Close">
+                    <button type="button" class="close" onclick="$('#error_alert').hide()" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
