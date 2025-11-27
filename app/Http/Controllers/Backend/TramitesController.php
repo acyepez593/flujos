@@ -168,6 +168,7 @@ class TramitesController extends Controller
         $trazabilidad_tramite->datos = $datos;
         $trazabilidad_tramite->estatus = $estatus;
         $trazabilidad_tramite->creado_por = $creado_por;
+        $trazabilidad_tramite->tipo = 'CREACION';
         $trazabilidad_tramite->save();
 
         session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '));
@@ -252,6 +253,7 @@ class TramitesController extends Controller
         $trazabilidad_tramite->datos = $tramite->datos;
         $trazabilidad_tramite->estatus = $tramite->estatus;
         $trazabilidad_tramite->creado_por = $tramite->creado_por;
+        $trazabilidad_tramite->tipo = 'MODIFICACION';
         $trazabilidad_tramite->save();
 
         session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.');
@@ -340,6 +342,7 @@ class TramitesController extends Controller
         $filtroProcesoIdSearch = $request->proceso_id_search;
         $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
+        $filtroFuncionarioIdSearch = $request->funcionario_search;
         
         if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
             $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
@@ -349,6 +352,9 @@ class TramitesController extends Controller
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+        }
+        if(isset($filtroFuncionarioIdSearch) && !empty($filtroFuncionarioIdSearch)){
+            $tramites = $tramites->where('funcionario_actual_id', $filtroFuncionarioIdSearch);
         }
         
         $tramites = $tramites->orderBy('id', 'asc')->get();
@@ -472,6 +478,17 @@ class TramitesController extends Controller
                 }
                 $tramite->save();
                 $contadorTramite += 1;
+
+                $trazabilidad_tramite = new TrazabilidadTramite();
+                $trazabilidad_tramite->tramite_id = $tramite->id;
+                $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
+                $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
+                $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
+                $trazabilidad_tramite->datos = $tramite->datos;
+                $trazabilidad_tramite->estatus = $tramite->estatus;
+                $trazabilidad_tramite->creado_por = $tramite->creado_por;
+                $trazabilidad_tramite->tipo = 'CAMBIO SECCION';
+                $trazabilidad_tramite->save();
 
             }
 
@@ -619,9 +636,31 @@ class TramitesController extends Controller
         $tramite = Tramite::findOrFail($tramiteId);
         $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
         $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
+        $secuenciasProceso = $secuenciaProceso->get();
 
         $data['listaCampos'] = $listaCampos;
-  
+
+        $trazabilidad_tramite = TrazabilidadTramite::where('tramite_id', $tramiteId)->whereIn('tipo',['CREACION','CAMBIO SECCION','CONDICINAL','FINALIZACION'])->get(["id","secuencia_proceso_id","funcionario_actual_id","estatus","tipo","created_at"]);
+
+        $secuencias_proceso_temp = [];
+        foreach($secuenciasProceso as $secuencia){
+            $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+        }
+
+        $funcionarios = Admin::all();
+
+        $funcionarios_temp = [];
+        foreach($funcionarios as $creador){
+            $funcionarios_temp[$creador->id] = $creador->name;
+        }
+
+        foreach($trazabilidad_tramite as $trazabilidad){
+            $trazabilidad->secuencia_proceso_nombre = array_key_exists($trazabilidad->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$trazabilidad->secuencia_proceso_id] : "";
+            $trazabilidad->funcionario_actual_nombre = array_key_exists($trazabilidad->funcionario_actual_id, $funcionarios_temp) ? $funcionarios_temp[$trazabilidad->funcionario_actual_id] : "";
+        }
+
+        $data['trazabilidad'] = $trazabilidad_tramite;
+
         return response()->json($data);
     }
 

@@ -696,6 +696,7 @@ Editar Trámite - Admin Panel
             }
 
         });
+        $('.selectpicker').selectpicker('refresh');
     }
 
     function eliminarBeneficiario(input){

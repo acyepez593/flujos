@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('estatus', ['INGRESADO', 'EN PROCESO DAP', 'EN ANALISIS DE PROCEDENCIA', 'EN PROCESO FINANCIERO', 'PAGADO'])->default('INGRESADO');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
+            $table->enum('tipo', ['CREACION', 'MODIFICACION', 'CAMBIO SECCION','CONDICIONAL', 'FINALIZACION'])->default('CREACION');
             $table->string('comentario_reasignacion')->nullable();
             $table->softDeletes();
             $table->timestamps();

@@ -367,7 +367,7 @@
                     proceso_id_search: $('#proceso_id_search').val(),
                     secuencia_proceso_id_search: $('#secuencia_proceso_id_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
-                    funcionario_search: JSON.stringify($('#funcionario_search').val()),
+                    funcionario_search: $('#funcionario_search').val(),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
                     _token: '{{csrf_token()}}'
                 },

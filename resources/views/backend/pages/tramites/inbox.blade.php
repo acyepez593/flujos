@@ -530,7 +530,7 @@
                             '</h5>'+
                             '</div>'+
                             '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
-                            '<div class="card-body">';
+                            '<div class="card-body" style="pointer-events: none;">';
                             if(seccion == 'BENEFICIARIOS'){
                                 for (let [index, beneficiario] of datos.data[seccion].entries()) {
 
