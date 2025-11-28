@@ -196,46 +196,42 @@ Editar Trámite - Admin Panel
 
         for (let index in catalogosRelacionadosVariables) {
 
-            if(index == catalogosRelacionadosVariables.length-1){
-                selectorPadre += 'select[name="'+ catalogosRelacionadosVariables[index] +'"]' ;
-            }else{
-                selectorPadre += 'select[name="'+ catalogosRelacionadosVariables[index] +'"],';
-            }
-        }
+            $('select[name="'+ catalogosRelacionadosVariables[index] +'"]').on("change", function() {
+                let dataCatalogo = catalogosByCatalogoId[$(this).val()];
+                let seccion = $(this).parents('.collapse').attr('id');
 
-        $(selectorPadre).on("change", function() {
-            let dataCatalogo = catalogosByCatalogoId[$(this).val()];
-            let seccion = $(this).parents('.collapse').attr('id');
+                if(dataCatalogo != undefined){
+                    let id = dataCatalogo[0].tipo_catalogo_id;
+                    let variable = camposPorSeccion[seccion].find(campo => campo.configuracion.select_field_tipo_catalogo == id).variable;
 
-            if(dataCatalogo != undefined){
-                let id = dataCatalogo[0].tipo_catalogo_id;
-                let variable = camposPorSeccion[seccion].find(campo => campo.configuracion.select_field_tipo_catalogo == id).variable;
+                    if(seccion == 'BENEFICIARIOS'){
+                        let id_ben = $(this).parents('.card').attr('id');
+                        selectorHijo = '#' + id_ben + ' select[name="'+ variable +'"]';
+                    }else{
+                        selectorHijo = 'select[name="'+ variable +'"]';
+                    }
 
-                if(seccion == 'BENEFICIARIOS'){
-                    let id_ben = $(this).parents('.card').attr('id');
-                    selectorHijo = '#' + id_ben + ' select[name="'+ variable +'"]';
+                    $(selectorHijo).selectpicker('destroy');
+                    $(selectorHijo).html('');
+                    $(selectorHijo).append('<option value="">Seleccione el Catálogo Relacionado</option>');
+                    $.each(dataCatalogo, function (key, value) {
+                        if(datos.data[seccion][variable] == value.id){
+                            $(selectorHijo).append('<option selected value="' + value.id + '">' + value.nombre + '</option>');
+                        }else{
+                            $(selectorHijo).append('<option value="' + value.id + '">' + value.nombre + '</option>');
+                        }
+                    });
+                    $(selectorHijo).selectpicker();
+                    $('.selectpicker').selectpicker('refresh');
                 }else{
-                    selectorHijo = 'select[name="'+ variable +'"]';
+                    $(selectorHijo).selectpicker('destroy');
+                    $(selectorHijo).html('');
                 }
 
-                $(selectorHijo).selectpicker('destroy');
-                $(selectorHijo).html('');
-                $(selectorHijo).append('<option value="">Seleccione el Catálogo Relacionado</option>');
-                $.each(dataCatalogo, function (key, value) {
-                    $(selectorHijo).append('<option value="' + value.id + '">' + value.nombre + '</option>');
-                });
-                $(selectorHijo).selectpicker();
-                $('.selectpicker').selectpicker('refresh');
-            }else{
-                $(selectorHijo).selectpicker('destroy');
-                $(selectorHijo).html('');
-            }
+            });
 
-        });
-
-        $(selectorPadre).trigger("change");
-
-        //$("#tipo_catalogo_id").trigger("change");
+            $('select[name="'+ catalogosRelacionadosVariables[index] +'"]').trigger("change");
+        }
 
         /*for (let campo of listaCampos) {
             if(campo.tipo_campo == 'date'){
@@ -317,6 +313,7 @@ Editar Trámite - Admin Panel
         listaCampos = JSON.parse(listaCampos);
 
         camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
+        console.log('camposPorSeccion');
         console.log(camposPorSeccion);
 
         inicializarObjeto(camposPorSeccion);
@@ -355,7 +352,7 @@ Editar Trámite - Admin Panel
 
                         html_components += '<div class="form-row">';
 
-                        html_components += contruirCampos(count,long,seccion,index);
+                        html_components += construirCampos(count,long,seccion,index);
 
                         if((index+1) == datos.data[seccion].length){
                             html_components += '</div></div></div>';
@@ -364,7 +361,7 @@ Editar Trámite - Admin Panel
                 }else{
                     html_components += '<div class="form-row">';
 
-                    html_components += contruirCampos(count,long,seccion);
+                    html_components += construirCampos(count,long,seccion);
                 
                     html_components += '</div>';
                 }
@@ -375,7 +372,7 @@ Editar Trámite - Admin Panel
         $(".selectpicker").selectpicker('refresh');
     }
 
-    function contruirCampos(count,long,seccion,beneficiario_id=null){
+    function construirCampos(count,long,seccion,beneficiario_id=null){
         let html_components = '';
         
         for (let campo of camposPorSeccion[seccion]) {
@@ -581,7 +578,7 @@ Editar Trámite - Admin Panel
                                     html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                 }
                             }else{
-                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                //html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                             }
                         }
                         html_components += '</select>';
@@ -595,7 +592,7 @@ Editar Trámite - Admin Panel
                                     html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                 }
                             }else{
-                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                //html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                             }
                         }
                         html_components += '</select>';
@@ -609,7 +606,7 @@ Editar Trámite - Admin Panel
                                     html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                 }
                             }else{
-                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                //html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                             }
                         }
                         html_components += '</select>';
@@ -623,7 +620,7 @@ Editar Trámite - Admin Panel
                                     html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                 }
                             }else{
-                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                //html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                             }
                         }
                         html_components += '</select>';
@@ -661,7 +658,7 @@ Editar Trámite - Admin Panel
         '<div class="card-body">'+
         '<div class="form-row">';
 
-        html_components += contruirCampos(count,long,seccion);
+        html_components += construirCampos(count,long,seccion);
 
         html_components += '</div></div></div>';
 
