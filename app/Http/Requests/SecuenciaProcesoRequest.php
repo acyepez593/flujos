@@ -29,7 +29,7 @@ class SecuenciaProcesoRequest extends FormRequest
             'estatus' => 'required',
             'tiempo_procesamiento' => 'required',
             'configuracion' => 'required',
-            'configuracion_campos' => 'required'
+            'configuracion_campos' => 'required',
         ];
     }
 
