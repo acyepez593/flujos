@@ -65,9 +65,8 @@ Route::post('/getCatalogoByTipoCatalogoId','backend\CatalogosController@getCatal
 
 Route::post('/getConfiguracionesValidacion','backend\ConfiguracionesValidacionController@getConfiguracionesValidacion')->middleware('auth:admin');
 Route::post('/getLogsConfiguracionesValidacion','backend\LogsConfiguracionesValidacionController@getLogsConfiguracionesValidacion')->middleware('auth:admin');
-
-Route::post('/getConfiguracionesCamposReporteByFilters','backend\ConfiguracionesCamposReporteController@getConfiguracionesCamposReporteByFilters')->middleware('auth:admin');
 */
+Route::post('/getConfiguracionesCamposReporteByFilters','backend\ConfiguracionesCamposReporteController@getConfiguracionesCamposReporteByFilters')->middleware('auth:admin');
 Route::post('/consultarSCI','backend\TramitesController@consultarSCI')->middleware('auth:admin');
 
 /**
@@ -112,7 +111,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::resource('catalogos', CatalogosController::class);
     //Route::resource('pantallas', PantallasController::class);
     //Route::resource('seccionPantallas', SeccionPantallasController::class);
-    /*Route::resource('configuracionesCamposReporte', ConfiguracionesCamposReporteController::class);*/
+    Route::resource('configuracionesCamposReporte', ConfiguracionesCamposReporteController::class);
     Route::resource('reportes', ReportesController::class);
 
     // Login Routes.

@@ -76,37 +76,51 @@
                         </ul>
                     </li>
                     @endif
-                    @if ($usr->can('catalogo.create') || $usr->can('catalogo.view') ||  $usr->can('catalogo.edit') ||  $usr->can('catalogo.delete'))
+                    @if ($usr->can('catalogo.create') || $usr->can('catalogo.view') || $usr->can('catalogo.edit') || $usr->can('catalogo.delete') || $usr->can('catalogo.create') || $usr->can('catalogo.view') || $usr->can('catalogo.edit') || $usr->can('catalogo.delete') || $usr->can('configuracionCamposReporte.view'))
                     <li>
-                        <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
-                            Tipos Catálogos
+                        <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-gear"></i><span>
+                            Configuraciones
                         </span></a>
-                        <ul class="collapse {{ Route::is('admin.tipoCatalogos.create') || Route::is('admin.tipoCatalogos.index') || Route::is('admin.tipoCatalogos.edit') || Route::is('admin.tipoCatalogos.show') ? 'in' : '' }}">
+                        <ul class="collapse {{ Route::is('admin.configuracionesValidacion.index') || Route::is('admin.configuracionesValidacion.edit') ? 'in' : '' }}">
                             
-                            @if ($usr->can('catalogo.view'))
-                                <li class="{{ Route::is('admin.tipoCatalogos.index')  || Route::is('admin.tipoCatalogos.edit') ? 'active' : '' }}"><a href="{{ route('admin.tipoCatalogos.index') }}">Todos los Tipos Catálogos</a></li>
+                            @if ($usr->can('catalogo.create') || $usr->can('catalogo.view') || $usr->can('catalogo.edit') || $usr->can('catalogo.delete'))
+                            <li>
+                                <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
+                                    Tipos Catálogos
+                                </span></a>
+                                <ul class="collapse {{ Route::is('admin.tipoCatalogos.create') || Route::is('admin.tipoCatalogos.index') || Route::is('admin.tipoCatalogos.edit') || Route::is('admin.tipoCatalogos.show') ? 'in' : '' }}">
+                                    
+                                    @if ($usr->can('catalogo.view'))
+                                        <li class="{{ Route::is('admin.tipoCatalogos.index')  || Route::is('admin.tipoCatalogos.edit') ? 'active' : '' }}"><a href="{{ route('admin.tipoCatalogos.index') }}">Todos los Tipos Catálogos</a></li>
+                                    @endif
+
+                                    @if ($usr->can('catalogo.create'))
+                                        <li class="{{ Route::is('admin.tipoCatalogos.create')  ? 'active' : '' }}"><a href="{{ route('admin.tipoCatalogos.create') }}">Crear Tipo Catálogo</a></li>
+                                    @endif
+                                </ul>
+                            </li>
+                            @endif
+                            @if ($usr->can('catalogo.create') || $usr->can('catalogo.view') || $usr->can('catalogo.edit') || $usr->can('catalogo.delete'))
+                            <li>
+                                <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
+                                    Catálogos
+                                </span></a>
+                                <ul class="collapse {{ Route::is('admin.catalogos.create') || Route::is('admin.catalogos.index') || Route::is('admin.catalogos.edit') || Route::is('admin.catalogos.show') ? 'in' : '' }}">
+                                    
+                                    @if ($usr->can('catalogo.view'))
+                                        <li class="{{ Route::is('admin.catalogos.index')  || Route::is('admin.catalogos.edit') ? 'active' : '' }}"><a href="{{ route('admin.catalogos.index') }}">Todos los Tipos Catálogos</a></li>
+                                    @endif
+
+                                    @if ($usr->can('catalogo.create'))
+                                        <li class="{{ Route::is('admin.catalogos.create')  ? 'active' : '' }}"><a href="{{ route('admin.catalogos.create') }}">Crear Catálogo</a></li>
+                                    @endif
+                                </ul>
+                            </li>
+                            @endif
+                            @if ($usr->can('configuracionCamposReporte.view'))
+                                <li class="{{ Route::is('admin.configuracionesCamposReporte.index')  || Route::is('admin.configuracionesCamposReporte.edit') ? 'active' : '' }}"><a href="{{ route('admin.configuracionesCamposReporte.index') }}">Campos Reporte</a></li>
                             @endif
 
-                            @if ($usr->can('catalogo.create'))
-                                <li class="{{ Route::is('admin.tipoCatalogos.create')  ? 'active' : '' }}"><a href="{{ route('admin.tipoCatalogos.create') }}">Crear Tipo Catálogo</a></li>
-                            @endif
-                        </ul>
-                    </li>
-                    @endif
-                    @if ($usr->can('catalogo.create') || $usr->can('catalogo.view') ||  $usr->can('catalogo.edit') ||  $usr->can('catalogo.delete'))
-                    <li>
-                        <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
-                            Catálogos
-                        </span></a>
-                        <ul class="collapse {{ Route::is('admin.catalogos.create') || Route::is('admin.catalogos.index') || Route::is('admin.catalogos.edit') || Route::is('admin.catalogos.show') ? 'in' : '' }}">
-                            
-                            @if ($usr->can('catalogo.view'))
-                                <li class="{{ Route::is('admin.catalogos.index')  || Route::is('admin.catalogos.edit') ? 'active' : '' }}"><a href="{{ route('admin.catalogos.index') }}">Todos los Tipos Catálogos</a></li>
-                            @endif
-
-                            @if ($usr->can('catalogo.create'))
-                                <li class="{{ Route::is('admin.catalogos.create')  ? 'active' : '' }}"><a href="{{ route('admin.catalogos.create') }}">Crear Catálogo</a></li>
-                            @endif
                         </ul>
                     </li>
                     @endif
