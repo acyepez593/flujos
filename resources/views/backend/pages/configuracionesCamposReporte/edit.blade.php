@@ -141,6 +141,26 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
                                 @enderror
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="proceso_id">Seleccionar Proceso:</label>
+                                <select id="proceso_id" name="proceso_id" class="form-control selectpicker" data-live-search="true" required>
+                                    <option value="">Seleccione un Proceso</option>
+                                    @foreach ($procesos as $key => $value)
+                                        <option value="{{ $value->id }}" {{ old('proceso_id', $configuracionCamposReporte->proceso_id) == $value->id ? 'selected' : '' }}>{{ $value->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="funcionario_id">Buscar por Usuario:</label>
+                                <select id="funcionario_id" name="funcionario_id" class="form-control selectpicker" data-live-search="true" required>
+                                    <option value="">Seleccione un Usuario</option>
+                                    @foreach ($funcionarios as $key => $value)
+                                        <option value="{{ $value->id }}" {{ old('funcionario_id', $configuracionCamposReporte->funcionario_id) == $value->id ? 'selected' : '' }}>{{ $value->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="habilitar">Habilitar:</label>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="custom_check">
@@ -154,6 +174,8 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
                                     <thead class="bg-light text-capitalize">
                                         <tr>
                                             <th>Mostrar</th>
+                                            <th>Proceso</th>
+                                            <th>Sección</th>
                                             <th>Campo</th>
                                             <th>Orden</th>
                                         </tr>
@@ -162,21 +184,14 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
                                         @foreach ($objCampos as $key => $obj)
                                         <tr>
                                             <td><input class="form-check-input me-1" onchange=cambiarObjeto("{{$obj['campo']}}","habilitado",this.checked) type="checkbox" <?php if($obj['habilitado']){echo 'checked';} ?> ></td>
+                                            <td>{{$obj['nombre_proceso']}}</td>
+                                            <td>{{$obj['nombre_seccion']}}</td>
                                             <td>{{$obj['nombre_campo']}}</td>
                                             <td><input class="form-control input-sm" onchange=cambiarObjeto("{{$obj['campo']}}","orden",this.value) type="text" value="{{$obj['orden']}}"></td>
                                         </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="responsable_id">Buscar por Usuario:</label>
-                                <select id="responsable_id" name="responsable_id" class="form-control selectpicker" data-live-search="true" required>
-                                    <option value="">Seleccione un Usuario</option>
-                                    @foreach ($responsables as $key => $value)
-                                        <option value="{{ $value->id }}" {{ old('responsable_id', $configuracionCamposReporte->responsable_id) == $value->id ? 'selected' : '' }}>{{ $value->name }}</option>
-                                    @endforeach
-                                </select>
                             </div>
                         </div>
                         <input type="hidden" id="habilitar" name="habilitar">

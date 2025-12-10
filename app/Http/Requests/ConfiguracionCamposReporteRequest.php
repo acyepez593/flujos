@@ -25,9 +25,10 @@ class ConfiguracionCamposReporteRequest extends FormRequest
     {
         return [
             'nombre' => 'required',
+            'proceso_id' => 'required',
             'habilitar' => 'required',
             'campos' => 'required',
-            'responsable_id' => 'required'
+            'funcionario_id' => 'required'
         ];
     }
 
@@ -40,9 +41,10 @@ class ConfiguracionCamposReporteRequest extends FormRequest
     {
         return [
             'nombre.required' => 'El campo :attribute es requerido',
-            'activo.required' => 'El campo :attribute es requerido',
+            'proceso_id.required' => 'El campo :attribute es requerido',
+            'habilitar.required' => 'El campo :attribute es requerido',
             'campos.required' => 'El campo :attribute es requerido',
-            'responsable_id.required' => 'El campo :attribute es requerido'
+            'funcionario_id.required' => 'El campo :attribute es requerido'
         ];
     }
 }

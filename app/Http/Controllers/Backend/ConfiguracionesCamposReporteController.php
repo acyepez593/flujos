@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ConfiguracionCamposReporteRequest;
 use App\Models\Admin;
+use App\Models\CamposPorProceso;
 use App\Models\ConfiguracionCamposReporte;
+use App\Models\Proceso;
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +25,8 @@ class ConfiguracionesCamposReporteController extends Controller
         $this->checkAuthorization(auth()->user(), ['configuracionCamposReporte.view']);
 
         $configuracionesCamposReporte = ConfiguracionCamposReporte::all();
-        $responsables = Admin::get(["name", "id"]);
+        $procesos = Proceso::get(['id', 'nombre']);
+        $funcionarios = Admin::get(["name", "id"]);
 
         $opcionesHabilitar=array
         (
@@ -32,8 +35,9 @@ class ConfiguracionesCamposReporteController extends Controller
         );
 
         return view('backend.pages.configuracionesCamposReporte.index', [
+            'procesos' => $procesos,
+            'funcionarios' => $funcionarios,
             'opcionesHabilitar' => $opcionesHabilitar,
-            'responsables' => $responsables,
             'configuracionesCamposReporte' => $configuracionesCamposReporte
         ]);
     }
@@ -47,38 +51,33 @@ class ConfiguracionesCamposReporteController extends Controller
             array("id"=>"1","nombre"=>"SI"),
             array("id"=>"0","nombre"=>"NO"),
         );
-        $columnas = Schema::getColumnListing('oficios');
+
+        $procesos = Proceso::get(['id', 'nombre']);
+        $procesos_temp = [];
+        foreach($procesos as $proceso){
+            $procesos_temp[$proceso->id] = $proceso->nombre;
+        }
+        $columnas = CamposPorProceso::where('proceso_id', 1)->get();
         $campos = [];
         foreach($columnas as $index => $col){
             if($col != 'created_at' && $col != 'updated_at' && $col != 'deleted_at'){
-                if($col == 'id'){
-                    $nombreCampo = strtoupper($col);
-                    $obj = [];
-                    
-                }else{
-                    $partes = explode("_", $col);
-                    $nombreCampo = "";
-                    $obj = [];
-                    foreach($partes as $parte){
-                        if($parte != 'id'){
-                            $nombreCampo .= strtoupper($parte) . " ";
-                        }
-                    }
-                }
-                $obj["nombre_campo"] = $nombreCampo;
-                $obj["campo"] = $col;
+                $obj["nombre_campo"] = $col->nombre;
+                $obj["nombre_proceso"] = $procesos_temp[$col->proceso_id];
+                $obj["nombre_seccion"] = $col->seccion_campo;
+                $obj["campo"] = $col->variable;
                 $obj["orden"] = $index;
                 $obj["habilitado"] = false;
                 $campos[] = $obj;
             }
         }
 
-        $responsables = Admin::get(["name", "id"]);
+        $funcionarios = Admin::get(['name', 'id']);
 
         return view('backend.pages.configuracionesCamposReporte.create', [
             'opcionesHabilitar' => $opcionesHabilitar,
             'objCampos' => $campos,
-            'responsables' => $responsables
+            'funcionarios' => $funcionarios,
+            'procesos' => $procesos
         ]);
     }
 
@@ -89,21 +88,25 @@ class ConfiguracionesCamposReporteController extends Controller
         if($request->nombre && isset($request->nombre) && !empty($request->nombre && !is_null($request->nombre))){
             $nombre = $request->nombre;
         }
+        if($request->proceso_id && isset($request->proceso_id) && !empty($request->proceso_id) && !is_null($request->proceso_id)){
+            $proceso_id = $request->proceso_id;
+        }
+        if($request->funcionario_id && isset($request->funcionario_id) && !empty($request->funcionario_id) && !is_null($request->funcionario_id)){
+            $funcionario_id = $request->funcionario_id;
+        }
         if($request->habilitar && isset($request->habilitar) && !empty($request->habilitar) && !is_null($request->habilitar)){
             $habilitar = $request->habilitar;
         }
         if($request->campos && isset($request->campos) && !empty($request->campos) && !is_null($request->campos)){
             $campos = $request->campos;
         }
-        if($request->responsable_id && isset($request->responsable_id) && !empty($request->responsable_id) && !is_null($request->responsable_id)){
-            $responsable_id = $request->responsable_id;
-        }
 
         $configuracionCamposReporte = new ConfiguracionCamposReporte();
         $configuracionCamposReporte->nombre = $nombre;
+        $configuracionCamposReporte->proceso_id = $proceso_id;
+        $configuracionCamposReporte->funcionario_id = $funcionario_id;
         $configuracionCamposReporte->habilitar = $habilitar;
         $configuracionCamposReporte->campos = $campos;
-        $configuracionCamposReporte->responsable_id = $responsable_id;
         $configuracionCamposReporte->save();
 
         session()->flash('success', __('La Configuración de Campos Reporte, ha sido creada satisfactoriamente. '));
@@ -124,14 +127,15 @@ class ConfiguracionesCamposReporteController extends Controller
         );
         
         $campos = json_decode($configuracionCamposReporte->campos, true);
-
-        $responsables = Admin::get(["name", "id"]);
+        $procesos = Proceso::get(['id', 'nombre']);
+        $funcionarios = Admin::get(["name", "id"]);
 
         return view('backend.pages.configuracionesCamposReporte.edit', [
             'configuracionCamposReporte' => $configuracionCamposReporte,
             'opcionesHabilitar' => $opcionesHabilitar,
             'objCampos' => $campos,
-            'responsables' => $responsables
+            'funcionarios' => $funcionarios,
+            'procesos' => $procesos
         ]);
     }
 
@@ -142,20 +146,24 @@ class ConfiguracionesCamposReporteController extends Controller
         if($request->nombre && isset($request->nombre) && !empty($request->nombre && !is_null($request->nombre))){
             $nombre = $request->nombre;
         }
-        
+        if($request->proceso_id && isset($request->proceso_id) && !empty($request->proceso_id) && !is_null($request->proceso_id)){
+            $proceso_id = $request->proceso_id;
+        }
+        if($request->funcionario_id && isset($request->funcionario_id) && !empty($request->funcionario_id) && !is_null($request->funcionario_id)){
+            $funcionario_id = $request->funcionario_id;
+        }
         if($request->campos && isset($request->campos) && !empty($request->campos) && !is_null($request->campos)){
             $campos = $request->campos;
         }
-        if($request->responsable_id && isset($request->responsable_id) && !empty($request->responsable_id) && !is_null($request->responsable_id)){
-            $responsable_id = $request->responsable_id;
-        }
+        
         $habilitar = $request->habilitar;
         
         $configuracionCamposReporte = ConfiguracionCamposReporte::findOrFail($id);
         $configuracionCamposReporte->nombre = $nombre;
+        $configuracionCamposReporte->proceso_id = $proceso_id;
+        $configuracionCamposReporte->funcionario_id = $funcionario_id;
         $configuracionCamposReporte->habilitar = $habilitar;
         $configuracionCamposReporte->campos = $campos;
-        $configuracionCamposReporte->responsable_id = $responsable_id; 
         $configuracionCamposReporte->save();
 
         session()->flash('success', 'La Configuración de Campos Reporte ha sido actualizada satisfactoriamente.');
@@ -184,30 +192,41 @@ class ConfiguracionesCamposReporteController extends Controller
         $configuracionesCamposReporte = ConfiguracionCamposReporte::where('id',">",0);
 
         $filtroNombreSearch = $request->nombre_search;
+        $filtroProcesoIdSearch = json_decode($request->proceso_id_search, true);
+        $filtroFuncionarioIdSearch = json_decode($request->funcionario_id_search, true);
         $filtroHabilitarSearch = json_decode($request->habilitar_search, true);
-        $filtroResponsableIdSearch = json_decode($request->responsable_id_search, true);
 
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
             $configuracionesCamposReporte = $configuracionesCamposReporte->where('nombre', $filtroNombreSearch);
         }
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $configuracionesCamposReporte = $configuracionesCamposReporte->whereIn('proceso_id', $filtroProcesoIdSearch);
+        }
+        if(isset($filtroFuncionarioIdSearch) && !empty($filtroFuncionarioIdSearch)){
+            $configuracionesCamposReporte = $configuracionesCamposReporte->whereIn('funcionario_id', $filtroFuncionarioIdSearch);
+        }
         if(isset($filtroHabilitarSearch) && !empty($filtroHabilitarSearch)){
             $configuracionesCamposReporte = $configuracionesCamposReporte->where('habilitar', $filtroHabilitarSearch);
-        }
-        if(isset($filtroResponsableIdSearch) && !empty($filtroResponsableIdSearch)){
-            $configuracionesCamposReporte = $configuracionesCamposReporte->whereIn('responsable_id', $filtroResponsableIdSearch);
         }
 
         $configuracionesCamposReporte = $configuracionesCamposReporte->orderBy('id', 'desc')->get();
 
-        $responsables = Admin::all();
+        $funcionarios = Admin::all();
 
-        $responsables_temp = [];
-        foreach($responsables as $responsable){
-            $responsables_temp[$responsable->id] = $responsable->name;
+        $funcionarios_temp = [];
+        foreach($funcionarios as $funcionario){
+            $funcionarios_temp[$funcionario->id] = $funcionario->name;
+        }
+
+        $procesos = Proceso::all();
+        $procesos_temp = [];
+        foreach($procesos as $proceso){
+            $procesos_temp[$proceso->id] = $proceso->nombre;
         }
 
         foreach($configuracionesCamposReporte as $conf){
-            $conf->responsable_nombre = array_key_exists($conf->responsable_id, $responsables_temp) ? $responsables_temp[$conf->responsable_id] : "";
+            $conf->proceso_nombre = array_key_exists($conf->proceso_id, $procesos_temp) ? $procesos_temp[$conf->proceso_id] : "";
+            $conf->funcionario_nombre = array_key_exists($conf->funcionario_id, $funcionarios_temp) ? $funcionarios_temp[$conf->funcionario_id] : "";
         }
 
         $data['configuracionesCamposReporte'] = $configuracionesCamposReporte;

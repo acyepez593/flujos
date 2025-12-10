@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('configuracion_campos_reporte', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
+            $table->foreignId('proceso_id')->constrained('procesos');
+            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIOS', 'MEDICA', 'FINANCIERO']);
             $table->boolean('habilitar');
             $table->json('campos');
-            $table->unsignedBigInteger('funcionario_id');
-            $table->index('funcionario_id');
+            $table->foreignId('funcionario_id')->constrained('admins');
             $table->softDeletes();
             $table->timestamps();
         });

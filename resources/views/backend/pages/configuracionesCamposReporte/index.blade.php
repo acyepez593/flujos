@@ -93,22 +93,31 @@
                                                 <input type="text" class="form-control" id="nombre_search" name="nombre_search" placeholder="">
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="habilitar_search">Buscar por Habilitar:</label>
-                                                <select id="habilitar_search" name="habilitar_search" class="form-control selectpicker" data-live-search="true" multiple required>
-                                                    <option value="">Seleccione un Estado</option>
-                                                    @foreach ($opcionesHabilitar as $key => $value)
-                                                        <option value="{{ $value['id'] }}">{{ $value['nombre'] }}</option>
+                                                <label for="proceso_id_search">Buscar por Proceso:</label>
+                                                <select id="proceso_id_search" name="proceso_id_search" class="form-control selectpicker" data-live-search="true" multiple required>
+                                                    <option value="">Seleccione un Proceso</option>
+                                                    @foreach ($procesos as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->nombre }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="responsable_id_search">Buscar por Responsable:</label>
-                                                <select id="responsable_id_search" name="responsable_id_search" class="form-control selectpicker" data-live-search="true" multiple required>
-                                                    <option value="">Seleccione un Usuario</option>
-                                                    @foreach ($responsables as $key => $value)
+                                                <label for="funcionario_id_search">Buscar por Funcionario:</label>
+                                                <select id="funcionario_id_search" name="funcionario_id_search" class="form-control selectpicker" data-live-search="true" multiple required>
+                                                    <option value="">Seleccione un Funcionario</option>
+                                                    @foreach ($funcionarios as $key => $value)
                                                         <option value="{{ $value->id }}" {{ Auth::user()->id == $value->id ? 'selected' : ''}}>{{ $value->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="habilitar_search">Buscar por Habilitar:</label>
+                                                <select id="habilitar_search" name="habilitar_search" class="form-control selectpicker" data-live-search="true" multiple required>
+                                                    <option value="">Seleccione un Estado</option>
+                                                    @foreach ($opcionesHabilitar as $key => $value)
+                                                        <option value="{{ $value['id'] }}">{{ $value['nombre'] }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -184,7 +193,7 @@
         let tableRef = "";
         let tableHeaderRef = "";
         let configuracionesCamposReporte = [];
-        let responsables = [];
+        let funcionarios = [];
 
         $(document).ready(function() {
 
@@ -208,8 +217,9 @@
                 method: "POST",
                 data: {
                     nombre_search: $('#nombre_search').val(),
+                    proceso_id_search: JSON.stringify($('#proceso_id_search').val()),
+                    funcionario_id_search: JSON.stringify($('#funcionario_id_search').val()),
                     habilitar_search: JSON.stringify($('#habilitar_search').val()),
-                    responsable_id_search: JSON.stringify($('#responsable_id_search').val()),
                     _token: '{{csrf_token()}}'
                 },
                 dataType: 'json',
@@ -219,16 +229,17 @@
                     $("#collapseTwo").collapse('show');
                     
                     configuracionesCamposReporte = response.configuracionesCamposReporte;
-                    responsables = response.responsables;
+                    funcionarios = response.funcionarios;
 
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
 
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
                         "<th>Nombre</th>"+
+                        "<th>Proceso</th>"+
+                        "<th>Funcionario</th>"+
                         "<th>Habilitado</th>"+
                         "<th>Campos</th>"+
-                        "<th>Usuario</th>"+
                         "<th>Acción</th>";
 
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
@@ -265,9 +276,10 @@
                         innerHTML += 
                             "<td>"+ contador + "</td>"+
                             "<td>"+ configuracionCamposReporte.nombre + "</td>"+
+                            "<td>"+ configuracionCamposReporte.proceso_nombre + "</td>"+
+                            "<td>"+ configuracionCamposReporte.funcionario_nombre + "</td>"+
                             "<td>"+ habilitado + "</td>"+
                             "<td>"+ htmlCampos + "</td>"+
-                            "<td>"+ configuracionCamposReporte.responsable_nombre + "</td>"+
                             "<td>" + htmlEdit + htmlDelete + "</td>";
 
                             tableRef.insertRow().innerHTML = innerHTML;
