@@ -65,7 +65,7 @@ class ConfiguracionesCamposReporteController extends Controller
                 $obj["nombre_proceso"] = $procesos_temp[$col->proceso_id];
                 $obj["nombre_seccion"] = $col->seccion_campo;
                 $obj["campo"] = $col->variable;
-                $obj["orden"] = $index;
+                $obj["orden"] = $index + 1;
                 $obj["habilitado"] = false;
                 $campos[] = $obj;
             }
@@ -230,6 +230,37 @@ class ConfiguracionesCamposReporteController extends Controller
         }
 
         $data['configuracionesCamposReporte'] = $configuracionesCamposReporte;
+  
+        return response()->json($data);
+    }
+    
+    public function getCamposPorProceso(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['configuracionCamposReporte.view']);
+
+        $camposPorProceso = CamposPorProceso::where('id',">",0);
+        $filtroProcesoIdSearch = $request->proceso_id;
+
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $camposPorProceso = $camposPorProceso->where('proceso_id', $filtroProcesoIdSearch);
+        }
+
+        $proceso = Proceso::find($filtroProcesoIdSearch);
+        $columnas = $camposPorProceso->get();
+        $campos = [];
+        foreach($columnas as $index => $col){
+            if($col != 'created_at' && $col != 'updated_at' && $col != 'deleted_at'){
+                $obj["nombre_campo"] = $col->nombre;
+                $obj["nombre_proceso"] = $proceso->nombre;
+                $obj["nombre_seccion"] = $col->seccion_campo;
+                $obj["campo"] = $col->variable;
+                $obj["orden"] = $index + 1;
+                $obj["habilitado"] = false;
+                $campos[] = $obj;
+            }
+        }
+
+        $data['objCampos'] = $campos;
   
         return response()->json($data);
     }

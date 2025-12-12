@@ -67,6 +67,7 @@ Route::post('/getConfiguracionesValidacion','backend\ConfiguracionesValidacionCo
 Route::post('/getLogsConfiguracionesValidacion','backend\LogsConfiguracionesValidacionController@getLogsConfiguracionesValidacion')->middleware('auth:admin');
 */
 Route::post('/getConfiguracionesCamposReporteByFilters','backend\ConfiguracionesCamposReporteController@getConfiguracionesCamposReporteByFilters')->middleware('auth:admin');
+Route::post('/getCamposPorProceso','backend\ConfiguracionesCamposReporteController@getCamposPorProceso')->middleware('auth:admin');
 Route::post('/consultarSCI','backend\TramitesController@consultarSCI')->middleware('auth:admin');
 
 /**

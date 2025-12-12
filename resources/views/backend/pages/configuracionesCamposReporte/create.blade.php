@@ -172,26 +172,13 @@ Crear Configuración Reporte - Admin Panel
                             <div class="form-group col-md-6 col-sm-12">
                                 <table id="dataTable" class="text-center" style="font-size: 10px; width: 100%;">
                                     <thead class="bg-light text-capitalize">
-                                        <tr>
-                                            <th>Mostrar</th>
-                                            <th>Proceso</th>
-                                            <th>Sección</th>
-                                            <th>Campo</th>
-                                            <th>Orden</th>
-                                        </tr>
+                                        
                                     </thead>
                                     <tbody>
-                                        @foreach ($objCampos as $key => $obj)
-                                        <tr>
-                                            <td><input class="form-check-input me-1" onchange=cambiarObjeto("{{$obj['campo']}}","habilitado",this.checked) type="checkbox" value=""></td>
-                                            <td>{{$obj['nombre_proceso']}}</td>
-                                            <td>{{$obj['nombre_seccion']}}</td>
-                                            <td>{{$obj['nombre_campo']}}</td>
-                                            <td><input class="form-control input-sm" onchange=cambiarObjeto("{{$obj['campo']}}","orden",this.value) type="text" value="{{$key + 1}}"></td>
-                                        </tr>
-                                        @endforeach
+                                    
                                     </tbody>
                                 </table>
+                                
                             </div>
                         </div>
                         <input type="hidden" id="habilitar" name="habilitar">
@@ -231,11 +218,80 @@ Crear Configuración Reporte - Admin Panel
         obj_campos = '{{json_encode($objCampos)}}';
         obj_campos = obj_campos.replace(/&quot;/g, '"');
         obj_campos = JSON.parse(obj_campos);
+
+        $('#proceso_id').change(function() {
+            $.ajax({
+                url: "{{url('/getCamposPorProceso')}}",
+                method: "POST",
+                data: {
+                    proceso_id: $('#proceso_id').val(),
+                    _token: '{{csrf_token()}}'
+                },
+                dataType: 'json',
+                success: function (response) {
+                    $("#overlay").fadeOut(300);
+
+                    obj_campos = response.objCampos;
+
+                    $('#dataTable').empty();
+
+                    var tabla = $('#dataTable');
+                    var thead = $('<thead></thead>').appendTo(tabla);
+                    var tbody = $('<tbody><tbody/>').appendTo(tabla);
+                    table = "";
+                    mostrarCampos();
+                },
+                error: function(jqXHR, textoEstado, errorEncontrado) {
+                    console.error('Error en la solicitud, por favor vuelva a intentar.');
+                }
+            });
+        });
         
     })
 
-    function cambiarObjeto(campo,atributo,valor){
-        let obj_finded = obj_campos.find(obj => obj.campo === campo);
+    function mostrarCampos(){
+        tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
+
+        tableHeaderRef.insertRow().innerHTML = 
+            "<th>Mostrar</th>"+
+            "<th>Proceso</th>"+
+            "<th>Sección</th>"+
+            "<th>Campo</th>"+
+            "<th>Orden</th>";
+
+        tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+
+        let contador = 1;
+        for (let obj of obj_campos) {
+            
+            let innerHTML = "";
+
+            innerHTML += 
+                '<td><input class="form-check-input me-1" onchange=cambiarObjeto("' + obj["nombre_seccion"] + '","' + obj["campo"] + '","habilitado",this.checked) type="checkbox" value=""></td>'+
+                '<td>' + obj["nombre_proceso"] + '</td>'+
+                '<td>' + obj["nombre_seccion"] + '</td>'+
+                '<td>' + obj["nombre_campo"] + '</td>'+
+                '<td><input class="form-control input-sm" onchange=cambiarObjeto("' + obj["nombre_seccion"] + '","' + obj["campo"] + '","orden",this.value) type="text" value="' + obj["orden"] + '"></td>';
+
+                tableRef.insertRow().innerHTML = innerHTML;
+                contador += 1;
+        }
+
+        table = $('#dataTable').DataTable( {
+            scrollX: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            destroy: true,
+            paging: true,
+            searching: true,
+            autoWidth: false,
+            responsive: false,
+            pageLength: 60,
+        });
+    }
+
+    function cambiarObjeto(nombre_seccion,campo,atributo,valor){
+        let obj_finded = obj_campos.find(obj => obj.campo === campo && obj.nombre_seccion === nombre_seccion);
         obj_finded[atributo] = valor;
         $('#campos').val(JSON.stringify(obj_campos));
     }

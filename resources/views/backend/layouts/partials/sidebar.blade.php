@@ -163,6 +163,18 @@
                         </ul>
                     </li>
                     @endif
+                    @if ($usr->can('reporte.view') || $usr->can('reporteTramites.view'))
+                    <li>
+                        <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-download"></i><span>
+                            Reportes
+                        </span></a>
+                        <ul class="collapse {{ Route::is('admin.tramites.reporte') ? 'in' : '' }}">
+                            @if ($usr->can('reporteTramites.view'))
+                                <li class="{{ Route::is('admin.tramites.reporte')  ? 'active' : '' }}"><a href="{{ route('admin.reportes.create') }}">Generar Reporte</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                    @endif
 
                 </ul>
             </nav>

@@ -59,153 +59,18 @@ class ReportesController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['reporte.view']);
 
-        $responsable_id = Auth::id();
+        $funcionario_id = Auth::id();
 
-        $tiposReporte = ConfiguracionCamposReporte::where("responsable_id",$responsable_id)->get(["nombre","id"]);
-        $tiposTramite = TipoTramite::get(["nombre", "id"]);
-        $tipos = Tipo::get(["nombre", "id"]);
-        $tiposAtencion = TipoAtencion::get(["nombre", "id"]);
-        $tiposEstadoCaja = TipoEstadoCaja::get(["nombre", "id"]);
-        $provincias = Provincia::get(["nombre", "id"]);
-        $instituciones = Institucion::get(["nombre", "id"]);
-        $tiposFirma = TipoFirma::get(["nombre", "id"]);
-        $responsables = Admin::get(["name", "id"]);
-        $estadosTramite = EstadoTramite::get(["nombre", "id"]);
+        $configuracion = ConfiguracionCamposReporte::where("funcionario_id",$funcionario_id);
+        $tiposReporte = $configuracion->get(["nombre","id"]);
+        $campos = $configuracion->get(["campos"]);
+        $funcionarios = Admin::get(["name", "id"]);
 
         return view('backend.pages.reportes.create', [
             'tiposReporte' => $tiposReporte,
-            'tiposTramite' => $tiposTramite,
-            'tipos' => $tipos,
-            'tiposAtencion' => $tiposAtencion,
-            'tiposEstadoCaja' => $tiposEstadoCaja,
-            'provincias' => $provincias,
-            'instituciones' => $instituciones,
-            'tiposFirma' => $tiposFirma,
-            'estadosTramite' => $estadosTramite,
-            'responsables' => $responsables,
-            'roles' => Role::all(),
+            'campos' => json_decode($campos[0]['campos'],true),
+            'funcionarios' => $funcionarios
         ]);
-    }
-
-    public function getReporteByNumeroCaja(Request $request): JsonResponse
-    {
-        $this->checkAuthorization(auth()->user(), ['reporte.view']);
-
-        $tipoReporte = $request->tipo_reporte;
-        $numeroCaja = $request->numero_caja;
-
-        switch ($tipoReporte) {
-            case "oficio":
-                $registros = Oficio::where("numero_caja", $numeroCaja)->get(["razon_social", "ruc", "fecha_recepcion", "tipo_atencion_id", "fecha_servicio", "numero_casos", "monto_planilla"]);
-            break;
-            case "rezagado":
-                $registros = Rezagado::where("numero_caja", $numeroCaja)->get(["razon_social", "ruc", "fecha_recepcion", "tipo_atencion_id", "fecha_servicio", "numero_casos", "monto_planilla"]);
-            break;
-            case "rezagado_lev_objecion":
-                $registros = RezagadoLevantamientoObjecion::where("numero_caja", $numeroCaja)->get(["razon_social", "ruc", "fecha_recepcion", "tipo_atencion_id", "fecha_servicio", "numero_casos", "monto_planilla"]);
-            break;
-            case "extemporaneo":
-                $registros = Extemporaneo::where("numero_caja", $numeroCaja)->get(["razon_social", "ruc", "fecha_recepcion", "tipo_atencion_id", "fecha_servicio", "numero_casos", "monto_planilla"]);
-            break;
-          }
-
-        $data['reportes'] = $registros;
-        $data['totales']['total_numero_casos'] = $registros->count('numero_casos');
-        $data['totales']['total_monto_planilla'] = $registros->sum('monto_planilla');
-  
-        return response()->json($data);
-    }
-
-    public function generarReporteByNumeroCaja(Request $request)
-    {
-        $this->checkAuthorization(auth()->user(), ['reporte.download']);
-
-        $tipoReporte = $request->tipo_reporte;
-        $numeroCaja = $request->numero_caja;
-        $etiqueta = $request->etiqueta;
-        $fileName = 'FormatoReporteCajas.xlsx';
-
-        if(public_path('uploads/'.$fileName)){
-            $inputFileName = public_path('caja/'.$fileName);
-            $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($inputFileName);
-            $reader = IOFactory::createReader($inputFileType);
-            $spreadsheet = $reader->load($inputFileName);
-
-            $active_sheet = $spreadsheet->getActiveSheet();
-
-            $celdaInicio = ['A','B','C','D','E','F','G'];
-            $columnaInicio = 12;
-            $columnaInicioPivot = 12;
-            $registros = [];
-
-            switch ($tipoReporte) {
-                case "oficio":
-                    $registros = Oficio::where("numero_caja", $numeroCaja)->get(["razon_social", "ruc", "fecha_recepcion", "tipo_atencion_id", "fecha_servicio", "numero_casos", "monto_planilla"]);
-                break;
-                case "rezagado":
-                    $registros = Rezagado::where("numero_caja", $numeroCaja)->get(["razon_social", "ruc", "fecha_recepcion", "tipo_atencion_id", "fecha_servicio", "numero_casos", "monto_planilla"]);
-                break;
-                case "rezagado_lev_objecion":
-                    $registros = RezagadoLevantamientoObjecion::where("numero_caja", $numeroCaja)->get(["razon_social", "ruc", "fecha_recepcion", "tipo_atencion_id", "fecha_servicio", "numero_casos", "monto_planilla"]);
-                break;
-                case "extemporaneo":
-                    $registros = Extemporaneo::where("numero_caja", $numeroCaja)->get(["razon_social", "ruc", "fecha_recepcion", "tipo_atencion_id", "fecha_servicio", "numero_casos", "monto_planilla"]);
-                break;
-              }
-            
-            $tiposAtencion = TipoAtencion::get(["nombre", "id"])->pluck('nombre','id');
-
-            $titulo = "FICHA DE RECEPCIÓN DOCUMENTAL ";
-            $tipoCaja = substr($numeroCaja, 0, 2);
-            if($tipoCaja == "PR"){
-                $titulo = $titulo."(PRIVADA)"; 
-            }else if($tipoCaja == "PU"){
-                $titulo = $titulo."(PÚBLICA)";
-            }
-            
-            $active_sheet->setCellValue('A2', $titulo);
-            $active_sheet->setCellValue('B6', $etiqueta);
-            $active_sheet->setCellValue('F7', $numeroCaja);
-
-            $styleArray = [
-                'borders' => [
-                    'allBorders' => ['borderStyle' => 'hair', 'color' => ['argb' => '00000000']],
-                ],
-            ];
-
-            foreach ($registros as $oficio) {
-                $active_sheet->setCellValue($celdaInicio[0].$columnaInicioPivot, $oficio->razon_social);
-                $active_sheet->getCell($celdaInicio[1].$columnaInicioPivot)->setValueExplicit($oficio->ruc,\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-                $active_sheet->setCellValue($celdaInicio[2].$columnaInicioPivot, Carbon::createFromFormat('Y-m-d', $oficio->fecha_recepcion)->format('d-M-Y'));
-                $active_sheet->setCellValue($celdaInicio[3].$columnaInicioPivot, $tiposAtencion[$oficio->tipo_atencion_id]);
-                $active_sheet->setCellValue($celdaInicio[4].$columnaInicioPivot, Carbon::createFromFormat('Y-m-d', $oficio->fecha_servicio)->format('d-M-Y'));
-                $active_sheet->setCellValue($celdaInicio[5].$columnaInicioPivot, $oficio->numero_casos);
-                $active_sheet->setCellValue($celdaInicio[6].$columnaInicioPivot, $oficio->monto_planilla);
-                $columnaInicioPivot += 1;
-            }
-            $active_sheet->getStyle($celdaInicio[6].$columnaInicio.':'.$celdaInicio[6].$columnaInicioPivot)->getNumberFormat()->setFormatCode('"$"#,##0.00');
-            
-            $rangoSumaNumeroCasos = $celdaInicio[5].$columnaInicio.':'.$celdaInicio[5].$columnaInicioPivot-1;
-            $rangoSumaMontoPlanilla = $celdaInicio[6].$columnaInicio.':'.$celdaInicio[6].$columnaInicioPivot-1;
-            $active_sheet->setCellValue($celdaInicio[5].$columnaInicioPivot , '=SUM('.$rangoSumaNumeroCasos.')');
-            $active_sheet->setCellValue($celdaInicio[6].$columnaInicioPivot , '=SUM('.$rangoSumaMontoPlanilla.')');
-            $active_sheet->getStyle($celdaInicio[5].$columnaInicioPivot.':'.$celdaInicio[6].$columnaInicioPivot)->getFont()->setBold(true)->setSize(16);
-            $active_sheet->getStyle($celdaInicio[0].$columnaInicio.':'.$celdaInicio[6].$columnaInicioPivot-1)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM);
-
-            $active_sheet->getStyle($celdaInicio[0].$columnaInicioPivot.':'.$celdaInicio[4].$columnaInicioPivot)->getBorders()->getOutline()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM);
-            $active_sheet->getStyle($celdaInicio[5].$columnaInicioPivot.':'.$celdaInicio[6].$columnaInicioPivot)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM);
-            
-            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            $filename = "reporteCajas.xlsx";
-            $writer->save(storage_path('app/'. $filename));
-            $data['status'] = 200;
-            $data['message'] = "OK";
-            
-            return response()->download(storage_path('app/'.$filename));
-            
-        }else{
-            return false;
-        }
     }
 
     public function getReporteByFilters(Request $request): JsonResponse
