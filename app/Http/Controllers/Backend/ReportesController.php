@@ -73,6 +73,25 @@ class ReportesController extends Controller
         ]);
     }
 
+    public function getCamposByTipoReporte(Request $request): JsonResponse
+    {
+        
+        $tipoReporte = $request->tipo_reporte_search;
+        $configuracion = ConfiguracionCamposReporte::select('campos')->findOrFail($tipoReporte);
+        $camposTmp = json_decode($configuracion['campos'],true);
+        $campos = [];
+
+        foreach($camposTmp as $campo){
+            if($campo['habilitado'] === true){
+                $campos[] = $campo;
+            }
+        }
+
+        $data['campos'] = $campos;
+  
+        return response()->json($data);
+    }
+
     public function getReporteByFilters(Request $request): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['reporteTramites.view']);

@@ -202,6 +202,7 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script>
+    let obj_campos = "";
     $(document).ready(function() {
         $('.select2').select2();
 
@@ -227,6 +228,13 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
         obj_campos = obj_campos.replace(/&quot;/g, '"');
         obj_campos = JSON.parse(obj_campos);
         $('#campos').val(JSON.stringify(obj_campos));
+
+        $('#dataTable').empty();
+        var tabla = $('#dataTable');
+        var thead = $('<thead></thead>').appendTo(tabla);
+        var tbody = $('<tbody><tbody/>').appendTo(tabla);
+        table = "";
+        mostrarCampos();
 
         $('#proceso_id').change(function() {
             $.ajax({
@@ -256,7 +264,7 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
             });
         });
 
-        $('#proceso_id').change();
+        //$('#proceso_id').change();
 
     })
 
@@ -275,11 +283,13 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
         let contador = 1;
         let checked = '';
         for (let obj of obj_campos) {
-            debugger;
+            
             let innerHTML = "";
             
             if(obj['habilitado']){
                 checked = 'checked';
+            }else{
+                checked = '';
             }
 
             innerHTML += 

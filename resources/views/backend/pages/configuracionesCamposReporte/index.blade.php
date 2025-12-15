@@ -256,7 +256,7 @@
                         let htmlDuplicar = "";
                         let habilitado = "NO";
                         let campos = JSON.parse(configuracionCamposReporte.campos);
-                        let htmlCampos = '<ul style="text-align: left;">';
+                        let htmlCampos = '<ul style="text-align: left;height: 200px;overflow: auto;">';
 
                         if(configuracionCamposReporte.habilitar == true || configuracionCamposReporte.habilitar == 1){
                             habilitado = "SI";
@@ -264,7 +264,7 @@
 
                         for (var objCampo of campos) {
                             let estado = (objCampo.habilitado) ? "Habilitado" : "Deshabilitado";
-                            htmlCampos += '<li>' + objCampo.nombre_campo + ' : ' + estado + '</li>';
+                            htmlCampos += '<li><b>' + objCampo.nombre_campo + '</b> : ' + estado + '</li>';
                         };
                         htmlCampos += '</ul>';
                         
