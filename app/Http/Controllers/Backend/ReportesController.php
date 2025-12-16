@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OficioRequest;
 use App\Models\Admin;
+use App\Models\Catalogo;
 use App\Models\ConfiguracionCamposReporte;
 use App\Models\EstadoTramite;
 use App\Models\Institucion;
@@ -25,11 +26,15 @@ use App\Models\FileExtemporaneo;
 use App\Models\FileRezagado;
 use App\Models\FileRezagadoLevantamientoObjecion;
 use App\Models\PrestadorSalud;
+use App\Models\Proceso;
 use App\Models\RegistroBitacora;
+use App\Models\SecuenciaProceso;
+use App\Models\TipoCatalogo;
 use App\Models\TipoDocumento;
 use App\Models\TipoIngreso;
 use App\Models\TipoTramite;
 use Carbon\Carbon;
+use ErrorException;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -59,37 +64,72 @@ class ReportesController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['reporte.view']);
 
-        $funcionario_id = Auth::id();
-
-        $configuracion = ConfiguracionCamposReporte::where("funcionario_id",$funcionario_id);
-        $tiposReporte = $configuracion->get(["nombre","id"]);
-        $campos = $configuracion->get(["campos"]);
+        $procesos = Proceso::get(["nombre","id"]);
         $funcionarios = Admin::get(["name", "id"]);
 
         return view('backend.pages.reportes.create', [
-            'tiposReporte' => $tiposReporte,
-            'campos' => json_decode($campos[0]['campos'],true),
+            'procesos' => $procesos,
             'funcionarios' => $funcionarios
         ]);
     }
 
+    public function getTiposReporteByProcesoId(Request $request): JsonResponse
+    {
+        try
+        {
+            $funcionario_id = Auth::id();
+            $proceso_id = $request->proceso_id_search;
+
+            $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
+            $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
+            $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
+            $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre","catalogo_id"]);
+
+            $configuracion = ConfiguracionCamposReporte::where("proceso_id",$proceso_id)->where("funcionario_id",$funcionario_id);
+            $tiposReporte = $configuracion->get(["nombre","id"]);
+            $campos = $configuracion->get(["campos"]);
+
+            $data['listaCampos'] = json_decode($listaCampos[0],true);
+            $data['tiposCatalogos'] = $tiposCatalogos;
+            $data['catalogos'] = $catalogos->groupBy('tipo_catalogo_id');
+            $data['tiposReporte'] = $tiposReporte;
+            $data['campos'] = $campos;
+    
+            return response()->json($data);
+
+        } catch (ErrorException $e) {
+            $data['status'] = 500;
+            $data['error_type'] = 'ErrorException';
+            $data['message'] = $e->getMessage();
+            return response()->json($data, 500);
+        }
+    }
+
     public function getCamposByTipoReporte(Request $request): JsonResponse
     {
-        
-        $tipoReporte = $request->tipo_reporte_search;
-        $configuracion = ConfiguracionCamposReporte::select('campos')->findOrFail($tipoReporte);
-        $camposTmp = json_decode($configuracion['campos'],true);
-        $campos = [];
+        try
+        {
+            $tipoReporte = $request->tipo_reporte_search;
+            $configuracion = ConfiguracionCamposReporte::select('campos')->findOrFail($tipoReporte);
+            $camposTmp = json_decode($configuracion['campos'],true);
+            $campos = [];
 
-        foreach($camposTmp as $campo){
-            if($campo['habilitado'] === true){
-                $campos[] = $campo;
+            foreach($camposTmp as $campo){
+                if($campo['habilitado'] === true){
+                    $campos[] = $campo;
+                }
             }
-        }
 
-        $data['campos'] = $campos;
-  
-        return response()->json($data);
+            $data['campos'] = $campos;
+    
+            return response()->json($data);
+
+        } catch (ErrorException $e) {
+            $data['status'] = 500;
+            $data['error_type'] = 'ErrorException';
+            $data['message'] = $e->getMessage();
+            return response()->json($data, 500);
+        }
     }
 
     public function getReporteByFilters(Request $request): JsonResponse
