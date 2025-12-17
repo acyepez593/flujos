@@ -98,13 +98,60 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="tipo_reporte_search">Seleccione un Reporte:</label>
-                                                <select id="tipo_reporte_search" name="tipo_reporte_search" class="form-control selectpicker" data-live-search="true" required>
+                                                <label for="secuencia_proceso_id_search">Seleccione una Secuencia:</label>
+                                                <select id="secuencia_proceso_id_search" name="secuencia_proceso_id_search" class="form-control selectpicker" data-live-search="true" required>
                                                     
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="funcionario_actual_id_search">Seleccione un Funcionario:</label>
+                                                <select id="funcionario_actual_id_search" name="funcionario_actual_id_search" class="form-control selectpicker" data-live-search="true" required>
+                                                    <option value="">Seleccione un Proceso</option>    
+                                                    @foreach ($funcionarios as $key => $value)
+                                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="estatus_id_search">Seleccione un Estatus:</label>
+                                                <select id="estatus_id_search" name="estatus_id_search" class="form-control selectpicker" data-live-search="true" required>
+                                                    <option value="INGRESADO">INGRESADO</option>
+                                                    <option value="EN PROCESO DAP">EN PROCESO DAP</option>
+                                                    <option value="EN ANALISIS DE PROCEDENCIA">EN ANALISIS DE PROCEDENCIA</option>
+                                                    <option value="EN PROCESO FINANCIERO">EN PROCESO FINANCIERO</option>
+                                                    <option value="PAGADO">PAGADO</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="fecha_creacion_tramite_desde_search">Fecha de Creación Desde</label>
+                                                <div class="datepicker date input-group">
+                                                    <input type="text" class="form-control datepicker" name="fecha_creacion_tramite_desde_search">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="fecha_creacion_tramite_hasta_search">Fecha de Creación Hasta</label>
+                                                <div class="datepicker date input-group">
+                                                    <input type="text" class="form-control datepicker" name="fecha_creacion_tramite_hasta_search">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="tipo_reporte_search">Seleccione un Reporte:</label>
+                                                <select id="tipo_reporte_search" name="tipo_reporte_search" class="form-control selectpicker" data-live-search="true" required>
+                                                    
+                                                </select>
+                                            </div>
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="campo_search">Seleccione los campos para el filtro:</label>
                                                 <select id="campo_search" name="campo_search" class="form-control selectpicker" data-live-search="true" multiple required>
@@ -148,10 +195,13 @@
         let table = "";
         let tableRef = "";
         let tableHeaderRef = "";
+        let secuenciasProcesos = [];
         let tiposReporte = [];
+        let catalogos = [];
         let listaCampos = [];
         let campos = [];
         let camposPorSeccion = [];
+        let count = 0;
 
         $(document).ready(function() {
 
@@ -190,12 +240,16 @@
                     success: function (response) {
                         $("#overlay").fadeOut(300);
 
+                        secuenciasProcesos = response.secuenciasProcesos;
                         tiposReporte = response.tiposReporte;
                         listaCampos = response.listaCampos;
+                        catalogos = response.catalogos;
 
+                        $("#filtros").html('');
                         $('#campo_search').selectpicker('destroy');
                         $("#campo_search").html('');
                         $('#campo_search').selectpicker();
+
                         $('#tipo_reporte_search').selectpicker('destroy');
                         $("#tipo_reporte_search").html('');
                         $("#tipo_reporte_search").append('<option value="">Seleccione un Reporte</option>');
@@ -203,14 +257,28 @@
                             $("#tipo_reporte_search").append('<option value="' + value.id + '">' + value.nombre + '</option>');
                         });
                         $('#tipo_reporte_search').selectpicker();
+                        
+                        $('#secuencia_proceso_id_search').selectpicker('destroy');
+                        $("#secuencia_proceso_id_search").html('');
+                        $("#secuencia_proceso_id_search").append('<option value="">Seleccione una Secuencia</option>');
+                        $.each(secuenciasProcesos, function (key, value) {
+                            $("#secuencia_proceso_id_search").append('<option value="' + value.id + '">' + value.nombre + '</option>');
+                        });
+                        $('#secuencia_proceso_id_search').selectpicker();
                         $('.selectpicker').selectpicker('refresh');
                     },
                     error: function(xhr, status, error) {
                         console.log(xhr.status);
                         console.log(error);
+                        $("#filtros").html('');
+                        $('#secuencia_proceso_id_search').selectpicker('destroy');
+                        $("#secuencia_proceso_id_search").html('');
+                        $('#secuencia_proceso_id_search').selectpicker();
+
                         $('#tipo_reporte_search').selectpicker('destroy');
                         $("#tipo_reporte_search").html('');
                         $('#tipo_reporte_search').selectpicker();
+
                         $('#campo_search').selectpicker('destroy');
                         $("#campo_search").html('');
                         $('#campo_search').selectpicker();
@@ -233,6 +301,7 @@
 
                         campos = response.campos;
 
+                        $("#filtros").html('');
                         $('#campo_search').selectpicker('destroy');
                         $("#campo_search").html('');
                         $("#campo_search").append('<option value="">Seleccione los campos para el filtro</option>');
@@ -245,6 +314,7 @@
                     error: function(xhr, status, error) {
                         console.log(xhr.status);
                         console.log(error);
+                        $("#filtros").html('');
                         $('#campo_search').selectpicker('destroy');
                         $("#campo_search").html('');
                         $('#campo_search').selectpicker();
@@ -265,42 +335,14 @@
                         url: "{{url('/generarReporteByTipoReporte')}}",
                         method: "POST",
                         data: {
-                            tipo_tramite_search: JSON.stringify($('#tipo_tramite_search').val()),
+                            proceso_id_search: JSON.stringify($('#tipo_tramite_search').val()),
+                            secuencia_proceso_id_search: JSON.stringify($('#secuencia_proceso_id_search').val()),
+                            funcionario_actual_id_search: JSON.stringify($('#funcionario_actual_id_search').val()),
+                            estatus_id_search: JSON.stringify($('#estado_tramite_id_search').val()),
+                            fecha_creacion_tramite_desde_search: $('#fecha_creacion_tramite_desde_search').val(),
+                            fecha_creacion_tramite_hasta_search: $('#fecha_creacion_tramite_hasta_search').val(),
                             tipo_reporte_search: $('#tipo_reporte_search').val(),
-                            fecha_registro_desde_search: $('#fecha_registro_desde_search').val(),
-                            fecha_registro_hasta_search: $('#fecha_registro_hasta_search').val(),
-                            tipo_id_search: JSON.stringify($('#tipo_id_search').val()),
-                            ruc_search: $('#ruc_search').val(),
-                            numero_establecimiento_search: $('#numero_establecimiento_search').val(),
-                            razon_social_search: $('#razon_social_search').val(),
-                            fecha_recepcion_desde_search: $('#fecha_recepcion_desde_search').val(),
-                            fecha_recepcion_hasta_search: $('#fecha_recepcion_hasta_search').val(),
-                            tipo_atencion_id_search: JSON.stringify($('#tipo_atencion_id_search').val()),
-                            provincia_id_search: JSON.stringify($('#provincia_id_search').val()),
-                            fecha_servicio_desde_search: $('#fecha_servicio_desde_search').val(),
-                            fecha_servicio_hasta_search: $('#fecha_servicio_hasta_search').val(),
-                            numero_casos_search: $('#numero_casos_search').val(),
-                            monto_planilla_search: $('#monto_planilla_search').val(),
-                            numero_caja_ant_search: $('#numero_caja_ant_search').val(),
-                            numero_caja_search: $('#numero_caja_search').val(),
-                            tipo_estado_caja_id_search: JSON.stringify($('#tipo_estado_caja_id_search').val()),
-                            numero_caja_auditoria_search: $('#numero_caja_auditoria_search').val(),
-                            fecha_envio_auditoria_desde_search: $('#fecha_envio_auditoria_desde_search').val(),
-                            fecha_envio_auditoria_hasta_search: $('#fecha_envio_auditoria_hasta_search').val(),
-                            institucion_id_search: JSON.stringify($('#institucion_id_search').val()),
-                            documento_externo_search: $('#documento_externo_search').val(),
-                            tipo_firma_search: JSON.stringify($('#tipo_firma_search').val()),
-                            observacion_search: $('#observacion_search').val(),
-                            numero_quipux_search: $('#numero_quipux_search').val(),
-                            periodo_search: $('#periodo_search').val(),
-                            estado_tramite_id_search: JSON.stringify($('#estado_tramite_id_search').val()),
-                            fecha_devolucion_auditoria_desde_search: $('#fecha_devolucion_auditoria_desde_search').val(),
-                            fecha_devolucion_auditoria_hasta_search: $('#fecha_devolucion_auditoria_hasta_search').val(),
-                            fecha_devolucion_prestador_desde_search: $('#fecha_devolucion_prestador_desde_search').val(),
-                            fecha_devolucion_prestador_hasta_search: $('#fecha_devolucion_prestador_hasta_search').val(),
-                            observacion_devolucion_auditoria_search: $('#observacion_devolucion_auditoria_search').val(),
-                            observacion_devolucion_prestador_search: $('#observacion_devolucion_prestador_search').val(),
-                            responsable_id_search: JSON.stringify($('#responsable_id_search').val()),
+                            campo_search: $('#fecha_registro_desde_search').val(),
                             _token: '{{csrf_token()}}'
                         },
                         xhrFields: {
@@ -322,11 +364,6 @@
                 }
             });
 
-            $('.datepicker').datepicker({
-                autoclose: true,
-                format: "yyyy-mm-dd"
-            });
-
         });
 
         function renderFilterForm(campos_seleccionados){
@@ -336,413 +373,103 @@
 
             camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
             console.log(camposPorSeccion);
+            count = 1;
             
-            for (let campo in campos_seleccionados) {
+            for (let index in campos_seleccionados) {
             
-                let count = 1;
                 let seccion = '';
+                let campo_a_mostrar = '';
 
-                let obj = campos_seleccionados[campo].split('-');
+                let obj = campos_seleccionados[index].split('-');
                 seccion = obj[0];
+                campo_a_mostrar = obj[1];
 
-                html_components += '<div class="form-row">';
+                if(index == 0){
+                    html_components += '<div class="form-row">';
+                }
+                
+                html_components += contruirFiltros(long,seccion,campo_a_mostrar);
 
-                html_components += contruirFiltros(count,long,seccion);
-
-                html_components += '</div>';
             }
 
             $("#filtros").append(html_components);
+            $('.selectpicker').selectpicker('refresh');
+            $('.datepicker').datepicker({
+                language: 'es',
+                autoclose: true,
+                format: "yyyy-mm-dd",
+                todayHighlight: true,
+                endDate: 0
+            });
         }
 
-        function contruirFiltros(count,long,seccion){
+        function contruirFiltros(long,seccion,campo_a_mostrar){
+            $("#filtros").html('');
             let html_components = '';
             for (let campo of camposPorSeccion[seccion]) {
-                switch (campo.tipo_campo) {
-                    case "text":
-                        
-                        html_components += '<div class="form-group col-md-6 col-sm-12">';
-                        html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
-                                            '<div class="input-group mb-3">';
+                if(campo.variable == campo_a_mostrar){
+                    switch (campo.tipo_campo) {
+                        case "text":
+                            
+                            if(campo.variable == campo_a_mostrar){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
 
-                        if(campo.variable == 'numero_documento'){
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
-                            }else if(campo.editable && !campo.requerido){
-                                html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
-                            }
-                        }else{
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
-                            }else if(campo.editable && !campo.requerido){
+                                html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>'+
+                                                    '<div class="input-group mb-3">';
+
                                 html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
                             }
-                        }
-                        
-                        if(long == count){
-                            html_components += '</div></div></div></div>';
-                        }else{
-                            if(count % 2 === 0){
-                                html_components += '</div></div></div><div class="form-row">';
+                                                
+                            if(long == count){
+                                html_components += '</div></div></div>';
                             }else{
-                                html_components += '</div></div>';
+                                if(count % 2 === 0){
+                                    html_components += '</div></div></div><div class="form-row">';
+                                }else{
+                                    html_components += '</div></div>';
+                                }
                             }
-                        }
-                        count ++;
-                        
-                        break;
-                    case "date":
+                            count ++;
+                            
+                            break;
+                        case "date":
 
-                        html_components += '<div class="form-group col-md-6 col-sm-12">';
-                        html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + '</label>'+
-                                            '<div class="datepicker date input-group">';
+                            if(campo.variable == campo_a_mostrar){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>'+
+                                                    '<div class="datepicker date input-group">';
 
-                        if(campo.editable && campo.requerido){
-                            html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required>';
-                        }else if(campo.editable && !campo.requerido){
-                            html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '">';
-                        }else if(!campo.editable && campo.requerido){
-                            html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required readonly>';
-                        }else if(!campo.editable && !campo.requerido){
-                            html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" readonly>';
-                        }
+                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '">';
 
-                        html_components += '<div class="input-group-append">';
-                        html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
-                        html_components += '</div>';
-
-                        if(long == count){
-                            html_components += '</div></div></div></div></div>';
-                        }else{
-                            if(count % 2 === 0){
-                                html_components += '</div></div></div><div class="form-row">';
-                            }else{
-                                html_components += '</div></div>';
-                            }
-                        }
-                        count ++;
-                        
-                        break;
-                    case "number":
-
-                        html_components += '<div class="form-group col-md-6 col-sm-12">';
-                        html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + '</label>'+
-                                            '<div class="input-group mb-3">';
-
-                        if(campo.editable && campo.requerido){
-                            html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required>';
-                        }else if(campo.editable && !campo.requerido){
-                            html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '">';
-                        }else if(!campo.editable && campo.requerido){
-                            html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required readonly>';
-                        }else if(!campo.editable && !campo.requerido){
-                            html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" readonly>';
-                        }
-
-                        if(long == count){
-                            html_components +='</div></div></div></div>';
-                        }else{
-                            if(count % 2 === 0){
-                                html_components +='</div></div></div><div class="form-row">';
-                            }else{
-                                html_components +='</div></div>';
-                            }
-                        }
-                        count ++;
-                        
-                        break;
-                    case "email":
-
-                        html_components += '<div class="form-group col-md-6 col-sm-12">';
-                        html_components += '<label for="nombre">' + campo.nombre + '</label>'+
-                                            '<div class="input-group mb-3">';
-
-                        if(campo.editable && campo.requerido){
-                            html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required>';
-                        }else if(campo.editable && !campo.requerido){
-                            html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '">';
-                        }else if(!campo.editable && campo.requerido){
-                            html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required readonly>';
-                        }else if(!campo.editable && !campo.requerido){
-                            html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" readonly>';
-                        }
-
-                        if(long == count){
-                            html_components +='</div></div></div></div>';
-                        }else{
-                            if(count % 2 === 0){
-                                html_components +='</div></div></div><div class="form-row">';
-                            }else{
-                                html_components +='</div></div>';
-                            }
-                        }
-                        count ++;
-                        
-                        break;
-                    case "file":
-
-                        html_components += '<div class="form-group col-md-6 col-sm-12">';
-                        html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
-
-                        if(campo.editable && campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
-                        }else if(campo.editable && !campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
-                        }else if(!campo.editable && campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
-                        }else if(!campo.editable && !campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
-                        }
-
-                        if(long == count){
-                            html_components += '</div></div></div></div>';
-                        }else{
-                            if(count % 2 === 0){
-                                html_components += '</div></div><div class="form-row">';
-                            }else{
+                                html_components += '<div class="input-group-append">';
+                                html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
                                 html_components += '</div>';
                             }
-                        }
-                        count ++;
-                        
-                        break;
-                    case "select":
 
-                        html_components += '<div class="form-group col-md-6 col-sm-12">';
-                        html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
-
-                        if(campo.editable && campo.requerido){
-                            html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required>';
-                            for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                    if(campo.configuracion.select_field_default_value == catalogo.id){
-                                        html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }
-                                }else{
-                                    html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                }
-                            }
-                            html_components += '</select>';
-                        }else if(campo.editable && !campo.requerido){
-                            html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
-                            for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                    if(campo.configuracion.select_field_default_value == catalogo.id){
-                                        html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }
-                                }else{
-                                    html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                }
-                            }
-                            html_components += '</select>';
-                        }else if(!campo.editable && campo.requerido){
-                            html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required readonly>';
-                            for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                    if(campo.configuracion.select_field_default_value == catalogo.id){
-                                        html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }
-                                }else{
-                                    html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                }
-                            }
-                            html_components += '</select>';
-                        }else if(!campo.editable && !campo.requerido){
-                            html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
-                            for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                    if(campo.configuracion.select_field_default_value == catalogo.id){
-                                        html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }
-                                }else{
-                                    html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                }
-                            }
-                            html_components += '</select>';
-                        }
-
-                        if(long == count){
-                            html_components +='</div></div></div></div>';
-                        }else{
-                            if(count % 2 === 0){
-                                html_components +='</div></div><div class="form-row">';
+                            if(long == count){
+                                html_components += '</div></div></div></div>';
                             }else{
-                                html_components +='</div>';
-                            }
-                        }
-                        count ++;
-                        
-                        break;
-                }
-                //count ++;
-            }
-            return html_components;
-        }
-
-        function renderFilterForm2(){
-            let html_components = "";
-            let listaCampos = 'listaCampos';
-            listaCampos = listaCampos.replace(/&quot;/g, '"');
-            listaCampos = JSON.parse(listaCampos);
-
-            camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
-            console.log(camposPorSeccion);
-
-            inicializarObjeto(camposPorSeccion);
-
-            html_components += '<div class="accordion" id="accordion">';
-            
-            for (let seccion in camposPorSeccion) {
-                let count = 1;
-                let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
-                
-                if(long > 0){
-                    html_components += '<div class="card">'+
-                    '<div class="card-header" id="headingOne">'+
-                    '<h5 class="mb-0">'+
-                    '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">' + seccion + '</button>'+
-                    '</h5>'+
-                    '</div>'+
-                    '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
-                    '<div class="card-body">';
-                    if(seccion == 'BENEFICIARIOS'){
-                        html_components += '<div id="beneficiario_' + countBeneficiario + '" class="card">'+
-                        '<div class="card-header">'+
-                        'Beneficiario'+
-                        '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>'+
-                        '</div>'+
-                        '<div class="card-body">';
-                    }
-                    html_components += '<div class="form-row">';
-
-                    html_components += contruirCampos(count,long,seccion);
-
-                    html_components += '</div>';
-                    if(seccion == 'BENEFICIARIOS'){
-                        html_components += '</div>'+
-                        '</div>';
-                    }
-                }
-            }
-            html_components += '</div>'
-            $("#creacionTramite").append(html_components);
-        }
-
-        function contruirCampos(count,long,seccion){
-            let html_components = '';
-            for (let campo of camposPorSeccion[seccion]) {
-                switch (campo.tipo_campo) {
-                    case "text":
-                        
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
-                                                '<div class="input-group mb-3">';
-
-                            if(campo.variable == 'numero_documento'){
-                                if(campo.editable && campo.requerido){
-                                    html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
-                                }else if(campo.editable && !campo.requerido){
-                                    html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
-                                }else if(!campo.editable && campo.requerido){
-                                    html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
-                                }else if(!campo.editable && !campo.requerido){
-                                    html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
-                                }
-                            }else{
-                                if(campo.editable && campo.requerido){
-                                    html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required>';
-                                }else if(campo.editable && !campo.requerido){
-                                    html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
-                                }else if(!campo.editable && campo.requerido){
-                                    html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" required readonly>';
-                                }else if(!campo.editable && !campo.requerido){
-                                    html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '" readonly>';
+                                if(count % 2 === 0){
+                                    html_components += '</div></div></div><div class="form-row">';
+                                }else{
+                                    html_components += '</div></div>';
                                 }
                             }
+                            count ++;
                             
-                            if(long == count){
-                                html_components += '</div></div></div></div>';
-                            }else{
-                                if(count % 2 === 0){
-                                    html_components += '</div></div></div><div class="form-row">';
-                                }else{
-                                    html_components += '</div></div>';
-                                }
-                            }
-                            count ++;
-                        }
+                            break;
+                        case "number":
 
-                        break;
-                    case "date":
+                            if(campo.variable == campo_a_mostrar){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>'+
+                                                    '<div class="input-group mb-3">';
 
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + '</label>'+
-                                                '<div class="datepicker date input-group">';
-
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required>';
-                            }else if(campo.editable && !campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '" readonly>';
-                            }
-
-                            html_components += '<div class="input-group-append">';
-                            html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
-                            html_components += '</div>';
-
-                            if(long == count){
-                                html_components += '</div></div></div></div></div>';
-                            }else{
-                                if(count % 2 === 0){
-                                    html_components += '</div></div></div><div class="form-row">';
-                                }else{
-                                    html_components += '</div></div>';
-                                }
-                            }
-                            count ++;
-                        }
-                        
-                        break;
-                    case "number":
-
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + '</label>'+
-                                                '<div class="input-group mb-3">';
-
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required>';
-                            }else if(campo.editable && !campo.requerido){
                                 html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '" readonly>';
                             }
 
                             if(long == count){
-                                html_components +='</div></div></div></div>';
+                                html_components +='</div></div></div>';
                             }else{
                                 if(count % 2 === 0){
                                     html_components +='</div></div></div><div class="form-row">';
@@ -751,28 +478,21 @@
                                 }
                             }
                             count ++;
-                        }
-                        
-                        break;
-                    case "email":
+                            
+                            break;
+                        case "email":
 
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="nombre">' + campo.nombre + '</label>'+
-                                                '<div class="input-group mb-3">';
+                            if(campo.variable == campo_a_mostrar){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="nombre">' + campo.nombre + ' ('+ seccion +')</label>'+
+                                                    '<div class="input-group mb-3">';
 
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required>';
-                            }else if(campo.editable && !campo.requerido){
                                 html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '" readonly>';
+
                             }
 
                             if(long == count){
-                                html_components +='</div></div></div></div>';
+                                html_components +='</div></div></div>';
                             }else{
                                 if(count % 2 === 0){
                                     html_components +='</div></div></div><div class="form-row">';
@@ -781,27 +501,19 @@
                                 }
                             }
                             count ++;
-                        }
-                        
-                        break;
-                    case "file":
+                            
+                            break;
+                        case "file":
 
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                            if(campo.variable == campo_a_mostrar){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>';
 
-                            if(campo.editable && campo.requerido){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
-                            }else if(campo.editable && !campo.requerido){
                                 html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
                             }
 
                             if(long == count){
-                                html_components += '</div></div></div></div>';
+                                html_components += '</div></div></div>';
                             }else{
                                 if(count % 2 === 0){
                                     html_components += '</div></div><div class="form-row">';
@@ -810,75 +522,33 @@
                                 }
                             }
                             count ++;
-                        }
-                        
-                        break;
-                    case "select":
+                            
+                            break;
+                        case "select":
 
-                        if(campo.visible){
-                            html_components += '<div class="form-group col-md-6 col-sm-12">';
-                            html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
+                            if(campo.variable == campo_a_mostrar){
+                                html_components += '<div class="form-group col-md-6 col-sm-12">';
+                                html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>';
 
-                            if(campo.editable && campo.requerido){
-                                html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required>';
-                                for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                    if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                        if(campo.configuracion.select_field_default_value == catalogo.id){
-                                            html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                if(catalogos[campo.configuracion.select_field_tipo_catalogo] !== undefined && catalogos[campo.configuracion.select_field_tipo_catalogo] !== 'undefined' && catalogos[campo.configuracion.select_field_tipo_catalogo] !== null){
+                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
+                                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                        if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
+                                            if(campo.configuracion.select_field_default_value == catalogo.id){
+                                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }else{
+                                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                                            }
                                         }else{
                                             html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                         }
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                     }
+                                    html_components += '</select>';
                                 }
-                                html_components += '</select>';
-                            }else if(campo.editable && !campo.requerido){
-                                html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
-                                for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                    if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                        if(campo.configuracion.select_field_default_value == catalogo.id){
-                                            html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                        }else{
-                                            html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                        }
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }
-                                }
-                                html_components += '</select>';
-                            }else if(!campo.editable && campo.requerido){
-                                html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required readonly>';
-                                for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                    if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                        if(campo.configuracion.select_field_default_value == catalogo.id){
-                                            html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                        }else{
-                                            html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                        }
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }
-                                }
-                                html_components += '</select>';
-                            }else if(!campo.editable && !campo.requerido){
-                                html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
-                                for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
-                                    if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
-                                        if(campo.configuracion.select_field_default_value == catalogo.id){
-                                            html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                        }else{
-                                            html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                        }
-                                    }else{
-                                        html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
-                                    }
-                                }
-                                html_components += '</select>';
                             }
 
                             if(long == count){
-                                html_components +='</div></div></div></div>';
+                                html_components +='</div></div></div>';
                             }else{
                                 if(count % 2 === 0){
                                     html_components +='</div></div><div class="form-row">';
@@ -887,9 +557,9 @@
                                 }
                             }
                             count ++;
-                        }
-                        
-                        break;
+                            
+                            break;
+                    }
                 }
                 //count ++;
             }

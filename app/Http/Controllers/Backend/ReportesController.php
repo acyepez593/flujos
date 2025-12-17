@@ -80,6 +80,7 @@ class ReportesController extends Controller
             $funcionario_id = Auth::id();
             $proceso_id = $request->proceso_id_search;
 
+            $secuenciasProcesos = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->get(["nombre","id"]);
             $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
             $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
             $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
@@ -89,6 +90,7 @@ class ReportesController extends Controller
             $tiposReporte = $configuracion->get(["nombre","id"]);
             $campos = $configuracion->get(["campos"]);
 
+            $data['secuenciasProcesos'] = $secuenciasProcesos;
             $data['listaCampos'] = json_decode($listaCampos[0],true);
             $data['tiposCatalogos'] = $tiposCatalogos;
             $data['catalogos'] = $catalogos->groupBy('tipo_catalogo_id');
