@@ -71,6 +71,7 @@ Route::post('/getCamposPorProceso','backend\ConfiguracionesCamposReporteControll
 Route::post('/consultarSCI','backend\TramitesController@consultarSCI')->middleware('auth:admin');
 Route::post('/getTiposReporteByProcesoId','backend\ReportesController@getTiposReporteByProcesoId')->middleware('auth:admin');
 Route::post('/getCamposByTipoReporte','backend\ReportesController@getCamposByTipoReporte')->middleware('auth:admin');
+Route::post('/generarReporteByTipoReporte','backend\ReportesController@generarReporteByTipoReporte')->middleware('auth:admin');
 
 /**
  * Admin routes

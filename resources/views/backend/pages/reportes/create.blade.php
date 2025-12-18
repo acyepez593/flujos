@@ -99,7 +99,7 @@
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="secuencia_proceso_id_search">Seleccione una Secuencia:</label>
-                                                <select id="secuencia_proceso_id_search" name="secuencia_proceso_id_search" class="form-control selectpicker" data-live-search="true" required>
+                                                <select id="secuencia_proceso_id_search" name="secuencia_proceso_id_search" class="form-control selectpicker" data-live-search="true">
                                                     
                                                 </select>
                                             </div>
@@ -107,7 +107,7 @@
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="funcionario_actual_id_search">Seleccione un Funcionario:</label>
-                                                <select id="funcionario_actual_id_search" name="funcionario_actual_id_search" class="form-control selectpicker" data-live-search="true" required>
+                                                <select id="funcionario_actual_id_search" name="funcionario_actual_id_search" class="form-control selectpicker" data-live-search="true">
                                                     <option value="">Seleccione un Proceso</option>    
                                                     @foreach ($funcionarios as $key => $value)
                                                         <option value="{{ $value->id }}">{{ $value->name }}</option>
@@ -116,7 +116,8 @@
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_id_search">Seleccione un Estatus:</label>
-                                                <select id="estatus_id_search" name="estatus_id_search" class="form-control selectpicker" data-live-search="true" required>
+                                                <select id="estatus_id_search" name="estatus_id_search" class="form-control selectpicker" data-live-search="true">
+                                                    <option value="">Seleccione un Estatus</option>
                                                     <option value="INGRESADO">INGRESADO</option>
                                                     <option value="EN PROCESO DAP">EN PROCESO DAP</option>
                                                     <option value="EN ANALISIS DE PROCEDENCIA">EN ANALISIS DE PROCEDENCIA</option>
@@ -154,7 +155,7 @@
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="campo_search">Seleccione los campos para el filtro:</label>
-                                                <select id="campo_search" name="campo_search" class="form-control selectpicker" data-live-search="true" multiple required>
+                                                <select id="campo_search" name="campo_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     
                                                 </select>
                                             </div>
@@ -202,6 +203,7 @@
         let campos = [];
         let camposPorSeccion = [];
         let count = 0;
+        let objFiltros = [];
 
         $(document).ready(function() {
 
@@ -310,6 +312,8 @@
                         });
                         $('#campo_search').selectpicker();
                         $('.selectpicker').selectpicker('refresh');
+
+                        inicializarObjetoFiltros(campos);
                     },
                     error: function(xhr, status, error) {
                         console.log(xhr.status);
@@ -331,18 +335,46 @@
             $( "#generarReporte" ).on( "click", function() {
                 if(document.getElementById('reporte').reportValidity()){
                     $("#overlay").fadeIn(300);
+
                     $.ajax({
+                    url: "{{url('/generarReporteByTipoReporte')}}",
+                    method: "POST",
+                    data: {
+                        proceso_id_search: JSON.stringify($('#proceso_id_search').val()),
+                        secuencia_proceso_id_search: JSON.stringify($('#secuencia_proceso_id_search').val()),
+                        funcionario_actual_id_search: JSON.stringify($('#funcionario_actual_id_search').val()),
+                        estatus_id_search: JSON.stringify($('#estatus_id_search').val()),
+                        fecha_creacion_tramite_desde_search: $('#fecha_creacion_tramite_desde_search').val(),
+                        fecha_creacion_tramite_hasta_search: $('#fecha_creacion_tramite_hasta_search').val(),
+                        tipo_reporte_search: $('#tipo_reporte_search').val(),
+                        campo_search: $('#campo_search').val(),
+                        _token: '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        $("#overlay").fadeOut(300);
+                        console.log('response');
+                        console.log(response);
+                        
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(xhr.status);
+                        console.log(error);
+                    }
+                });
+
+                    /*$.ajax({
                         url: "{{url('/generarReporteByTipoReporte')}}",
                         method: "POST",
                         data: {
-                            proceso_id_search: JSON.stringify($('#tipo_tramite_search').val()),
+                            proceso_id_search: JSON.stringify($('#proceso_id_search').val()),
                             secuencia_proceso_id_search: JSON.stringify($('#secuencia_proceso_id_search').val()),
                             funcionario_actual_id_search: JSON.stringify($('#funcionario_actual_id_search').val()),
-                            estatus_id_search: JSON.stringify($('#estado_tramite_id_search').val()),
+                            estatus_id_search: JSON.stringify($('#estatus_id_search').val()),
                             fecha_creacion_tramite_desde_search: $('#fecha_creacion_tramite_desde_search').val(),
                             fecha_creacion_tramite_hasta_search: $('#fecha_creacion_tramite_hasta_search').val(),
                             tipo_reporte_search: $('#tipo_reporte_search').val(),
-                            campo_search: $('#fecha_registro_desde_search').val(),
+                            campo_search: $('#campo_search').val(),
                             _token: '{{csrf_token()}}'
                         },
                         xhrFields: {
@@ -360,11 +392,21 @@
                             a.remove();
                             window.URL.revokeObjectURL(url);
                         }
-                    });
+                    });*/
                 }
             });
 
         });
+        
+        function inicializarObjetoFiltros(campos){
+            objFiltros = campos;
+
+            for (let campo of objFiltros) {
+                campo.valor_filtro = '';
+            }
+            console.log('inicializarObjetoFiltros');
+            console.log(objFiltros);
+        }
 
         function renderFilterForm(campos_seleccionados){
             let html_components = "";

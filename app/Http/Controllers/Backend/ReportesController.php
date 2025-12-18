@@ -33,6 +33,7 @@ use App\Models\TipoCatalogo;
 use App\Models\TipoDocumento;
 use App\Models\TipoIngreso;
 use App\Models\TipoTramite;
+use App\Models\Tramite;
 use Carbon\Carbon;
 use ErrorException;
 use Illuminate\Contracts\Support\Renderable;
@@ -86,7 +87,7 @@ class ReportesController extends Controller
             $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
             $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre","catalogo_id"]);
 
-            $configuracion = ConfiguracionCamposReporte::where("proceso_id",$proceso_id)->where("funcionario_id",$funcionario_id);
+            $configuracion = ConfiguracionCamposReporte::where("proceso_id",$proceso_id)->where("funcionario_id",$funcionario_id)->where('habilitar', true);
             $tiposReporte = $configuracion->get(["nombre","id"]);
             $campos = $configuracion->get(["campos"]);
 
@@ -730,148 +731,70 @@ class ReportesController extends Controller
 
         ini_set('memory_limit', '-1'); // anula el limite 
 
-        $tipoReporte = json_decode($request->tipo_reporte_search, true);
-        $configuracionCamposReporte = ConfiguracionCamposReporte::find($tipoReporte);
-        $campos = json_decode($configuracionCamposReporte->campos, true);
-        $listadoCampos = [];
-        $headers = [];
-        foreach($campos as $obj){
-            if($obj['habilitado'] == true || $obj['habilitado'] == 1){
-                $listadoCampos[] = $obj['campo'];
-                $headers[] = $obj['nombre_campo'];
+        $filtroTipoReporteIdSearch = $request->tipo_reporte_search;
+        if(isset($filtroTipoReporteIdSearch) && !empty($filtroTipoReporteIdSearch)){
+            $configuracionCamposReporte = ConfiguracionCamposReporte::where('id', $filtroTipoReporteIdSearch)->where('habilitar', true)->first();
+            $campos = json_decode($configuracionCamposReporte->campos, true);
+            $listadoCampos = [];
+            $headers = [];
+            foreach($campos as $obj){
+                if($obj['habilitado'] == true || $obj['habilitado'] == 1){
+                    $listadoCampos[] = $obj['campo'];
+                    $headers[] = $obj['nombre_campo'];
+                }
             }
         }
 
-        $tipoTramite = json_decode($request->tipo_tramite_search, true);
+        $filtroProcesoIdSearch = $request->proceso_id_search;
+        $filtroSecuenciaProcesoIdSearch = json_decode($request->secuencia_proceso_id_search, true);
+        $filtroFuncionarioActualIdSearch = json_decode($request->funcionario_actual_id_search, true);
+        $filtroEstatusSearch = json_decode($request->estatus_id_search, true);
+        $filtroFechaCreacionDesdeSearch = $request->fecha_creacion_tramite_desde_search;
+        $filtroFechaCreacionHastaSearch = $request->fecha_creacion_tramite_hasta_search;
 
-        if (in_array(1, $tipoTramite) && !in_array(2, $tipoTramite) && !in_array(3, $tipoTramite) && !in_array(4, $tipoTramite)) {
-            $oficios = Oficio::select($listadoCampos)->where('id',">",0);
+        $tramites = Tramite::where('id', '>', 0);
+
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+        }
+
+        if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
+            $tramites = $tramites->whereIn('secuencia_proceso_id', $filtroSecuenciaProcesoIdSearch);
+        }
+
+        if(isset($filtroFuncionarioActualIdSearch) && !empty($filtroFuncionarioActualIdSearch)){
+            $tramites = $tramites->whereIn('funcionario_actual_id', $filtroFuncionarioActualIdSearch);
+        }
+
+        if(isset($filtroEstatusSearch) && !empty($filtroEstatusSearch)){
+            $tramites = $tramites->whereIn('estatus', $filtroEstatusSearch);
+        }
+
+        if(isset($filtroFechaCreacionDesdeSearch) && !empty($filtroFechaCreacionDesdeSearch)){
+            $tramites = $tramites->where('created_at', '>=', $filtroFechaCreacionDesdeSearch);
+        }
+
+        if(isset($filtroFechaCreacionHastaSearch) && !empty($filtroFechaCreacionHastaSearch)){
+            $tramites = $tramites->where('created_at', '<=', $filtroFechaCreacionHastaSearch);
+        }
+
+        //$tipoTramite = $request->tipo_tramite_search;
+
+        /*if (in_array(1, $tipoTramite) && !in_array(2, $tipoTramite) && !in_array(3, $tipoTramite) && !in_array(4, $tipoTramite)) {
+            $oficios = Tramite::select($listadoCampos)->where('id',">",0);
             $registros = $this->aplicarFiltros($request,$oficios);
-        }
-
-        if (in_array(2, $tipoTramite) && !in_array(1, $tipoTramite) && !in_array(3, $tipoTramite) && !in_array(3, $tipoTramite)) {
-            $rezagados = Rezagado::select($listadoCampos)->where('id',">",0);
-            $registros = $this->aplicarFiltros($request,$rezagados);
-        }
-
-        if (in_array(3, $tipoTramite) && !in_array(1, $tipoTramite) && !in_array(2, $tipoTramite) && !in_array(4, $tipoTramite)) {
-            $rezagadosLevObj = RezagadoLevantamientoObjecion::select($listadoCampos)->where('id',">",0);
-            $registros = $this->aplicarFiltros($request,$rezagadosLevObj);
-        }
-
-        if (in_array(4, $tipoTramite) && !in_array(1, $tipoTramite) && !in_array(2, $tipoTramite) && !in_array(3, $tipoTramite)) {
-            $extemporaneos = Extemporaneo::select($listadoCampos)->where('id',">",0);
-            $registros = $this->aplicarFiltros($request,$extemporaneos);
-        }
-
-        if (in_array(1, $tipoTramite) && in_array(2, $tipoTramite) && !in_array(3, $tipoTramite) && !in_array(4, $tipoTramite)) {
-            $rezagados = Rezagado::select($listadoCampos)->where('id',">",0);
-            $rezagados = $this->aplicarFiltros($request,$rezagados);
-            $oficios = Oficio::select($listadoCampos)->where('id',">",0);
-            $oficios = $this->aplicarFiltros($request,$oficios);
-            $registros = $oficios->union($rezagados);
-        }
-
-        if (in_array(1, $tipoTramite) && in_array(3, $tipoTramite) && !in_array(2, $tipoTramite) && !in_array(4, $tipoTramite)) {
-            $rezagadosLevObj = RezagadoLevantamientoObjecion::select($listadoCampos)->where('id',">",0);
-            $rezagadosLevObj = $this->aplicarFiltros($request,$rezagadosLevObj);
-            $oficios = Oficio::select($listadoCampos)->where('id',">",0);
-            $oficios = $this->aplicarFiltros($request,$oficios);
-            $registros = $oficios->union($rezagadosLevObj);
-        }
-
-        if (in_array(1, $tipoTramite) && in_array(4, $tipoTramite) && !in_array(2, $tipoTramite) && !in_array(3, $tipoTramite)) {
-            $extemporaneos = Extemporaneo::select($listadoCampos)->where('id',">",0);
-            $extemporaneos = $this->aplicarFiltros($request,$extemporaneos);
-            $oficios = Oficio::select($listadoCampos)->where('id',">",0);
-            $oficios = $this->aplicarFiltros($request,$oficios);
-            $registros = $oficios->union($extemporaneos);
-        }
-
-        if (in_array(2, $tipoTramite) && in_array(3, $tipoTramite) && !in_array(1, $tipoTramite) && !in_array(4, $tipoTramite)) {
-            $rezagadosLevObj = RezagadoLevantamientoObjecion::select($listadoCampos)->where('id',">",0);
-            $rezagadosLevObj = $this->aplicarFiltros($request,$rezagadosLevObj);
-            $rezagados = Rezagado::select($listadoCampos)->where('id',">",0);
-            $rezagados = $this->aplicarFiltros($request,$rezagados);
-            $registros = $rezagados->union($rezagadosLevObj);
-        }
-
-        if (in_array(2, $tipoTramite) && in_array(4, $tipoTramite) && !in_array(1, $tipoTramite) && !in_array(3, $tipoTramite)) {
-            $extemporaneos = Extemporaneo::select($listadoCampos)->where('id',">",0);
-            $registros = Rezagado::select($listadoCampos)->where('id',">",0)->union($extemporaneos);
-        }
-
-        if (in_array(3, $tipoTramite) && in_array(4, $tipoTramite) && !in_array(1, $tipoTramite) && !in_array(2, $tipoTramite)) {
-            $extemporaneos = Extemporaneo::select($listadoCampos)->where('id',">",0);
-            $extemporaneos = $this->aplicarFiltros($request,$extemporaneos);
-            $rezagadosLevObj = RezagadoLevantamientoObjecion::select($listadoCampos)->where('id',">",0);
-            $rezagadosLevObj = $this->aplicarFiltros($request,$rezagadosLevObj);
-            $registros = $rezagadosLevObj->union($extemporaneos);
-        }
-
-        if (in_array(1, $tipoTramite) && in_array(2, $tipoTramite) && in_array(3, $tipoTramite) && !in_array(4, $tipoTramite)) {
-            $oficios = Oficio::select($listadoCampos)->where('id',">",0);
-            $oficios = $this->aplicarFiltros($request,$oficios);
-            $rezagados = Rezagado::select($listadoCampos)->where('id',">",0);
-            $rezagados = $this->aplicarFiltros($request,$rezagados);
-            $rezagadosLevObj = RezagadoLevantamientoObjecion::select($listadoCampos)->where('id',">",0);
-            $rezagadosLevObj = $this->aplicarFiltros($request,$rezagadosLevObj);
-            $registros = $oficios->union($rezagados)->union($rezagadosLevObj);
-        }
-
-        if (in_array(1, $tipoTramite) && in_array(2, $tipoTramite) && in_array(4, $tipoTramite) && !in_array(3, $tipoTramite)) {
-            $oficios = Oficio::select($listadoCampos)->where('id',">",0);
-            $oficios = $this->aplicarFiltros($request,$oficios);
-            $rezagados = Rezagado::select($listadoCampos)->where('id',">",0);
-            $rezagados = $this->aplicarFiltros($request,$rezagados);
-            $extemporaneos = Extemporaneo::select($listadoCampos)->where('id',">",0);
-            $extemporaneos = $this->aplicarFiltros($request,$extemporaneos);
-            $registros = $oficios->union($rezagados)->union($extemporaneos);
-        }
-
-        if (in_array(1, $tipoTramite) && in_array(3, $tipoTramite) && in_array(4, $tipoTramite) && !in_array(2, $tipoTramite)) {
-            $oficios = Oficio::select($listadoCampos)->where('id',">",0);
-            $oficios = $this->aplicarFiltros($request,$oficios);
-            $rezagadosLevObj = RezagadoLevantamientoObjecion::select($listadoCampos)->where('id',">",0);
-            $rezagadosLevObj = $this->aplicarFiltros($request,$rezagadosLevObj);
-            $extemporaneos = Extemporaneo::select($listadoCampos)->where('id',">",0);
-            $extemporaneos = $this->aplicarFiltros($request,$extemporaneos);
-            $registros = $oficios->union($rezagadosLevObj)->union($extemporaneos);
-        }
-
-        if (in_array(2, $tipoTramite) && in_array(3, $tipoTramite) && in_array(4, $tipoTramite) && !in_array(1, $tipoTramite)) {
-            $rezagados = Rezagado::select($listadoCampos)->where('id',">",0);
-            $rezagados = $this->aplicarFiltros($request,$rezagados);
-            $rezagadosLevObj = RezagadoLevantamientoObjecion::select($listadoCampos)->where('id',">",0);
-            $rezagadosLevObj = $this->aplicarFiltros($request,$rezagadosLevObj);
-            $extemporaneos = Extemporaneo::select($listadoCampos)->where('id',">",0);
-            $extemporaneos = $this->aplicarFiltros($request,$extemporaneos);
-            $registros = $rezagados->union($rezagadosLevObj)->union($extemporaneos);
-        }
-
-        if (in_array(1, $tipoTramite) && in_array(2, $tipoTramite) && in_array(3, $tipoTramite) && in_array(4, $tipoTramite)) {
-            $oficios = Oficio::select($listadoCampos)->where('id',">",0);
-            $oficios = $this->aplicarFiltros($request,$oficios);
-            $rezagados = Rezagado::select($listadoCampos)->where('id',">",0);
-            $rezagados = $this->aplicarFiltros($request,$rezagados);
-            $rezagadosLevObj = RezagadoLevantamientoObjecion::select($listadoCampos)->where('id',">",0);
-            $rezagadosLevObj = $this->aplicarFiltros($request,$rezagadosLevObj);
-            $extemporaneos = Extemporaneo::select($listadoCampos)->where('id',">",0);
-            $extemporaneos = $this->aplicarFiltros($request,$extemporaneos);
-            $registros = $oficios->union($rezagados)->union($rezagadosLevObj)->union($extemporaneos);
-        }
+        }*/
         
-        $registros = $registros->orderBy('id', 'desc')->get();
+        $tramites = $tramites->orderBy('id', 'asc')->get();
 
-        $tipos = Tipo::get(["nombre", "id"])->pluck('nombre','id');
-        $tiposAtencion = TipoAtencion::get(["nombre", "id"])->pluck('nombre','id');
-        $tiposTramite = TipoTramite::get(["nombre", "id"])->pluck('nombre','id');
-        $estadosTramite = EstadoTramite::get(["nombre", "id"])->pluck('nombre','id');
-        $tiposEstadoCaja = TipoEstadoCaja::get(["nombre", "id"])->pluck('nombre','id');
-        $provincias = Provincia::get(["nombre", "id"])->pluck('nombre','id');
-        $instituciones = Institucion::get(["nombre", "id"])->pluck('nombre','id');
-        $tiposFirma = TipoFirma::get(["nombre", "id"])->pluck('nombre','id');
-        $responsables = Admin::get(["name", "id"])->pluck('name','id');
+        $tiposCatalogos = TipoCatalogo::get(['id', 'nombre', 'tipo_catalogo_relacionado_id'])->pluck('id','nombre','tipo_catalogo_relacionado_id');
+        $catalogos = Catalogo::get(['nombre', 'id'])->pluck('nombre','id');
+        $responsables = Admin::get(['name', 'id'])->pluck('name','id');
+
+        $data['tiposCatalogos'] = $configuracionCamposReporte;
+        $data['responsables'] = $campos;
+
+        return response()->json($data);
 
         $fileName = 'FormatoReporte.xlsx';
 
@@ -905,55 +828,7 @@ class ReportesController extends Controller
                         case 'tipo_tramite_id':
                             $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $tiposTramite[$registro[$campo]] : "");
                             break;
-                        case 'ruc':
-                            $key = array_search($campo, $listadoCampos);
-                            $active_sheet->getCell($celdaInicio[$key].$filaInicioPivot)->setValueExplicit($registro[$campo],\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-                            break;
-                        case 'numero_establecimiento':
-                            $key = array_search($campo, $listadoCampos);
-                            $active_sheet->getCell($celdaInicio[$key].$filaInicioPivot)->setValueExplicit($registro[$campo],\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-                            break;
-                        case 'fecha_recepcion':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($registro[$campo]) || empty($registro[$campo]) || $registro[$campo] == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro[$campo])->format('Y/m/d'))->getStyle($celdaInicio[$columnaInicioPivot].$filaInicioPivot)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
-                            break;
-                        case 'tipo_atencion_id':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $tiposAtencion[$registro[$campo]] : "");
-                            break;
-                        case 'provincia_id':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $provincias[$registro[$campo]] : "");
-                            break;
-                        case 'fecha_servicio':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot,!isset($registro[$campo]) || empty($registro[$campo]) || $registro[$campo] == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro[$campo])->format('Y/m/d'))->getStyle($celdaInicio[$columnaInicioPivot].$filaInicioPivot)->getNumberFormat()->setFormatCode('yyyy/m');
-                            break;
-                        case 'estado_caja_id':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $tiposEstadoCaja[$registro[$campo]] : "");
-                            break;
-                        case 'fecha_envio_auditoria':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($registro[$campo]) || empty($registro[$campo]) || $registro[$campo] == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro[$campo])->format('Y/m/d'))->getStyle($celdaInicio[$columnaInicioPivot].$filaInicioPivot)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
-                            break;
-                        case 'institucion_id':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $instituciones[$registro[$campo]] : "");
-                            break;
-                        case 'tipo_firma_id':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $tiposFirma[$registro[$campo]] : "");
-                            break;
-                        case 'fecha_cierre_caja':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($registro[$campo]) || empty($registro[$campo]) || $registro[$campo] == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro[$campo])->format('Y/m/d'))->getStyle($celdaInicio[$columnaInicioPivot].$filaInicioPivot)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
-                            break;
-                        case 'fecha_devolucion_auditoria':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($registro[$campo]) || empty($registro[$campo]) || $registro[$campo] == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro[$campo])->format('Y/m/d'))->getStyle($celdaInicio[$columnaInicioPivot].$filaInicioPivot)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
-                            break;
-                        case 'fecha_devolucion_prestador':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($registro[$campo]) || empty($registro[$campo]) || $registro[$campo] == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro[$campo])->format('Y/m/d'))->getStyle($celdaInicio[$columnaInicioPivot].$filaInicioPivot)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
-                            break;
-                        case 'responsable_id':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $responsables[$registro[$campo]] : "");
-                            break;
-                        case 'estado_tramite_id':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $estadosTramite[$registro[$campo]] : "");
-                            break;
-                        default:
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo]);
+                        
                     }
                     $maxWidth = 50;
                     $colWidth = $active_sheet->getColumnDimensions($celdaInicio[$index]);
@@ -1042,28 +917,6 @@ class ReportesController extends Controller
         }else{
             return false;
         }
-    }
-
-    public function bitacora(): Renderable
-    {
-        $this->checkAuthorization(auth()->user(), ['reporteBitacora.view']);
-
-        $admins = Admin::get(["name", "id"])->pluck('name','id');
-        $tiposDocumento = TipoDocumento::get(["nombre", "id"])->pluck('nombre','id');
-        $tiposIngreso = TipoIngreso::get(["nombre", "id"])->pluck('nombre','id');
-        $tiposAtencion = TipoAtencion::get(["nombre", "id"])->pluck('nombre','id');
-        $receptoresDocumental = $admins;
-        $tiposTramite = TipoTramite::get(["nombre", "id"])->pluck('nombre','id');
-        $responsables = $admins;
-
-        return view('backend.pages.reportes.bitacora', [
-            'tiposDocumento' => $tiposDocumento,
-            'tiposIngreso' => $tiposIngreso,
-            'tiposAtencion' => $tiposAtencion,
-            'receptoresDocumental' => $receptoresDocumental,
-            'tiposTramite' => $tiposTramite,
-            'responsables' => $responsables
-        ]);
     }
 
     public function generarReporteBitacoraByFilters(Request $request)
