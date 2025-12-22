@@ -788,7 +788,26 @@ class ReportesController extends Controller
         $tramites = $tramites->orderBy('id', 'asc')->get();
 
         $tiposCatalogos = TipoCatalogo::get(['id', 'nombre', 'tipo_catalogo_relacionado_id'])->pluck('id','nombre','tipo_catalogo_relacionado_id');
-        $catalogos = Catalogo::get(['nombre', 'id'])->pluck('nombre','id');
+        $catalogos = Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id'])->pluck('id','tipo_catalogo_id','nombre','catalogo_id');
+
+        
+        foreach($tiposCatalogos as $tipoCatalogo){
+            $objTc = [];
+            $objTc['id'] = $tipoCatalogo->id;
+            $objTc['nombre'] = $tipoCatalogo->nombre;
+            $objTc['tipo_catalogo_relacionado_id'] = $tipoCatalogo->tipo_catalogo_relacionado_id;
+            $objTc['catalogos'] = [];
+            foreach($catalogos['tipo_catalogo_id'] as $catalogo){
+                $objC = [];
+                $objC['id'] = $catalogo->id;
+                $objC['tipo_catalogo_id'] = $catalogo->tipo_catalogo_id;
+                $objC['nombre'] = $catalogo->nombre;
+                $objC['catalogo_id'] = $catalogo->catalogo_id;
+                $objC['catalogos_relacionados'] = [];
+                
+            }
+        }
+
         $responsables = Admin::get(['name', 'id'])->pluck('name','id');
 
         $data['tiposCatalogos'] = $configuracionCamposReporte;

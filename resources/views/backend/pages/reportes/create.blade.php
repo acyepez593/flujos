@@ -348,6 +348,7 @@
                         fecha_creacion_tramite_hasta_search: $('#fecha_creacion_tramite_hasta_search').val(),
                         tipo_reporte_search: $('#tipo_reporte_search').val(),
                         campo_search: $('#campo_search').val(),
+                        filtros: $('#filtros_search').val(),
                         _token: '{{csrf_token()}}'
                     },
                     dataType: 'json',
