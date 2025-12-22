@@ -327,8 +327,6 @@
             });
 
             $( "#campo_search" ).on( "change", function() {
-                console.log('campo_search change');
-                console.log($(this).val());
                 renderFilterForm($(this).val());
             });
 
@@ -340,15 +338,14 @@
                     url: "{{url('/generarReporteByTipoReporte')}}",
                     method: "POST",
                     data: {
-                        proceso_id_search: JSON.stringify($('#proceso_id_search').val()),
+                        proceso_id_search: $('#proceso_id_search').val(),
                         secuencia_proceso_id_search: JSON.stringify($('#secuencia_proceso_id_search').val()),
                         funcionario_actual_id_search: JSON.stringify($('#funcionario_actual_id_search').val()),
                         estatus_id_search: JSON.stringify($('#estatus_id_search').val()),
                         fecha_creacion_tramite_desde_search: $('#fecha_creacion_tramite_desde_search').val(),
                         fecha_creacion_tramite_hasta_search: $('#fecha_creacion_tramite_hasta_search').val(),
                         tipo_reporte_search: $('#tipo_reporte_search').val(),
-                        campo_search: $('#campo_search').val(),
-                        filtros: $('#filtros_search').val(),
+                        filtros_search: JSON.stringify(objFiltros),
                         _token: '{{csrf_token()}}'
                     },
                     dataType: 'json',
@@ -405,8 +402,11 @@
             for (let campo of objFiltros) {
                 campo.valor_filtro = '';
             }
-            console.log('inicializarObjetoFiltros');
-            console.log(objFiltros);
+        }
+
+        function setValuesObjFilters(seccion,campo,valor){
+            let objFiltrado = objFiltros.find(obj => obj.nombre_seccion === seccion && obj.campo === campo);
+            objFiltrado.valor_filtro = valor.value;
         }
 
         function renderFilterForm(campos_seleccionados){
@@ -450,6 +450,7 @@
             $("#filtros").html('');
             let html_components = '';
             for (let campo of camposPorSeccion[seccion]) {
+                let seccion_campo = {nombre_seccion : seccion};
                 if(campo.variable == campo_a_mostrar){
                     switch (campo.tipo_campo) {
                         case "text":
@@ -460,7 +461,7 @@
                                 html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>'+
                                                     '<div class="input-group mb-3">';
 
-                                html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
+                                html_components += '<input type="text" onchange="setValuesObjFilters(`' + seccion + '`,`' + campo.variable + '`,this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + campo.configuracion.text_field_value + '">';
                             }
                                                 
                             if(long == count){
@@ -482,7 +483,7 @@
                                 html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>'+
                                                     '<div class="datepicker date input-group">';
 
-                                html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '">';
+                                html_components += '<input type="text" onchange="setValuesObjFilters(`' + seccion + '`,`' + campo.variable + '`,this)" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + campo.configuracion.date_field_value + '">';
 
                                 html_components += '<div class="input-group-append">';
                                 html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
@@ -508,7 +509,7 @@
                                 html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>'+
                                                     '<div class="input-group mb-3">';
 
-                                html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '">';
+                                html_components += '<input type="number" onchange="setValuesObjFilters(`' + seccion + '`,`' + campo.variable + '`,this)" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + campo.configuracion.number_field_value + '">';
                             }
 
                             if(long == count){
@@ -530,7 +531,7 @@
                                 html_components += '<label for="nombre">' + campo.nombre + ' ('+ seccion +')</label>'+
                                                     '<div class="input-group mb-3">';
 
-                                html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '">';
+                                html_components += '<input type="email" onchange="setValuesObjFilters(`' + seccion + '`,`' + campo.variable + '`,this)" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + campo.configuracion.email_field_value + '">';
 
                             }
 
@@ -574,7 +575,7 @@
                                 html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + ' ('+ seccion +')</label>';
 
                                 if(catalogos[campo.configuracion.select_field_tipo_catalogo] !== undefined && catalogos[campo.configuracion.select_field_tipo_catalogo] !== 'undefined' && catalogos[campo.configuracion.select_field_tipo_catalogo] !== null){
-                                    html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
+                                    html_components += '<select onchange="setValuesObjFilters(`' + seccion + '`,`' + campo.variable + '`,this)" name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
                                     for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
                                         if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
                                             if(campo.configuracion.select_field_default_value == catalogo.id){

@@ -751,11 +751,12 @@ class ReportesController extends Controller
         $filtroEstatusSearch = json_decode($request->estatus_id_search, true);
         $filtroFechaCreacionDesdeSearch = $request->fecha_creacion_tramite_desde_search;
         $filtroFechaCreacionHastaSearch = $request->fecha_creacion_tramite_hasta_search;
+        $filtrosSearch = json_decode($request->filtros_search, true);
 
         $tramites = Tramite::where('id', '>', 0);
 
         if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
-            $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+            $tramites = $tramites->where('proceso_id', intval($filtroProcesoIdSearch));
         }
 
         if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
@@ -778,6 +779,14 @@ class ReportesController extends Controller
             $tramites = $tramites->where('created_at', '<=', $filtroFechaCreacionHastaSearch);
         }
 
+        if(isset($filtrosSearch) && !empty($filtrosSearch)){
+            foreach($filtrosSearch as $filtro){
+                if($filtro['valor_filtro'] != ""){
+                    $tramites = $tramites->whereJSONContains('datos->data->VICTIMA->numero_documento',$filtro['valor_filtro']);
+                }
+            }
+        }
+
         //$tipoTramite = $request->tipo_tramite_search;
 
         /*if (in_array(1, $tipoTramite) && !in_array(2, $tipoTramite) && !in_array(3, $tipoTramite) && !in_array(4, $tipoTramite)) {
@@ -787,31 +796,55 @@ class ReportesController extends Controller
         
         $tramites = $tramites->orderBy('id', 'asc')->get();
 
-        $tiposCatalogos = TipoCatalogo::get(['id', 'nombre', 'tipo_catalogo_relacionado_id'])->pluck('id','nombre','tipo_catalogo_relacionado_id');
-        $catalogos = Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id'])->pluck('id','tipo_catalogo_id','nombre','catalogo_id');
+        $tiposCatalogos = TipoCatalogo::get(['id', 'nombre', 'tipo_catalogo_relacionado_id']);
+        $catalogos = collect(Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id']));
 
+        $obj = [];
         
         foreach($tiposCatalogos as $tipoCatalogo){
+            $contador = 0;
+
             $objTc = [];
             $objTc['id'] = $tipoCatalogo->id;
             $objTc['nombre'] = $tipoCatalogo->nombre;
             $objTc['tipo_catalogo_relacionado_id'] = $tipoCatalogo->tipo_catalogo_relacionado_id;
             $objTc['catalogos'] = [];
-            foreach($catalogos['tipo_catalogo_id'] as $catalogo){
+
+            $catalogosTemp = $catalogos->where('tipo_catalogo_id', $tipoCatalogo->id);
+            
+            foreach($catalogosTemp as $catalogo){
                 $objC = [];
                 $objC['id'] = $catalogo->id;
                 $objC['tipo_catalogo_id'] = $catalogo->tipo_catalogo_id;
                 $objC['nombre'] = $catalogo->nombre;
                 $objC['catalogo_id'] = $catalogo->catalogo_id;
                 $objC['catalogos_relacionados'] = [];
-                
+                //$objTc[$contador]['catalogos'] = $objC;
+                array_push($objTc['catalogos'], $objC);
+
+                if($catalogo->catalogo_id != NULL){
+                    $objCr = [];
+                    $objCr['id'] = $catalogo->id;
+                    $objCr['tipo_catalogo_id'] = $catalogo->tipo_catalogo_id;
+                    $objCr['nombre'] = $catalogo->nombre;
+                    $objCr['catalogo_id'] = $catalogo->catalogo_id;
+                    $objCr['catalogos_relacionados'] = [];
+                    $objC['catalogos_relacionados'] = $objCr;
+                }
+                $contador+=1;
             }
+            array_push($obj, $objTc);
         }
 
         $responsables = Admin::get(['name', 'id'])->pluck('name','id');
 
-        $data['tiposCatalogos'] = $configuracionCamposReporte;
+        $data['tiposCatalogos'] = $tiposCatalogos;
+        $data['catalogos'] = $catalogos;
+        $data['obj'] = $obj;
+        $data['configuracionCamposReporte'] = $configuracionCamposReporte;
         $data['responsables'] = $campos;
+        $data['tramites'] = $tramites;
+        $data['filtrosSearch'] = $filtrosSearch;
 
         return response()->json($data);
 
