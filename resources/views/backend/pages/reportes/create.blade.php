@@ -334,7 +334,7 @@
                 if(document.getElementById('reporte').reportValidity()){
                     $("#overlay").fadeIn(300);
 
-                    $.ajax({
+                    /*$.ajax({
                     url: "{{url('/generarReporteByTipoReporte')}}",
                     method: "POST",
                     data: {
@@ -359,20 +359,20 @@
                         console.log(xhr.status);
                         console.log(error);
                     }
-                });
+                });*/
 
-                    /*$.ajax({
+                    $.ajax({
                         url: "{{url('/generarReporteByTipoReporte')}}",
                         method: "POST",
                         data: {
-                            proceso_id_search: JSON.stringify($('#proceso_id_search').val()),
+                            proceso_id_search: $('#proceso_id_search').val(),
                             secuencia_proceso_id_search: JSON.stringify($('#secuencia_proceso_id_search').val()),
                             funcionario_actual_id_search: JSON.stringify($('#funcionario_actual_id_search').val()),
                             estatus_id_search: JSON.stringify($('#estatus_id_search').val()),
                             fecha_creacion_tramite_desde_search: $('#fecha_creacion_tramite_desde_search').val(),
                             fecha_creacion_tramite_hasta_search: $('#fecha_creacion_tramite_hasta_search').val(),
                             tipo_reporte_search: $('#tipo_reporte_search').val(),
-                            campo_search: $('#campo_search').val(),
+                            filtros_search: JSON.stringify(objFiltros),
                             _token: '{{csrf_token()}}'
                         },
                         xhrFields: {
@@ -390,7 +390,7 @@
                             a.remove();
                             window.URL.revokeObjectURL(url);
                         }
-                    });*/
+                    });
                 }
             });
 

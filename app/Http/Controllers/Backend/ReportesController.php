@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OficioRequest;
 use App\Models\Admin;
+use App\Models\CamposPorProceso;
 use App\Models\Catalogo;
 use App\Models\ConfiguracionCamposReporte;
 use App\Models\EstadoTramite;
@@ -731,20 +732,6 @@ class ReportesController extends Controller
 
         ini_set('memory_limit', '-1'); // anula el limite 
 
-        $filtroTipoReporteIdSearch = $request->tipo_reporte_search;
-        if(isset($filtroTipoReporteIdSearch) && !empty($filtroTipoReporteIdSearch)){
-            $configuracionCamposReporte = ConfiguracionCamposReporte::where('id', $filtroTipoReporteIdSearch)->where('habilitar', true)->first();
-            $campos = json_decode($configuracionCamposReporte->campos, true);
-            $listadoCampos = [];
-            $headers = [];
-            foreach($campos as $obj){
-                if($obj['habilitado'] == true || $obj['habilitado'] == 1){
-                    $listadoCampos[] = $obj['campo'];
-                    $headers[] = $obj['nombre_campo'];
-                }
-            }
-        }
-
         $filtroProcesoIdSearch = $request->proceso_id_search;
         $filtroSecuenciaProcesoIdSearch = json_decode($request->secuencia_proceso_id_search, true);
         $filtroFuncionarioActualIdSearch = json_decode($request->funcionario_actual_id_search, true);
@@ -752,6 +739,30 @@ class ReportesController extends Controller
         $filtroFechaCreacionDesdeSearch = $request->fecha_creacion_tramite_desde_search;
         $filtroFechaCreacionHastaSearch = $request->fecha_creacion_tramite_hasta_search;
         $filtrosSearch = json_decode($request->filtros_search, true);
+        $filtroTipoReporteIdSearch = $request->tipo_reporte_search;
+
+        if(isset($filtroTipoReporteIdSearch) && !empty($filtroTipoReporteIdSearch)){
+            $camposPorProcesos = collect(CamposPorProceso::where('proceso_id',intval($filtroProcesoIdSearch))->get(['tipo_campo','nombre','variable','seccion_campo']));
+            $configuracionCamposReporte = ConfiguracionCamposReporte::where('id', $filtroTipoReporteIdSearch)->where('habilitar', true)->first();
+            $campos = json_decode($configuracionCamposReporte->campos, true);
+            $listadoCampos = [];
+            $headers = [];
+            $tiposCampos = [];
+            $secciones = [];
+
+            usort($campos, function($a, $b) {
+                return $a['orden'] > $b['orden'];
+            });
+
+            foreach($campos as $obj){
+                if($obj['habilitado'] == true || $obj['habilitado'] == 1){
+                    $listadoCampos[] = $obj['campo'];
+                    $headers[] = $obj['nombre_campo'] . PHP_EOL . '(' . $obj['nombre_seccion'] . ')';
+                    $tiposCampos[] = $camposPorProcesos->where('seccion_campo',$obj['nombre_seccion'])->where('variable',$obj['campo'])->first()['tipo_campo'];
+                    $secciones [] = $obj['nombre_seccion'];
+                }
+            }
+        }
 
         $tramites = Tramite::where('id', '>', 0);
 
@@ -786,67 +797,17 @@ class ReportesController extends Controller
                 }
             }
         }
-
-        //$tipoTramite = $request->tipo_tramite_search;
-
-        /*if (in_array(1, $tipoTramite) && !in_array(2, $tipoTramite) && !in_array(3, $tipoTramite) && !in_array(4, $tipoTramite)) {
-            $oficios = Tramite::select($listadoCampos)->where('id',">",0);
-            $registros = $this->aplicarFiltros($request,$oficios);
-        }*/
         
         $tramites = $tramites->orderBy('id', 'asc')->get();
 
         $tiposCatalogos = TipoCatalogo::get(['id', 'nombre', 'tipo_catalogo_relacionado_id']);
-        $catalogos = collect(Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id']));
-
-        $obj = [];
-        
-        foreach($tiposCatalogos as $tipoCatalogo){
-            $contador = 0;
-
-            $objTc = [];
-            $objTc['id'] = $tipoCatalogo->id;
-            $objTc['nombre'] = $tipoCatalogo->nombre;
-            $objTc['tipo_catalogo_relacionado_id'] = $tipoCatalogo->tipo_catalogo_relacionado_id;
-            $objTc['catalogos'] = [];
-
-            $catalogosTemp = $catalogos->where('tipo_catalogo_id', $tipoCatalogo->id);
-            
-            foreach($catalogosTemp as $catalogo){
-                $objC = [];
-                $objC['id'] = $catalogo->id;
-                $objC['tipo_catalogo_id'] = $catalogo->tipo_catalogo_id;
-                $objC['nombre'] = $catalogo->nombre;
-                $objC['catalogo_id'] = $catalogo->catalogo_id;
-                $objC['catalogos_relacionados'] = [];
-                //$objTc[$contador]['catalogos'] = $objC;
-                array_push($objTc['catalogos'], $objC);
-
-                if($catalogo->catalogo_id != NULL){
-                    $objCr = [];
-                    $objCr['id'] = $catalogo->id;
-                    $objCr['tipo_catalogo_id'] = $catalogo->tipo_catalogo_id;
-                    $objCr['nombre'] = $catalogo->nombre;
-                    $objCr['catalogo_id'] = $catalogo->catalogo_id;
-                    $objCr['catalogos_relacionados'] = [];
-                    $objC['catalogos_relacionados'] = $objCr;
-                }
-                $contador+=1;
-            }
-            array_push($obj, $objTc);
+        $catalogos = Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id']);
+        $catalogosTemp = [];
+        foreach($catalogos as $catalogo){
+            $catalogosTemp[$catalogo->id] = $catalogo->nombre;
         }
 
         $responsables = Admin::get(['name', 'id'])->pluck('name','id');
-
-        $data['tiposCatalogos'] = $tiposCatalogos;
-        $data['catalogos'] = $catalogos;
-        $data['obj'] = $obj;
-        $data['configuracionCamposReporte'] = $configuracionCamposReporte;
-        $data['responsables'] = $campos;
-        $data['tramites'] = $tramites;
-        $data['filtrosSearch'] = $filtrosSearch;
-
-        return response()->json($data);
 
         $fileName = 'FormatoReporte.xlsx';
 
@@ -858,7 +819,7 @@ class ReportesController extends Controller
 
             $active_sheet = $spreadsheet->getActiveSheet();
 
-            $celdaInicio = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE','AF','AG','AH'];
+            $celdaInicio = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ','BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ'];
             $columnaInicio = 2;
             $filaInicioPivot = 2;
             $columnaInicioPivot = 0;
@@ -870,18 +831,54 @@ class ReportesController extends Controller
             $sourceStyle = $active_sheet->getStyle('A1')->exportArray();
             $active_sheet->getStyle('A1'.':'.$celdaInicio[count($headers)-1].'1')->applyFromArray($sourceStyle);
 
-            foreach ($registros as $registro) {
+            foreach ($tramites as $tramite) {
+                $camposTramite = json_decode($tramite['datos'], true);
                 $columnaInicioPivot = 0;
                 foreach($listadoCampos as $index => $campo){
-                    switch ($campo) {
-                        case 'fecha_registro':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($registro[$campo]) || empty($registro[$campo]) || $registro[$campo] == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro[$campo])->format('Y/m/d'))->getStyle($celdaInicio[$columnaInicioPivot].$filaInicioPivot)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
-                            break;
-                        case 'tipo_tramite_id':
-                            $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $registro[$campo] > 0 ? $tiposTramite[$registro[$campo]] : "");
-                            break;
-                        
+                    if($secciones[$index] == 'BENEFICIARIOS'){
+                        switch ($tiposCampos[$index]) {
+                            case 'text':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][0][$campo]) || empty($camposTramite['data'][$secciones[$index]][0][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][0][$campo]);
+                                break;
+                            case 'date':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][0][$campo]) || empty($camposTramite['data'][$secciones[$index]][0][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][0][$campo]);
+                                break;
+                            case 'number':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][0][$campo]) || empty($camposTramite['data'][$secciones[$index]][0][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][0][$campo]);
+                                break;
+                            case 'email':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][0][$campo]) || empty($camposTramite['data'][$secciones[$index]][0][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][0][$campo]);
+                                break;
+                            case 'file':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][0][$campo]) || empty($camposTramite['data'][$secciones[$index]][0][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][0][$campo]);
+                                break;
+                            case 'select':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][0][$campo]) || empty($camposTramite['data'][$secciones[$index]][0][$campo]) ? "" : $catalogosTemp[$camposTramite['data'][$secciones[$index]][0][$campo]]);
+                                break;
+                        }
+                    }else{
+                        switch ($tiposCampos[$index]) {
+                            case 'text':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'date':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'number':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'email':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'file':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'select':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $catalogosTemp[$camposTramite['data'][$secciones[$index]][$campo]]);
+                                break;
+                        }
                     }
+                    
                     $maxWidth = 50;
                     $colWidth = $active_sheet->getColumnDimensions($celdaInicio[$index]);
                     if ($colWidth > $maxWidth) {
@@ -893,70 +890,6 @@ class ReportesController extends Controller
                 }
                 $filaInicioPivot += 1;
             }
-            
-            $keyNumeroCasos = array_search('numero_casos', $listadoCampos);
-            if($keyNumeroCasos !== false){
-                $rangoSumaNumeroCasos = $celdaInicio[$keyNumeroCasos].$columnaInicio.':'.$celdaInicio[$keyNumeroCasos].$filaInicioPivot-1;
-                $active_sheet->setCellValue($celdaInicio[$keyNumeroCasos].$filaInicioPivot , '=SUM('.$rangoSumaNumeroCasos.')');
-
-                $active_sheet->getStyle($celdaInicio[$keyNumeroCasos].$filaInicioPivot)->getFont()->setBold(true)->setSize(16);
-                
-            }
-            $keyMontoPlanilla = array_search('monto_planilla', $listadoCampos);
-            if($keyMontoPlanilla !== false){
-                $active_sheet->getStyle($celdaInicio[$keyMontoPlanilla].$columnaInicio.':'.$celdaInicio[$keyMontoPlanilla].$filaInicioPivot)->getNumberFormat()->setFormatCode('#,##0.00');
-
-                $rangoSumaMontoPlanilla = $celdaInicio[$keyMontoPlanilla].$columnaInicio.':'.$celdaInicio[$keyMontoPlanilla].$filaInicioPivot-1;
-                $active_sheet->setCellValue($celdaInicio[$keyMontoPlanilla].$filaInicioPivot , '=SUM('.$rangoSumaMontoPlanilla.')');
-
-                $active_sheet->getStyle($celdaInicio[$keyMontoPlanilla].$filaInicioPivot)->getFont()->setBold(true)->setSize(16);
-            }
-
-            //$active_sheet->setCellValue($celdaInicio[0].$columnaInicioPivot, !isset($registro->fecha_registro) || empty($registro->fecha_registro) || $registro->fecha_registro == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro->fecha_registro)->format('d-M-Y'));
-            
-            /*foreach ($registros as $registro) {
-                $active_sheet->setCellValue($celdaInicio[0].$columnaInicioPivot, !isset($registro->fecha_registro) || empty($registro->fecha_registro) || $registro->fecha_registro == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro->fecha_registro)->format('d-M-Y'));
-                $active_sheet->setCellValue($celdaInicio[1].$columnaInicioPivot, $registro->tipo_tramite_id > 0 ? $tiposTramite[$registro->tipo_tramite_id] : "");
-                $active_sheet->getCell($celdaInicio[2].$columnaInicioPivot)->setValueExplicit($registro->ruc,\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-                $active_sheet->getCell($celdaInicio[3].$columnaInicioPivot)->setValueExplicit($registro->numero_establecimiento,\PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-                $active_sheet->setCellValue($celdaInicio[4].$columnaInicioPivot, $registro->razon_social);
-                $active_sheet->setCellValue($celdaInicio[5].$columnaInicioPivot, !isset($registro->fecha_recepcion) || empty($registro->fecha_recepcion) || $registro->fecha_recepcion == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro->fecha_recepcion)->format('d-M-Y'));
-                $active_sheet->setCellValue($celdaInicio[6].$columnaInicioPivot, $registro->tipo_atencion_id > 0 ? $tiposAtencion[$registro->tipo_atencion_id] : "");
-                $active_sheet->setCellValue($celdaInicio[7].$columnaInicioPivot, $registro->provincia_id > 0 ? $provincias[$registro->provincia_id] : "");
-                $active_sheet->setCellValue($celdaInicio[8].$columnaInicioPivot, !isset($registro->fecha_servicio) || empty($registro->fecha_servicio) || $registro->fecha_servicio == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro->fecha_servicio)->format('M-Y'));
-                $active_sheet->setCellValue($celdaInicio[9].$columnaInicioPivot, $registro->numero_casos);
-                $active_sheet->setCellValue($celdaInicio[10].$columnaInicioPivot, $registro->monto_planilla);
-                $active_sheet->setCellValue($celdaInicio[11].$columnaInicioPivot, $registro->numero_caja_ant);
-                $active_sheet->setCellValue($celdaInicio[12].$columnaInicioPivot, $registro->numero_caja);
-                $active_sheet->setCellValue($celdaInicio[13].$columnaInicioPivot, $registro->estado_caja_id > 0 ? $tiposEstadoCaja[$registro->estado_caja_id] : "");
-                $active_sheet->setCellValue($celdaInicio[14].$columnaInicioPivot, $registro->numero_caja_auditoria);
-                $active_sheet->setCellValue($celdaInicio[15].$columnaInicioPivot, !isset($registro->fecha_envio_auditoria) || empty($registro->fecha_envio_auditoria) || $registro->fecha_envio_auditoria == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro->fecha_envio_auditoria)->format('d-M-Y'));
-                $active_sheet->setCellValue($celdaInicio[16].$columnaInicioPivot, $registro->institucion_id > 0 ? $instituciones[$registro->institucion_id] : "");
-                $active_sheet->setCellValue($celdaInicio[17].$columnaInicioPivot, $registro->documento_externo);
-                $active_sheet->setCellValue($celdaInicio[18].$columnaInicioPivot, $registro->tipo_firma_id > 0 ? $tiposFirma[$registro->tipo_firma_id] : "");
-                $active_sheet->setCellValue($celdaInicio[19].$columnaInicioPivot, $registro->observaciones);
-                $active_sheet->setCellValue($celdaInicio[20].$columnaInicioPivot, $registro->numero_quipux);
-                $active_sheet->setCellValue($celdaInicio[21].$columnaInicioPivot, $registro->responsable_id > 0 ? $responsables[$registro->responsable_id] : "");
-                $active_sheet->setCellValue($celdaInicio[22].$columnaInicioPivot, $registro->es_historico == 1 ? "SI" : "NO");
-                $active_sheet->setCellValue($celdaInicio[23].$columnaInicioPivot, !isset($registro->periodo) || empty($registro->periodo) ? "" : $registro->periodo);
-                $active_sheet->setCellValue($celdaInicio[24].$columnaInicioPivot, $registro->estado_tramite_id > 0 ? $estadosTramite[$registro->estado_tramite_id] : "");
-                $active_sheet->setCellValue($celdaInicio[25].$columnaInicioPivot, !isset($registro->fecha_devolucion_auditoria) || empty($registro->fecha_devolucion_auditoria) || $registro->fecha_devolucion_auditoria == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro->fecha_devolucion_auditoria)->format('d-M-Y'));
-                $active_sheet->setCellValue($celdaInicio[26].$columnaInicioPivot, $registro->observaciones_devolucion_auditoria);
-                $active_sheet->setCellValue($celdaInicio[27].$columnaInicioPivot, !isset($registro->fecha_devolucion_prestador) || empty($registro->fecha_devolucion_prestador) || $registro->fecha_devolucion_prestador == '0000-00-00' ? "" : Carbon::createFromFormat('Y-m-d', $registro->fecha_devolucion_prestador)->format('d-M-Y'));
-                $active_sheet->setCellValue($celdaInicio[28].$columnaInicioPivot, $registro->observaciones_devolucion_prestador);
-                $active_sheet->setCellValue($celdaInicio[29].$columnaInicioPivot, !isset($registro->id) || empty($registro->id) ? "" : $registro->id);
-
-                $columnaInicioPivot += 1;
-            }
-            $active_sheet->getStyle($celdaInicio[10].$columnaInicio.':'.$celdaInicio[10].$columnaInicioPivot)->getNumberFormat()->setFormatCode('"$"#,##0.00');
-            
-            $rangoSumaNumeroCasos = $celdaInicio[9].$columnaInicio.':'.$celdaInicio[9].$columnaInicioPivot-1;
-            $rangoSumaMontoPlanilla = $celdaInicio[10].$columnaInicio.':'.$celdaInicio[10].$columnaInicioPivot-1;
-            $active_sheet->setCellValue($celdaInicio[9].$columnaInicioPivot , '=SUM('.$rangoSumaNumeroCasos.')');
-            $active_sheet->setCellValue($celdaInicio[10].$columnaInicioPivot , '=SUM('.$rangoSumaMontoPlanilla.')');
-
-            $active_sheet->getStyle($celdaInicio[9].$columnaInicioPivot.':'.$celdaInicio[10].$columnaInicioPivot)->getFont()->setBold(true)->setSize(16);
-            */
             
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
             $filename = "reporte.xlsx";
@@ -991,7 +924,7 @@ class ReportesController extends Controller
         $filtroDescripcionSearch = $request->descripcion_search;
         $filtroFechaServicioDesdeSearch = $request->fecha_servicio_desde_search;
         $filtroFechaServicioHastaSearch = $request->fecha_servicio_hasta_search;
-        $filtroTipoTramiteIdSearch = json_decode($request->tipo_tramite_id_search, true);
+        $vfiltroTipoTramiteIdSearch = json_decode($request->tipo_tramite_id_search, true);
         $filtroPeriodoSearch = $request->periodo_search;
         $filtroNumeroQuipuxSearch = $request->numero_quipux_search;
         $filtroResponsableSearch = json_decode($request->responsable_id_search, true);
