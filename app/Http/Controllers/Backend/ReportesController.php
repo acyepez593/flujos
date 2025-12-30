@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OficioRequest;
 use App\Models\Admin;
+use App\Models\Beneficiario;
 use App\Models\CamposPorProceso;
 use App\Models\Catalogo;
 use App\Models\ConfiguracionCamposReporte;
@@ -193,12 +194,21 @@ class ReportesController extends Controller
         if(isset($filtrosSearch) && !empty($filtrosSearch)){
             foreach($filtrosSearch as $filtro){
                 if($filtro['valor_filtro'] != ""){
-                    $tramites = $tramites->whereJSONContains('datos->data->VICTIMA->numero_documento',$filtro['valor_filtro']);
+                    $tramites = $tramites->whereJSONContains('datos->data->'. $filtro['nombre_seccion'] .'->' . $filtro['campo'],$filtro['valor_filtro']);
                 }
             }
         }
         
         $tramites = $tramites->orderBy('id', 'asc')->get();
+
+        $tramitesIds = [];
+        $tramitesObj = [];
+        foreach ($tramites as $tramite) {
+            $tramitesIds[] = $tramite->id;
+            $tramitesObj[$tramite->id] = $tramite;
+        }
+
+        $beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds)->get();
 
         $tiposCatalogos = TipoCatalogo::get(['id', 'nombre', 'tipo_catalogo_relacionado_id']);
         $catalogos = Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id']);
@@ -226,50 +236,43 @@ class ReportesController extends Controller
 
             foreach ($headers as $index => $header) {
                 $active_sheet->setCellValue($celdaInicio[$index].'1', $header);
-                //$active_sheet->getColumnDimension($celdaInicio[$index])->setAutoSize(true);
+                $active_sheet->getColumnDimension($celdaInicio[$index])->setAutoSize(true);
             }
             $sourceStyle = $active_sheet->getStyle('A1')->exportArray();
             $active_sheet->getStyle('A1'.':'.$celdaInicio[count($headers)-1].'1')->applyFromArray($sourceStyle);
-            $entro = 'NO';
 
-            foreach ($tramites as $tramite) {
-                $camposTramite = json_decode($tramite['datos'], true);
+            foreach ($beneficiarios as $beneficiario) {
+                $beneficiario['tramite'] = $tramitesObj[$beneficiario->tramite_id];
+                $camposTramite = json_decode($beneficiario['tramite']['datos'], true);
                 $columnaInicioPivot = 0;
-                
-                if($secciones[$index] == 'BENEFICIARIOS'){
-                    $entro = 'SI';
-                    $beneficiarios = $camposTramite['data'][$secciones[$index]];
-                    foreach($beneficiarios as $beneficiario){
-                        $columnaInicioPivot = 0;
-                        foreach($listadoCampos as $index => $campo){
-                            if(isset($tiposCampos[$index])){
-                                switch ($tiposCampos[$index]) {
-                                    case 'text':
-                                        $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) || !isset($beneficiario[$campo]) || empty($beneficiario[$campo]) ? "" : json_encode($beneficiario));
-                                        break;
-                                    case 'date':
-                                        $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) || !isset($beneficiario[$campo]) || empty($beneficiario[$campo]) ? "" : $beneficiario[$campo]);
-                                        break;
-                                    case 'number':
-                                        $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) || !isset($beneficiario[$campo]) || empty($beneficiario[$campo]) ? "" : $beneficiario[$campo]);
-                                        break;
-                                    case 'email':
-                                        $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) || !isset($beneficiario[$campo]) || empty($beneficiario[$campo]) ? "" : $beneficiario[$campo]);
-                                        break;
-                                    case 'file':
-                                        $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) || !isset($beneficiario[$campo]) || empty($beneficiario[$campo]) ? "" : $beneficiario[$campo]);
-                                        break;
-                                    case 'select':
-                                        $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) || !isset($beneficiario[$campo]) || empty($beneficiario[$campo]) ? "" : $catalogosTemp[$beneficiario[$campo]]);
-                                        break;
-                                }
-                                $columnaInicioPivot += 1;
+
+                foreach($listadoCampos as $index => $campo){
+                    if($secciones[$index] == 'BENEFICIARIOS'){
+                        $datosBeneficiario = json_decode($beneficiario['datos'], true);
+                        if(isset($tiposCampos[$index])){
+                            switch ($tiposCampos[$index]) {
+                                case 'text':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'date':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'number':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'email':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'file':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'select':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $catalogosTemp[$datosBeneficiario[$campo]]);
+                                    break;
                             }
+                            $columnaInicioPivot += 1;
                         }
-                        $filaInicioPivot += 1;
-                    }
-                }else{
-                    foreach($listadoCampos as $index => $campo){
+                    }else{
                         switch ($tiposCampos[$index]) {
                             case 'text':
                                 $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
@@ -295,78 +298,6 @@ class ReportesController extends Controller
                 }
                 $filaInicioPivot += 1;
             }
-
-            $active_sheet->setCellValue($celdaInicio[0].$filaInicioPivot, $entro);
-            $active_sheet->setCellValue($celdaInicio[0].$filaInicioPivot+1, json_encode($secciones));
-            
-
-            /*foreach ($tramites as $tramite) {
-                $camposTramite = json_decode($tramite['datos'], true);
-                $columnaInicioPivot = 0;
-                foreach($listadoCampos as $index => $campo){
-                    if($secciones[$index] == 'BENEFICIARIOS'){
-                            if(isset($tiposCampos[$key])){
-                                switch ($tiposCampos[$key]) {
-                                    case 'text':
-                                        $active_sheet->setCellValue($celdaInicio[$col].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) ? "" : $key);
-                                        break;
-                                    case 'date':
-                                        $active_sheet->setCellValue($celdaInicio[$col].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) ? "" : $key);
-                                        break;
-                                    case 'number':
-                                        $active_sheet->setCellValue($celdaInicio[$col].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) ? "" : $key);
-                                        break;
-                                    case 'email':
-                                        $active_sheet->setCellValue($celdaInicio[$col].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) ? "" : $key);
-                                        break;
-                                    case 'file':
-                                        $active_sheet->setCellValue($celdaInicio[$col].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) ? "" : $key);
-                                        break;
-                                    case 'select':
-                                        $active_sheet->setCellValue($celdaInicio[$col].$filaInicioPivot, !isset($beneficiario) || empty($beneficiario) ? "" : $key);
-                                        break;
-                                }
-                                $col+=1;
-                            }
-                            
-                            $filaInicioPivot += 1;
-                        }
-                        //$filaInicioPivot += 1;
-                    }else{
-
-                        switch ($tiposCampos[$index]) {
-                            case 'text':
-                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
-                                break;
-                            case 'date':
-                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
-                                break;
-                            case 'number':
-                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
-                                break;
-                            case 'email':
-                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
-                                break;
-                            case 'file':
-                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
-                                break;
-                            case 'select':
-                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $catalogosTemp[$camposTramite['data'][$secciones[$index]][$campo]]);
-                                break;
-                        }
-                    }
-                    
-                    $maxWidth = 50;
-                    $colWidth = $active_sheet->getColumnDimensions($celdaInicio[$index]);
-                    if ($colWidth > $maxWidth) {
-                        //$active_sheet->getColumnDimension($celdaInicio[$index])->setAutoSize(false)->setWidth($maxWidth);
-                        //$colDim->setAutoSize(false);
-                        //$colDim->setWidth($maxWidth);
-                    }
-                    $columnaInicioPivot += 1;
-                }
-                $filaInicioPivot += 1;
-            }*/
             
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
             $filename = "reporte.xlsx";
