@@ -209,8 +209,7 @@ class ReportesController extends Controller
         }
 
         $beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds)->get();
-
-        $tiposCatalogos = TipoCatalogo::get(['id', 'nombre', 'tipo_catalogo_relacionado_id']);
+        
         $catalogos = Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id']);
         $catalogosTemp = [];
         foreach($catalogos as $catalogo){
