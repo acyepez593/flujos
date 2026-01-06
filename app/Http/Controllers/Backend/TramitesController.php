@@ -494,7 +494,7 @@ class TramitesController extends Controller
 
             foreach($tramitesPorUsuario as $tramitePorUsuario){
                 $numTramites = count($tramitePorUsuario);
-                $this->enviarCorreo($secuencia_proceso_id, $tramitePorUsuario[0], strval($numTramites));
+                //$this->enviarCorreo($secuencia_proceso_id, $tramitePorUsuario[0], strval($numTramites));
             }
 
             return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
