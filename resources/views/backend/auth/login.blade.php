@@ -13,7 +13,7 @@
                     @csrf
                     <div class="login-form-head">
                         <h4>Inicio de Sesión</h4>
-                        <p>Por favor iniciar sessión</p>
+                        <p>Por favor iniciar sesión</p>
                     </div>
                     <div class="login-form-body">
                         @include('backend.layouts.partials.messages')

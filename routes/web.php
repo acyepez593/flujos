@@ -38,40 +38,40 @@ Auth::routes();
 
 Route::get('/', 'HomeController@redirectAdmin')->name('index');
 Route::get('/home', 'HomeController@index')->name('home');
-/*Route::post('/getReporteByFilters','backend\ReportesController@getReporteByFilters')->middleware('auth:admin');
+/*Route::post('/getReporteByFilters',[ReportesController::class, 'getReporteByFilters'])->middleware('auth:admin');
 */
 
 /*Route::get('tramites/{id}/edit', [TramitesController::class, 'edit'])->name('tramites.edit')->middleware('auth:admin');
 Route::put('tramites/{id}/edit', [TramitesController::class, 'update'])->name('tramites.update')->middleware('auth:admin');
 */
-Route::post('/getProcesosByFilters','backend\ProcesosController@getProcesosByFilters')->middleware('auth:admin');
+Route::post('/getProcesosByFilters',[ProcesosController::class, 'getProcesosByFilters'])->middleware('auth:admin');
 
-Route::post('/getSecuenciaProcesosByFilters/{proceso_id}','backend\SecuenciaProcesosController@getSecuenciaProcesosByFilters')->middleware('auth:admin');
+Route::post('/getSecuenciaProcesosByFilters/{proceso_id}',[SecuenciaProcesosController::class, 'getSecuenciaProcesosByFilters'])->middleware('auth:admin');
 
-Route::post('/getCamposPorProcesosByFilters/{proceso_id}','backend\CamposPorProcesosController@getCamposPorProcesosByFilters')->middleware('auth:admin');
+Route::post('/getCamposPorProcesosByFilters/{proceso_id}',[CamposPorProcesosController::class, 'getCamposPorProcesosByFilters'])->middleware('auth:admin');
 
-Route::post('/getSecuenciaProcesosByProceso','backend\SecuenciaProcesosController@getSecuenciaProcesosByProceso')->middleware('auth:admin');
+Route::post('/getSecuenciaProcesosByProceso',[SecuenciaProcesosController::class, 'getSecuenciaProcesosByProceso'])->middleware('auth:admin');
 
-Route::post('/getBandejaTramitesByFilters','backend\TramitesController@getBandejaTramitesByFilters')->middleware('auth:admin');
-Route::post('/getTramitesByFilters','backend\TramitesController@getTramitesByFilters')->middleware('auth:admin');
-Route::post('/getListaCamposByTramite','backend\TramitesController@getListaCamposByTramite')->middleware('auth:admin');
-Route::post('/getTramitesParaReasignarByFilters','backend\TramitesController@getTramitesParaReasignarByFilters')->middleware('auth:admin');
+Route::post('/getBandejaTramitesByFilters',[TramitesController::class, 'getBandejaTramitesByFilters'])->middleware('auth:admin');
+Route::post('/getTramitesByFilters',[TramitesController::class, 'getTramitesByFilters'])->middleware('auth:admin');
+Route::post('/getListaCamposByTramite',[TramitesController::class, 'getListaCamposByTramite'])->middleware('auth:admin');
+Route::post('/getTramitesParaReasignarByFilters',[TramitesController::class, 'getTramitesParaReasignarByFilters'])->middleware('auth:admin');
 
-Route::post('/getTipoCatalogosByFilters','backend\TipoCatalogosController@getTipoCatalogosByFilters')->middleware('auth:admin');
-Route::post('/getCatalogosByFilters','backend\CatalogosController@getCatalogosByFilters')->middleware('auth:admin');
-Route::post('/getCatalogoByTipoCatalogoId','backend\CatalogosController@getCatalogoByTipoCatalogoId')->middleware('auth:admin');
+Route::post('/getTipoCatalogosByFilters',[TipoCatalogosController::class, 'getTipoCatalogosByFilters'])->middleware('auth:admin');
+Route::post('/getCatalogosByFilters',[CatalogosController::class, 'getCatalogosByFilters'])->middleware('auth:admin');
+Route::post('/getCatalogoByTipoCatalogoId',[CatalogosController::class, 'getCatalogoByTipoCatalogoId'])->middleware('auth:admin');
 
-/*Route::post('/getSeccionPantallasByFilters','backend\SeccionPantallasController@getSeccionPantallasByFilters')->middleware('auth:admin');
+/*Route::post('/getSeccionPantallasByFilters',[SeccionPantallasController::class, 'getSeccionPantallasByFilters'])->middleware('auth:admin');
 
-Route::post('/getConfiguracionesValidacion','backend\ConfiguracionesValidacionController@getConfiguracionesValidacion')->middleware('auth:admin');
-Route::post('/getLogsConfiguracionesValidacion','backend\LogsConfiguracionesValidacionController@getLogsConfiguracionesValidacion')->middleware('auth:admin');
+Route::post('/getConfiguracionesValidacion',[ConfiguracionesValidacionController::class, 'getConfiguracionesValidacion'])->middleware('auth:admin');
+Route::post('/getLogsConfiguracionesValidacion',[LogsConfiguracionesValidacionController::class, 'getLogsConfiguracionesValidacion'])->middleware('auth:admin');
 */
-Route::post('/getConfiguracionesCamposReporteByFilters','backend\ConfiguracionesCamposReporteController@getConfiguracionesCamposReporteByFilters')->middleware('auth:admin');
-Route::post('/getCamposPorProceso','backend\ConfiguracionesCamposReporteController@getCamposPorProceso')->middleware('auth:admin');
-Route::post('/consultarSCI','backend\TramitesController@consultarSCI')->middleware('auth:admin');
-Route::post('/getTiposReporteByProcesoId','backend\ReportesController@getTiposReporteByProcesoId')->middleware('auth:admin');
-Route::post('/getCamposByTipoReporte','backend\ReportesController@getCamposByTipoReporte')->middleware('auth:admin');
-Route::post('/generarReporteByTipoReporte','backend\ReportesController@generarReporteByTipoReporte')->middleware('auth:admin');
+Route::post('/getConfiguracionesCamposReporteByFilters',[ConfiguracionesCamposReporteController::class, 'getConfiguracionesCamposReporteByFilters'])->middleware('auth:admin');
+Route::post('/getCamposPorProceso',[ConfiguracionesCamposReporteController::class, 'getCamposPorProceso'])->middleware('auth:admin');
+Route::post('/consultarSCI',[TramitesController::class, 'consultarSCI'])->middleware('auth:admin');
+Route::post('/getTiposReporteByProcesoId',[ReportesController::class, 'getTiposReporteByProcesoId'])->middleware('auth:admin');
+Route::post('/getCamposByTipoReporte',[ReportesController::class, 'getCamposByTipoReporte'])->middleware('auth:admin');
+Route::post('/generarReporteByTipoReporte',[ReportesController::class, 'generarReporteByTipoReporte'])->middleware('auth:admin');
 
 /**
  * Admin routes
