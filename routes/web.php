@@ -11,6 +11,7 @@ use App\Http\Controllers\Backend\CatalogosController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\RolesController;
 use App\Http\Controllers\Backend\ConfiguracionesCamposReporteController;
+use App\Http\Controllers\Backend\ConsultaCiudadanaTramitesController;
 use App\Http\Controllers\Backend\PantallasController;
 use App\Http\Controllers\Backend\ProcesosController;
 use App\Http\Controllers\Backend\ReportesController;
@@ -72,6 +73,9 @@ Route::post('/consultarSCI',[TramitesController::class, 'consultarSCI'])->middle
 Route::post('/getTiposReporteByProcesoId',[ReportesController::class, 'getTiposReporteByProcesoId'])->middleware('auth:admin');
 Route::post('/getCamposByTipoReporte',[ReportesController::class, 'getCamposByTipoReporte'])->middleware('auth:admin');
 Route::post('/generarReporteByTipoReporte',[ReportesController::class, 'generarReporteByTipoReporte'])->middleware('auth:admin');
+
+Route::get('/consultaCiudadanaTramites', [ConsultaCiudadanaTramitesController::class, 'index'])->name('consultaCiudadanaTramites.index');
+Route::post('/consultaTramiteSppat',[ConsultaCiudadanaTramitesController::class, 'getTrazabilidadByTramite']);
 
 /**
  * Admin routes
