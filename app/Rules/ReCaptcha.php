@@ -43,19 +43,8 @@ class ReCaptcha implements ValidationRule
         );
 
         if (!json_decode($response->body(), true)['success']) {
-            $fail('El campo reCAPTCHA es invalido.');
+            $fail('El campo ReCAPTCHA es invalido.');
         }
-
-        /*$response = Http::withOptions([
-            'verify' => false,
-        ])->get("https://www.google.com/recaptcha/api/siteverify",[
-                'secret' => env('GOOGLE_RECAPTCHA_SECRET'),
-                'response' => $recaptcha_response
-            ]);
-
-        if($response['success'] == false){
-            $fail('El campo reCAPTCHA es invalido.');
-        }*/
           
     }
 }

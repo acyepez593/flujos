@@ -57,64 +57,43 @@ class ConsultaCiudadanaTramitesController extends Controller
                 'g_recaptcha' => ['required', new ReCaptcha($recaptchaResponse)],
             ]);
 
-
-            /*$validator = Validator::make($request->all(), [
-                'g_recaptcha' => ['required', new ReCaptcha($recaptchaResponse)],
-            ]);
-
-            if ($validator->fails()) {
-                $errors = $validator->errors()->getMessages();            
-                $clientErrors = array();
-                foreach ($errors as $key => $value) {
-                    $clientErrors[$key] = $value[0];
-                }
-                $response = array(
-                    'status' => 'error',
-                    'response_code' => 201,
-                    'errors' => $clientErrors
-                );
-                return response()->json($response);
-            } else {
-                $validator->validate();
-                $response = array(
-                    'status' => 'success',
-                    'response_code' => 200
-                );
-                return response()->json($response);
-            }*/
-
-
-
             $tramiteId = $request->tramite_id;
-            $tramite = Tramite::findOrFail($tramiteId);
-            $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
-            $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
-            $secuenciasProceso = $secuenciaProceso->get();
+            $tramite = Tramite::find($tramiteId);
+            if(!is_null($tramite)){
+                $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
+                $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
+                $secuenciasProceso = $secuenciaProceso->get();
 
-            $data['listaCampos'] = $listaCampos;
+                $data['listaCampos'] = $listaCampos;
 
-            $trazabilidad_tramite = TrazabilidadTramite::where('tramite_id', $tramiteId)->whereIn('tipo',['CREACION','CAMBIO SECCION','CONDICINAL','FINALIZACION'])->get(["id","secuencia_proceso_id","funcionario_actual_id","estatus","tipo","created_at"]);
+                $trazabilidad_tramite = TrazabilidadTramite::where('tramite_id', $tramiteId)->whereIn('tipo',['CREACION','CAMBIO SECCION','CONDICINAL','FINALIZACION'])->get(["id","secuencia_proceso_id","funcionario_actual_id","estatus","tipo","created_at"]);
 
-            $secuencias_proceso_temp = [];
-            foreach($secuenciasProceso as $secuencia){
-                $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+                $secuencias_proceso_temp = [];
+                foreach($secuenciasProceso as $secuencia){
+                    $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+                }
+
+                $funcionarios = Admin::all();
+
+                $funcionarios_temp = [];
+                foreach($funcionarios as $creador){
+                    $funcionarios_temp[$creador->id] = $creador->name;
+                }
+
+                foreach($trazabilidad_tramite as $trazabilidad){
+                    $trazabilidad->secuencia_proceso_nombre = array_key_exists($trazabilidad->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$trazabilidad->secuencia_proceso_id] : "";
+                    $trazabilidad->funcionario_actual_nombre = array_key_exists($trazabilidad->funcionario_actual_id, $funcionarios_temp) ? $funcionarios_temp[$trazabilidad->funcionario_actual_id] : "";
+                }
+
+                $data['trazabilidad'] = $trazabilidad_tramite;
+
+                return response()->json($data);
+            }else{
+                $data['status'] = 500;
+                $data['message'] = '¡Trámite no encontrado!';
+                return response()->json($data, 500);
             }
-
-            $funcionarios = Admin::all();
-
-            $funcionarios_temp = [];
-            foreach($funcionarios as $creador){
-                $funcionarios_temp[$creador->id] = $creador->name;
-            }
-
-            foreach($trazabilidad_tramite as $trazabilidad){
-                $trazabilidad->secuencia_proceso_nombre = array_key_exists($trazabilidad->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$trazabilidad->secuencia_proceso_id] : "";
-                $trazabilidad->funcionario_actual_nombre = array_key_exists($trazabilidad->funcionario_actual_id, $funcionarios_temp) ? $funcionarios_temp[$trazabilidad->funcionario_actual_id] : "";
-            }
-
-            $data['trazabilidad'] = $trazabilidad_tramite;
-
-            return response()->json($data);
+            
             
         }catch (ErrorException $e) {
             $data['status'] = 500;
