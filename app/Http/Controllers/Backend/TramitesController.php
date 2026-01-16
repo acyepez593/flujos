@@ -182,7 +182,6 @@ class TramitesController extends Controller
         $listaCampos = json_decode($listaCampos, true);
         foreach($listaCampos as $lista){
             $obj = [];
-            
             if($lista['tipo_campo'] == 'file'){
                 $obj['id'] = $lista['id'];
                 $obj['seccion_campo'] = $lista['seccion_campo'];
@@ -192,6 +191,11 @@ class TramitesController extends Controller
         }
 
         $data = json_decode($datos, true)['data'];
+
+        $activeFiles = [];
+        foreach($camposDeTipoArchivo as $campo){
+            $activeFiles[] = $data[$campo['seccion_campo']][$campo['variable']];
+        }
 
         /*$files = [];
         
@@ -213,7 +217,7 @@ class TramitesController extends Controller
             //$file->save();
         }*/
 
-        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '. json_encode($camposDeTipoArchivo)));
+        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '. json_encode($activeFiles)));
         return redirect()->route('admin.tramites.inbox');
     }
 
