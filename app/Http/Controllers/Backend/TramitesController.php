@@ -12,6 +12,7 @@ use App\Models\Admin;
 use App\Models\Beneficiario;
 use App\Models\CamposPorProceso;
 use App\Models\Catalogo;
+use App\Models\File;
 use App\Models\Proceso;
 use App\Models\Tramite;
 use App\Models\SecuenciaProceso;
@@ -149,19 +150,21 @@ class TramitesController extends Controller
         $tramite->datos = $datos;
         $tramite->estatus = $estatus;
         $tramite->creado_por = $creado_por;
-        $tramite->save();
+        //$tramite->save();
 
         $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
         foreach($beneficiarios as $ben){
             $beneficiario = new Beneficiario();
-            $beneficiario->tramite_id = $tramite->id;
+            //$beneficiario->tramite_id = $tramite->id;
+            $beneficiario->tramite_id = 2;
             $beneficiario->datos =json_encode($ben);
             $beneficiario->creado_por = $creado_por;
-            $beneficiario->save();
+            //$beneficiario->save();
         }
 
         $trazabilidad_tramite = new TrazabilidadTramite();
-        $trazabilidad_tramite->tramite_id = $tramite->id;
+        //$trazabilidad_tramite->tramite_id = $tramite->id;
+        $trazabilidad_tramite->tramite_id = 2;
         $trazabilidad_tramite->proceso_id = $proceso_id;
         $trazabilidad_tramite->secuencia_proceso_id = $secuencia_proceso_id;
         $trazabilidad_tramite->funcionario_actual_id = $funcionario_actual_id;
@@ -169,9 +172,48 @@ class TramitesController extends Controller
         $trazabilidad_tramite->estatus = $estatus;
         $trazabilidad_tramite->creado_por = $creado_por;
         $trazabilidad_tramite->tipo = 'CREACION';
-        $trazabilidad_tramite->save();
+        //$trazabilidad_tramite->save();
 
-        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '));
+        $secuenciaProceso = SecuenciaProceso::find($secuencia_proceso_id);
+        $configuracionSecuencia = $secuenciaProceso->configuracion;
+        $listaCampos = $secuenciaProceso->configuracion_campos;
+
+        $camposDeTipoArchivo = [];
+        $listaCampos = json_decode($listaCampos, true);
+        foreach($listaCampos as $lista){
+            $obj = [];
+            
+            if($lista['tipo_campo'] == 'file'){
+                $obj['id'] = $lista['id'];
+                $obj['seccion_campo'] = $lista['seccion_campo'];
+                $obj['variable'] = $lista['variable'];
+                $camposDeTipoArchivo[] = $obj;
+            }
+        }
+
+        $data = json_decode($datos, true)['data'];
+
+        /*$files = [];
+        
+        if ($request->hasFile('files')){
+            foreach($request->file('files') as $file) {
+                
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/oficios'), $fileName);
+                $files[] = ['name' => $fileName];
+            }
+        }
+  
+        foreach ($files as $fileData) {
+            $file = new File();
+            $file->name = $fileData['name'];
+            $file->proceos_id = $proceso_id;
+            $file->tramite_id = $tramite->id;
+            //$file->variable = 
+            //$file->save();
+        }*/
+
+        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '. json_encode($camposDeTipoArchivo)));
         return redirect()->route('admin.tramites.inbox');
     }
 
@@ -494,7 +536,7 @@ class TramitesController extends Controller
 
             foreach($tramitesPorUsuario as $tramitePorUsuario){
                 $numTramites = count($tramitePorUsuario);
-                //$this->enviarCorreo($secuencia_proceso_id, $tramitePorUsuario[0], strval($numTramites));
+                $this->enviarCorreo($secuencia_proceso_id, $tramitePorUsuario[0], strval($numTramites));
             }
 
             return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);

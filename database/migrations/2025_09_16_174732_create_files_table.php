@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('files', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->unsignedBigInteger('secuencia_proceso_id');
-            $table->index('secuencia_proceso_id');
+            $table->foreignId('proceso_id')->constrained('procesos');
             $table->foreignId('tramite_id')->constrained('tramites');
+            $table->string('variable');
+            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIOS', 'MEDICA', 'FINANCIERO']);
             $table->softDeletes();
             $table->timestamps();
         });
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('files_fallecimientos');
+        Schema::dropIfExists('files');
     }
 };

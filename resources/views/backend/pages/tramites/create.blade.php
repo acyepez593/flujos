@@ -253,7 +253,7 @@ Crear Trámite - Admin Panel
             for (let seccion in camposPorSeccion) {
                 generarDataObjeto(seccion);
             }
-            $('#form').submit();
+            //$('#form').submit();
             
         });
 
@@ -790,7 +790,9 @@ Crear Trámite - Admin Panel
 
         }else{
             $('#' + seccion).find("input, select").each(function() {
-                objeto.data[seccion][$(this).attr('name')] = $(this).val();
+                if($(this).attr('name') != undefined){
+                    objeto.data[seccion][$(this).attr('name')] = $(this).val();
+                }
             });
         }
 
