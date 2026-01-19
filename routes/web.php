@@ -77,6 +77,8 @@ Route::post('/generarReporteByTipoReporte',[ReportesController::class, 'generarR
 Route::get('/consultaCiudadanaTramites', [ConsultaCiudadanaTramitesController::class, 'index'])->name('consultaCiudadanaTramites.index');
 Route::post('/consultaTramiteSppat',[ConsultaCiudadanaTramitesController::class, 'getTrazabilidadByTramite']);
 
+Route::get('files/{fileName}', [TramitesController::class, 'download'])->name('download')->middleware('auth:admin');
+
 /**
  * Admin routes
  */

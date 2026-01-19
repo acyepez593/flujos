@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('proceso_id')->constrained('procesos');
             $table->foreignId('tramite_id')->constrained('tramites');
+            $table->unsignedBigInteger('beneficiario_id')->nullable();
+            $table->index('beneficiario_id');
             $table->string('variable');
             $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIOS', 'MEDICA', 'FINANCIERO']);
             $table->softDeletes();

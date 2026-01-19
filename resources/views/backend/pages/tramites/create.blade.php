@@ -272,8 +272,6 @@ Crear Trámite - Admin Panel
     let tiposCatalogos = '{{$tiposCatalogos}}';
     tiposCatalogos = tiposCatalogos.replace(/&quot;/g, '"');
     tiposCatalogos = JSON.parse(tiposCatalogos);
-    console.log('tiposCatalogos');
-    console.log(tiposCatalogos);
     
     let catalogos = '{{$catalogos}}';
     catalogos = catalogos.replace(/&quot;/g, '"');
@@ -282,8 +280,6 @@ Crear Trámite - Admin Panel
     let catalogosRelacionadosByTipoCatalogo = '{{$catalogosRelacionadosByTipoCatalogo}}';
     catalogosRelacionadosByTipoCatalogo = catalogosRelacionadosByTipoCatalogo.replace(/&quot;/g, '"');
     catalogosRelacionadosByTipoCatalogo = JSON.parse(catalogosRelacionadosByTipoCatalogo);
-    console.log('catalogosRelacionadosByTipoCatalogo');
-    console.log(catalogosRelacionadosByTipoCatalogo);
 
     let catalogosRelacionadosIds = [];
     let catalogosRelacionadosVariables = [];
@@ -295,8 +291,6 @@ Crear Trámite - Admin Panel
     let catalogosByCatalogoId = '{{$catalogosByCatalogoId}}';
     catalogosByCatalogoId = catalogosByCatalogoId.replace(/&quot;/g, '"');
     catalogosByCatalogoId = JSON.parse(catalogosByCatalogoId);
-    console.log('catalogosByCatalogoId');
-    console.log(catalogosByCatalogoId);
 
     let countBeneficiario = 1;
     let id_beneficiario = 0;
@@ -337,7 +331,7 @@ Crear Trámite - Admin Panel
                 }
                 html_components += '<div class="form-row">';
 
-                html_components += contruirCampos(count,long,seccion);
+                html_components += contruirCampos(count,long,seccion, countBeneficiario);
 
                 html_components += '</div>';
                 if(seccion == 'BENEFICIARIOS'){
@@ -350,7 +344,7 @@ Crear Trámite - Admin Panel
         $("#creacionTramite").append(html_components);
     }
 
-    function contruirCampos(count,long,seccion){
+    function contruirCampos(count,long,seccion, countBen){
         let html_components = '';
         for (let campo of camposPorSeccion[seccion]) {
             switch (campo.tipo_campo) {
@@ -505,6 +499,7 @@ Crear Trámite - Admin Panel
                         }else if(!campo.editable && !campo.requerido){
                             html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
                         }
+                        html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" style="display:none;">';
 
                         if(long == count){
                             html_components += '</div></div></div></div>';
@@ -617,7 +612,7 @@ Crear Trámite - Admin Panel
         '<div class="card-body">'+
         '<div class="form-row">';
 
-        html_components += contruirCampos(count,long,seccion);
+        html_components += contruirCampos(count,long,seccion, countBeneficiario);
 
         html_components += '</div></div></div>';
 
@@ -779,11 +774,15 @@ Crear Trámite - Admin Panel
                 let separador = id.split('_');
 
                 if(objeto.data[seccion][separador[1] - 1] !== undefined){
-                    objeto.data[seccion][separador[1]-1][$(this).attr('name')] = $(this).val();
+                    if($(this).attr('name') != undefined){
+                        objeto.data[seccion][separador[1]-1][$(this).attr('name')] = $(this).val();
+                    }
                 }else{
-                    let cloneObj = { ...objBeneficiarios };
-                    objeto.data[seccion].push(cloneObj);
-                    objeto.data[seccion][separador[1]-1][$(this).attr('name')] = $(this).val();
+                    if($(this).attr('name') != undefined){
+                        let cloneObj = { ...objBeneficiarios };
+                        objeto.data[seccion].push(cloneObj);
+                        objeto.data[seccion][separador[1]-1][$(this).attr('name')] = $(this).val();
+                    }
                 }
                 
             });
