@@ -153,12 +153,14 @@ class TramitesController extends Controller
         $tramite->save();
 
         $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
+        $benIds=[];
         foreach($beneficiarios as $ben){
             $beneficiario = new Beneficiario();
             $beneficiario->tramite_id = $tramite->id;
             $beneficiario->datos =json_encode($ben);
             $beneficiario->creado_por = $creado_por;
             $beneficiario->save();
+            array_push($benIds, $beneficiario->id);
         }
 
         $trazabilidad_tramite = new TrazabilidadTramite();
@@ -190,30 +192,59 @@ class TramitesController extends Controller
 
         $data = json_decode($datos, true)['data'];
 
-        $files = [];
         foreach($camposDeTipoArchivo as $campo){
-            if($data[$campo['seccion_campo']][$campo['variable']] != ""){
-                $activieFile = $campo['variable'];
-                if ($request->hasFile($activieFile)){
-                    $file = $request->file($activieFile);
-                    $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $file->move(public_path('uploads/tramites'), $fileName);
-                    $files[] = ['name' => $fileName];
+            $files = [];
+            $test = '0';
+            if($campo['seccion_campo'] == 'BENEFICIARIOS'){
+                $datosBen = json_decode($request->datosBen, true);
+                foreach($datosBen as $index => $ben){
+                    $partes = explode("_", $ben['id_ben']);
+                    $activeFile = $campo['variable'].'_'.$partes[1];
+                    $test = $activeFile;
+                    if ($request->hasFile($activeFile)){
+                        $test = '1';
+                        $file = $request->file($activeFile);
+                        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $file->move(public_path('uploads/tramites'), $fileName);
+                        $files[] = ['name' => $fileName];
+                    }
+            
+                    foreach ($files as $fileData) {
+                        $file = new File();
+                        $file->name = $fileData['name'];
+                        $file->proceso_id = $proceso_id;
+                        $file->tramite_id = $tramite->id;
+                        $file->beneficiario_id = $benIds[$index];
+                        $file->variable = $campo['variable'];
+                        $file->seccion_campo = $campo['seccion_campo'];
+                        $file->save();
+                    }
                 }
-        
-                foreach ($files as $fileData) {
-                    $file = new File();
-                    $file->name = $fileData['name'];
-                    $file->proceso_id = $proceso_id;
-                    $file->tramite_id = $tramite->id;
-                    $file->variable = $activieFile;
-                    $file->seccion_campo = $campo['seccion_campo'];
-                    $file->save();
+            }else{
+                if($data[$campo['seccion_campo']][$campo['variable']] != ""){
+                    $activeFile = $campo['variable'];
+                    if ($request->hasFile($activeFile)){
+                        $file = $request->file($activeFile);
+                        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $file->move(public_path('uploads/tramites'), $fileName);
+                        $files[] = ['name' => $fileName];
+                    }
+            
+                    foreach ($files as $fileData) {
+                        $file = new File();
+                        $file->name = $fileData['name'];
+                        $file->proceso_id = $proceso_id;
+                        $file->tramite_id = $tramite->id;
+                        $file->variable = $activeFile;
+                        $file->seccion_campo = $campo['seccion_campo'];
+                        $file->save();
+                    }
                 }
             }
+            
         }
 
-        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '));
+        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '. json_encode($camposDeTipoArchivo) . '----' .json_encode($datosBen) . '--' . $test));
         return redirect()->route('admin.tramites.inbox'); 
     }
 

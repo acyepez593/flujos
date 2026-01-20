@@ -136,6 +136,7 @@ Crear Trámite - Admin Panel
                         
                         <input type="hidden" id="secuencia_proceso_id" name="secuencia_proceso_id">
                         <input type="hidden" id="datos" name="datos">
+                        <input type="hidden" id="datosBen" name="datosBen">
                         <button type="button" id="guardar" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
@@ -294,6 +295,7 @@ Crear Trámite - Admin Panel
 
     let countBeneficiario = 1;
     let id_beneficiario = 0;
+    let objBen = [];
 
     function renderFormPorSecuenciaProceso(){
         let html_components = "";
@@ -769,23 +771,49 @@ Crear Trámite - Admin Panel
 
     function generarDataObjeto(seccion){
         if(seccion == 'BENEFICIARIOS'){
+            objBen = [];
+            objeto.data[seccion] = [];
+            let clone = { ...objBeneficiarios };
+            objeto.data[seccion].push(clone);
+
+            let pos = 0;
+            let posBen = [];
+
             $('#' + seccion).find("input, select").each(function() {
                 let id = $(this).parents('.card').attr('id');
                 let separador = id.split('_');
+                let objTempBen = {};
+                
+                if (!posBen.includes(id)) {
+                    posBen.push(id);
+                }
+                let index = posBen.indexOf(id);
 
-                if(objeto.data[seccion][separador[1] - 1] !== undefined){
+                if(objeto.data[seccion][index] !== undefined){
                     if($(this).attr('name') != undefined){
-                        objeto.data[seccion][separador[1]-1][$(this).attr('name')] = $(this).val();
+                        
+                        if(objeto.data[seccion][index][$(this).attr('name')] !== undefined){
+                            objeto.data[seccion][index][$(this).attr('name')] = $(this).val();
+                            if(camposPorSeccion[seccion].filter(campo => campo.variable === $(this).attr('name'))[0].tipo_campo == 'file'){
+                                objTempBen.seccion_campo = seccion;
+                                objTempBen.variable = $(this).attr('name');
+                                objTempBen.tipo_campo = camposPorSeccion[seccion].filter(campo => campo.variable === $(this).attr('name'))[0].tipo_campo;
+                                objTempBen.id_ben = id;
+                                objTempBen.file_name = $(this).val();
+                                objBen.push(objTempBen);
+                            }
+                        }
                     }
                 }else{
                     if($(this).attr('name') != undefined){
                         let cloneObj = { ...objBeneficiarios };
                         objeto.data[seccion].push(cloneObj);
-                        objeto.data[seccion][separador[1]-1][$(this).attr('name')] = $(this).val();
+                        objeto.data[seccion][index][$(this).attr('name')] = $(this).val();
                     }
                 }
                 
             });
+            console.log(posBen);
 
         }else{
             $('#' + seccion).find("input, select").each(function() {
@@ -796,6 +824,7 @@ Crear Trámite - Admin Panel
         }
 
         $('#datos').val(JSON.stringify(objeto));
+        $('#datosBen').val(JSON.stringify(objBen));
         
     }
     
