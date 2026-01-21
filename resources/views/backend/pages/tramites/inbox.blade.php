@@ -43,6 +43,43 @@
         .is-hide{
             display:none;
         }
+
+        .timeline {
+            background: linear-gradient(to right, transparent 0%, transparent 38px, rgb(230, 230, 230) 38px, rgb(230, 230, 230) 40px, transparent 40px, transparent 100%);
+        }
+        .timeline-icon {
+            background-color: rgb(225, 228, 232);
+            color: #788793;
+        }
+        .timeline-badge {
+            width: 28px;
+            height: 24px;
+            margin-left: 0px;
+            padding: 15px;
+        }
+        .align-items-center {
+            align-items: center !important;
+        }
+
+        .justify-content-center {
+            justify-content: center !important;
+        }
+        .fa-rotate-45 {
+            transform: rotate(45deg);
+        }
+        .fa, .fas, .far, .fal, .fad, .fab {
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
+            display: inline-block;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
+        }
+        .far {
+            font-family: "FontAwesome";
+            font-weight: 400;
+        }
     </style>
 @endsection
 
@@ -172,8 +209,23 @@
                     <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="detalleTramite">
-                    
+                <div class="modal-body">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#datos">Datos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#trazabilidad">Trazabilidad</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane container active" id="datos">
+                            <div id="detalleTramite"></div>
+                        </div>
+                        <div class="tab-pane container fade" id="trazabilidad">
+                            <div id="detalleTrazabilidad"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -492,7 +544,9 @@
         catalogos = catalogos.replace(/&quot;/g, '"');
         catalogos = JSON.parse(catalogos);
 
+        let tramite = [];
         let datos = [];
+        let trazabilidad = [];
         let files = [];
 
         let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
@@ -501,6 +555,7 @@
 
             $("#overlay").fadeIn(300);
             $("#detalleTramite").empty();
+            $("#detalleTrazabilidad").empty();
             html_components = '';
             $.ajax({
                 url: "{{url('/getListaCamposByTramite')}}",
@@ -518,6 +573,9 @@
                     
                     listaCampos = JSON.parse(response.listaCampos);
                     camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
+
+                    trazabilidad = response.trazabilidad;
+                    construirTrazabilidad(trazabilidad);
 
                     html_components += '<div class="accordion" id="accordion">';
             
@@ -572,6 +630,57 @@
                     console.error('Error en la solicitud, por favor vuelva a intentar.');
                 }
             });
+        }
+
+        function construirTrazabilidad(trazabilidad){
+            let html_trazabilidad = '<div class="px-4 mb-2 timeline">';
+
+            for (let traz of trazabilidad) {
+                switch (traz.tipo) {
+                    case "CREACION":
+                        html_trazabilidad += '<div class="py-3 d-flex" read-only="true">'+
+                            '<div class="badge timeline-badge mr-1 rounded d-flex justify-content-center align-items-center timeline-icon">'+
+                                '<i class="far fa-circle fa-2x" style="color: blue;"></i>'+
+                            '</div> '+
+                            '<div class="flex-grow-1">'+
+                                '<strong>'+ moment(traz.created_at).format("YYYY-MM-DD HH:mm")+'</strong> ' + traz.funcionario_actual_nombre + ' creó el trámite.'+
+                            '</div>'+
+                        '</div>';
+                        break;
+                    case "CAMBIO SECCION":
+                        html_trazabilidad += '<div class="py-3 d-flex" read-only="true">'+
+                            '<div class="badge timeline-badge mr-1 rounded d-flex justify-content-center align-items-center timeline-icon">'+
+                                '<i class="far fa-square fa-2x"></i>'+
+                            '</div>'+
+                            '<div class="flex-grow-1">'+
+                                '<strong>'+ moment(traz.created_at).format("YYYY-MM-DD HH:mm")+'</strong> ' + traz.funcionario_actual_nombre + ' recibió el trámite para completar la actividad "' + traz.secuencia_proceso_nombre + '"'+
+                            '</div>'+
+                        '</div>';
+                        break;
+                    case "CONDICIONAL":
+                        html_trazabilidad += '<div class="py-3 d-flex" read-only="true">'+
+                            '<div class="badge timeline-badge mr-1 rounded d-flex justify-content-center align-items-center timeline-icon">'+
+                                '<i class="far fa-square fa-rotate-45 fa-2x"></i>'+
+                            '</div>'+
+                            '<div class="flex-grow-1">'+
+                                '<strong>'+ moment(traz.created_at).format("YYYY-MM-DD HH:mm")+'</strong> ' + traz.funcionario_actual_nombre + ' Aprobar: Si'+
+                            '</div>'+
+                        '</div>';
+                        break;
+                    case "FINALIZACION":
+                        html_trazabilidad += '<div class="py-3 d-flex" read-only="true">'+
+                            '<div class="badge timeline-badge mr-1 rounded d-flex justify-content-center align-items-center timeline-icon">'+
+                                '<i class="far fa-circle fa-2x" style="color: red;"></i>'+
+                            '</div> '+
+                            '<div class="flex-grow-1">'+
+                                '<strong>'+ moment(traz.created_at).format("YYYY-MM-DD HH:mm")+'</strong> Finalizó el trámite.'+
+                            '</div>'+
+                        '</div>';
+                        break;
+                }
+            }
+            html_trazabilidad += '</div>';
+            $("#detalleTrazabilidad").append(html_trazabilidad);
         }
 
         function contruirCampos(count,long,seccion,beneficiario_id=null){

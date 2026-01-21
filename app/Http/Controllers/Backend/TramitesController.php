@@ -198,8 +198,7 @@ class TramitesController extends Controller
                 $datosBen = json_decode($request->datosBen, true);
                 foreach($datosBen as $index => $ben){
                     $filesBen = [];
-                    $partes = explode("_", $ben['id_ben']);
-                    //$activeFile = $campo['variable'].'_'.$partes[1];
+                    
                     $activeFile = $ben['variable'];
                     if ($request->hasFile($activeFile)){
                         

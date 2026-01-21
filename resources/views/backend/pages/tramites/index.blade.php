@@ -264,6 +264,7 @@
         let tableHeaderRef = "";
         let tramites = [];
         let creadores = [];
+        let rutaDownloadFiles = "{{url('/files')}}"+"/";
 
         $(document).ready(function() {
 
@@ -400,6 +401,7 @@
         let tramite = [];
         let datos = [];
         let trazabilidad = [];
+        let files = [];
 
         function mostrarDetalle(tramite_id){
 
@@ -417,6 +419,7 @@
                 dataType: 'json',
                 success: function (response) {
 
+                    files = response.files;
                     tramite = tramites.find(tramite => tramite.id === tramite_id);
                     datos = JSON.parse(tramite.datos);
                     
@@ -652,10 +655,17 @@
                 case "file":
 
                     if(campo.visible){
-                        html_components += '<div class="form-group col-md-6 col-sm-12">';
-                        html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                        let file = files.find(f => f.seccion_campo === seccion && f.variable === campo.variable && f.name === valor_campo);
 
-                        html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
+                        if(files.length > 0){
+                            html_components += '<div class="form-group col-md-6 col-sm-12" style="pointer-events: auto;">';
+                            html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                            html_components += '<a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a>';
+                        }else{
+                            html_components += '<div class="form-group col-md-6 col-sm-12">';
+                            html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
+                        }
 
                         if(long == count){
                             html_components += '</div></div></div></div>';
