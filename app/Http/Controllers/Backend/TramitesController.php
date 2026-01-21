@@ -194,22 +194,22 @@ class TramitesController extends Controller
 
         foreach($camposDeTipoArchivo as $campo){
             $files = [];
-            $test = '0';
             if($campo['seccion_campo'] == 'BENEFICIARIOS'){
                 $datosBen = json_decode($request->datosBen, true);
                 foreach($datosBen as $index => $ben){
+                    $filesBen = [];
                     $partes = explode("_", $ben['id_ben']);
-                    $activeFile = $campo['variable'].'_'.$partes[1];
-                    $test = $activeFile;
+                    //$activeFile = $campo['variable'].'_'.$partes[1];
+                    $activeFile = $ben['variable'];
                     if ($request->hasFile($activeFile)){
-                        $test = '1';
+                        
                         $file = $request->file($activeFile);
                         $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                         $file->move(public_path('uploads/tramites'), $fileName);
-                        $files[] = ['name' => $fileName];
+                        $filesBen[] = ['name' => $fileName];
                     }
             
-                    foreach ($files as $fileData) {
+                    foreach ($filesBen as $fileData) {
                         $file = new File();
                         $file->name = $fileData['name'];
                         $file->proceso_id = $proceso_id;
@@ -244,7 +244,35 @@ class TramitesController extends Controller
             
         }
 
-        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '. json_encode($camposDeTipoArchivo) . '----' .json_encode($datosBen) . '--' . $test));
+        $storedFiles = File::where('tramite_id', $tramite->id)->get();
+        $tramiteDataField = json_decode($datos, true);
+        foreach ($storedFiles as $file) {
+            if($file->seccion_campo == 'BENEFICIARIOS'){
+                $index = array_search($file->beneficiario_id, $benIds);
+                $tramiteDataField['data'][$file->seccion_campo][$index][$file->variable] = $file->name;
+            }else{
+                $tramiteDataField['data'][$file->seccion_campo][$file->variable] = $file->name;
+            }
+        }
+
+        $modifiedData = json_encode($tramiteDataField);
+
+        $tramiteMod = Tramite::find($tramite->id);
+        $tramiteMod->datos = $modifiedData;
+        $tramiteMod->save();
+
+        $trazabilidadTramiteMod = TrazabilidadTramite::find($trazabilidad_tramite->id);
+        $trazabilidadTramiteMod->datos = $modifiedData;
+        $trazabilidadTramiteMod->save();
+
+        $beneficiarios = Beneficiario::where('tramite_id', $tramite->id)->get();
+        foreach ($beneficiarios as $ben) {
+            $index = array_search($ben->id, $benIds);
+            $ben->datos = json_encode($tramiteDataField['data']['BENEFICIARIOS'][$index]);
+            $ben->save();
+        }
+
+        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '));
         return redirect()->route('admin.tramites.inbox'); 
     }
 

@@ -493,15 +493,31 @@ Crear Trámite - Admin Panel
                         html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
 
                         if(campo.editable && campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
+                            if(seccion == 'BENEFICIARIOS'){
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
+                            }else{
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
+                            }
                         }else if(campo.editable && !campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
+                            if(seccion == 'BENEFICIARIOS'){
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
+                            }else{
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
+                            }
                         }else if(!campo.editable && campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                            if(seccion == 'BENEFICIARIOS'){
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                            }else{
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                            }
                         }else if(!campo.editable && !campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                            if(seccion == 'BENEFICIARIOS'){
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                            }else{
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                            }
                         }
-                        html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" style="display:none;">';
+                        //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" style="display:none;">';
 
                         if(long == count){
                             html_components += '</div></div></div></div>';
@@ -791,13 +807,20 @@ Crear Trámite - Admin Panel
 
                 if(objeto.data[seccion][index] !== undefined){
                     if($(this).attr('name') != undefined){
+                        let position = $(this).attr('name').indexOf('file');
+                        let variable = $(this).attr('name');
+                        if (position !== -1) {
+                            let lastTwo = $(this).attr('name').slice(-2);
+                            let truncatedString = variable.slice(0, -2);
+                            variable = truncatedString;
+                        }
                         
-                        if(objeto.data[seccion][index][$(this).attr('name')] !== undefined){
-                            objeto.data[seccion][index][$(this).attr('name')] = $(this).val();
-                            if(camposPorSeccion[seccion].filter(campo => campo.variable === $(this).attr('name'))[0].tipo_campo == 'file'){
+                        if(objeto.data[seccion][index][variable] !== undefined){
+                            objeto.data[seccion][index][variable] = $(this).val();
+                            if(camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo == 'file'){
                                 objTempBen.seccion_campo = seccion;
                                 objTempBen.variable = $(this).attr('name');
-                                objTempBen.tipo_campo = camposPorSeccion[seccion].filter(campo => campo.variable === $(this).attr('name'))[0].tipo_campo;
+                                objTempBen.tipo_campo = camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo;
                                 objTempBen.id_ben = id;
                                 objTempBen.file_name = $(this).val();
                                 objBen.push(objTempBen);

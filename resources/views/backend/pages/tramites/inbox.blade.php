@@ -694,7 +694,7 @@
                 case "file":
 
                     if(campo.visible){
-                        let file = files.find(f => f.seccion_campo === seccion && f.variable === campo.variable);
+                        let file = files.find(f => f.seccion_campo === seccion && f.variable === campo.variable && f.name === valor_campo);
 
                         if(files.length > 0){
                             html_components += '<div class="form-group col-md-6 col-sm-12" style="pointer-events: auto;">';
