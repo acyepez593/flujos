@@ -254,7 +254,7 @@ Crear Trámite - Admin Panel
             for (let seccion in camposPorSeccion) {
                 generarDataObjeto(seccion);
             }
-            //$('#form').submit();
+            $('#form').submit();
             
         });
 

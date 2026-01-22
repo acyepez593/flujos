@@ -252,7 +252,7 @@ Editar Trámite - Admin Panel
             for (let seccion in camposPorSeccion) {
                 generarDataObjeto(seccion);
             }
-            $('#form').submit();
+            //$('#form').submit();
             
         });
 
@@ -273,8 +273,6 @@ Editar Trámite - Admin Panel
     let tiposCatalogos = '{{$tiposCatalogos}}';
     tiposCatalogos = tiposCatalogos.replace(/&quot;/g, '"');
     tiposCatalogos = JSON.parse(tiposCatalogos);
-    console.log('tiposCatalogos');
-    console.log(tiposCatalogos);
 
     let catalogos = '{{$catalogos}}';
     catalogos = catalogos.replace(/&quot;/g, '"');
@@ -288,8 +286,14 @@ Editar Trámite - Admin Panel
     let catalogosRelacionadosByTipoCatalogo = '{{$catalogosRelacionadosByTipoCatalogo}}';
     catalogosRelacionadosByTipoCatalogo = catalogosRelacionadosByTipoCatalogo.replace(/&quot;/g, '"');
     catalogosRelacionadosByTipoCatalogo = JSON.parse(catalogosRelacionadosByTipoCatalogo);
-    console.log('catalogosRelacionadosByTipoCatalogo');
-    console.log(catalogosRelacionadosByTipoCatalogo);
+
+    let files = '{{$files}}';
+    files = files.replace(/&quot;/g, '"');
+    files = JSON.parse(files);
+    console.log('files');
+    console.log(files);
+
+    let rutaDownloadFiles = "{{url('/files')}}"+"/";
 
     let catalogosRelacionadosIds = [];
     let catalogosRelacionadosVariables = [];
@@ -536,17 +540,25 @@ Editar Trámite - Admin Panel
             case "file":
 
                 if(campo.visible){
-                    html_components += '<div class="form-group col-md-6 col-sm-12">';
-                    html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                    let file = files.find(f => f.seccion_campo === seccion && f.variable === campo.variable && f.name === valor_campo);
 
-                    if(campo.editable && campo.requerido){
-                        html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required>';
-                    }else if(campo.editable && !campo.requerido){
-                        html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf">';
-                    }else if(!campo.editable && campo.requerido){
-                        html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required readonly>';
-                    }else if(!campo.editable && !campo.requerido){
-                        html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
+                    if(files.length > 0 && file != undefined){
+                        html_components += '<div class="form-group col-md-6 col-sm-12" style="pointer-events: auto;">';
+                        html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                        html_components += '<p><a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></p>';
+                    }else{
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                        
+                        if(campo.editable && campo.requerido){
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required>';
+                        }else if(campo.editable && !campo.requerido){
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf">';
+                        }else if(!campo.editable && campo.requerido){
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required readonly>';
+                        }else if(!campo.editable && !campo.requerido){
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
+                        }
                     }
 
                     if(long == count){

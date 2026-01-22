@@ -657,10 +657,10 @@
                     if(campo.visible){
                         let file = files.find(f => f.seccion_campo === seccion && f.variable === campo.variable && f.name === valor_campo);
 
-                        if(files.length > 0){
+                        if(files.length > 0 && file != undefined){
                             html_components += '<div class="form-group col-md-6 col-sm-12" style="pointer-events: auto;">';
                             html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
-                            html_components += '<a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a>';
+                            html_components += '<p><a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></p>';
                         }else{
                             html_components += '<div class="form-group col-md-6 col-sm-12">';
                             html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';

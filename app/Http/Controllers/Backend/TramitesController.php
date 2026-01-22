@@ -289,6 +289,7 @@ class TramitesController extends Controller
         $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
         $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre","catalogo_id"]);
         $beneficiarios = Beneficiario::where('tramite_id',$tramite->id)->get();
+        $files = File::where('tramite_id', $id)->get(['proceso_id','tramite_id','seccion_campo','variable','name']);
 
         $tiposCatalogosRelacionadosIds = [];
         $tiposCatalogosIds = [];
@@ -314,7 +315,8 @@ class TramitesController extends Controller
             'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
             'catalogosRelacionadosByTipoCatalogo' => $catalogosRelacionadosByTipoCatalogo,
             'catalogosByCatalogoId' => $catalogosByCatalogoId,
-            'proceso_id' => $proceso_id
+            'proceso_id' => $proceso_id,
+            'files' => $files
         ]);
     }
 
