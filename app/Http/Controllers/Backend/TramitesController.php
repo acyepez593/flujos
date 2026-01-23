@@ -376,6 +376,19 @@ class TramitesController extends Controller
         }
     }
 
+    public function deleteFile(Request $request): JsonResponse
+    {
+        $fileName = $request->file_name;
+        if(isset($fileName) && !empty($fileName)){
+            $file = File::where('name', $fileName)->first();
+            //$file->delete();
+            
+            return response()->json(['status' => 200, 'message' => '¡Archivo borrado exitosamente!'], 200);
+        }
+
+        return response()->json(['status' => 500, 'message' => 'Algo salió mal, por favor intente nuevamente.' . $fileName . '--' . isset($fileName) . '----' .!empty($fileName) . '--//--' .$test], 500);
+    }
+
     public function getBandejaTramitesByFilters(Request $request): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['tramite.view']);

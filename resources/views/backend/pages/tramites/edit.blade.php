@@ -543,9 +543,10 @@ Editar Trámite - Admin Panel
                     let file = files.find(f => f.seccion_campo === seccion && f.variable === campo.variable && f.name === valor_campo);
 
                     if(files.length > 0 && file != undefined){
-                        html_components += '<div class="form-group col-md-6 col-sm-12" style="pointer-events: auto;">';
+                        let id = file.name.slice(0, -4);
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
                         html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
-                        html_components += '<p><a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></p>';
+                        html_components += '<div id="'+id+'"><i onclick="event.preventDefault(); deleteFile(\''+seccion+'\',\''+campo.configuracion.file_field_name+'\',\''+id+'\')" class="fa fa-trash fa-2x" title="Borrar" style="margin-left: 5px; margin-right:5px; cursor: pointer;"></i><a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></div>';
                     }else{
                         html_components += '<div class="form-group col-md-6 col-sm-12">';
                         html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
@@ -653,6 +654,41 @@ Editar Trámite - Admin Panel
                 break;
         }
         return html_components;
+    }
+
+    function deleteFile(seccion, variable, valor_campo){
+debugger;
+console.log(variable);
+console.log(valor_campo);
+        //let fileName = file+'.pdf';
+        /*$.confirm({
+            title: 'Eliminar',
+            content: '¡Esta seguro de borrar este registro!. </br>¡Esta acción será irreversible!',
+            buttons: {
+                confirm: function () {
+                    $("#overlay").fadeIn(300);
+                    $.ajax({
+                        url: "{{url('/deleteFile')}}",
+                        method: "POST",
+                        data: {
+                            file_name: fileName,
+                            _token: '{{csrf_token()}}'
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            let respuesta = response;
+                            if(respuesta.status == 200){
+                                html_components += '<input type="file" class="form-control" name="' + campo.configuracion.file_field_name + '" accept=".pdf">';
+                                $('#'+file).remove();
+                            }
+                        }
+                    });
+                },
+                cancel: function () {
+
+                }
+            }
+        });*/
     }
 
     function agregarBeneficiario(input){

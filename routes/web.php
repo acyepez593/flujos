@@ -78,6 +78,7 @@ Route::get('/consultaCiudadanaTramites', [ConsultaCiudadanaTramitesController::c
 Route::post('/consultaTramiteSppat',[ConsultaCiudadanaTramitesController::class, 'getTrazabilidadByTramite']);
 
 Route::get('files/{fileName}', [TramitesController::class, 'download'])->name('download')->middleware('auth:admin');
+Route::post('/deleteFile', [TramitesController::class, 'deleteFile'])->name('deleteFile')->middleware('auth:admin');
 
 /**
  * Admin routes
