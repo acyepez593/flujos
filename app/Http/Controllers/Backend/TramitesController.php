@@ -381,7 +381,7 @@ class TramitesController extends Controller
         $fileName = $request->file_name;
         if(isset($fileName) && !empty($fileName)){
             $file = File::where('name', $fileName)->first();
-            //$file->delete();
+            $file->delete();
             
             return response()->json(['status' => 200, 'message' => '¡Archivo borrado exitosamente!'], 200);
         }

@@ -137,6 +137,7 @@ Editar Trámite - Admin Panel
                         
                         <input type="hidden" id="secuencia_proceso_id" name="secuencia_proceso_id">
                         <input type="hidden" id="datos" name="datos">
+                        <input type="hidden" id="datosBen" name="datosBen">
                         <button type="button" id="guardar" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
@@ -269,6 +270,7 @@ Editar Trámite - Admin Panel
     let objBeneficiarios = [];
     let id_beneficiario = 0;
     let count = 0;
+    let objBen = [];
 
     let tiposCatalogos = '{{$tiposCatalogos}}';
     tiposCatalogos = tiposCatalogos.replace(/&quot;/g, '"');
@@ -657,13 +659,11 @@ Editar Trámite - Admin Panel
     }
 
     function deleteFile(seccion, variable, valor_campo){
-debugger;
-console.log(variable);
-console.log(valor_campo);
-        //let fileName = file+'.pdf';
-        /*$.confirm({
+        
+        let fileName = valor_campo+'.pdf';
+        $.confirm({
             title: 'Eliminar',
-            content: '¡Esta seguro de borrar este registro!. </br>¡Esta acción será irreversible!',
+            content: '¡Esta seguro de borrar este archivo!. </br>¡Esta acción será irreversible!',
             buttons: {
                 confirm: function () {
                     $("#overlay").fadeIn(300);
@@ -678,8 +678,9 @@ console.log(valor_campo);
                         success: function (response) {
                             let respuesta = response;
                             if(respuesta.status == 200){
-                                html_components += '<input type="file" class="form-control" name="' + campo.configuracion.file_field_name + '" accept=".pdf">';
-                                $('#'+file).remove();
+                                let html_components = '<input type="file" class="form-control" name="' + variable + '" accept=".pdf">';
+                                $('#'+valor_campo).html('');
+                                $('#'+valor_campo).append(html_components);
                             }
                         }
                     });
@@ -688,7 +689,7 @@ console.log(valor_campo);
 
                 }
             }
-        });*/
+        });
     }
 
     function agregarBeneficiario(input){
@@ -862,7 +863,7 @@ console.log(valor_campo);
     }
 
     function generarDataObjeto(seccion){
-        if(seccion == 'BENEFICIARIOS'){
+        /*if(seccion == 'BENEFICIARIOS'){
             $('#' + seccion).find("input, select").each(function() {
                 let id = $(this).parents('.card').attr('id');
                 let separador = id.split('_');
@@ -882,7 +883,70 @@ console.log(valor_campo);
             });
         }
 
+        $('#datos').val(JSON.stringify(objeto));*/
+
+        if(seccion == 'BENEFICIARIOS'){
+            objBen = [];
+            objeto.data[seccion] = [];
+            let clone = { ...objBeneficiarios };
+            objeto.data[seccion].push(clone);
+
+            let pos = 0;
+            let posBen = [];
+
+            $('#' + seccion).find("input, select").each(function() {
+                let id = $(this).parents('.card').attr('id');
+                let separador = id.split('_');
+                let objTempBen = {};
+                
+                if (!posBen.includes(id)) {
+                    posBen.push(id);
+                }
+                let index = posBen.indexOf(id);
+
+                if(objeto.data[seccion][index] !== undefined){
+                    if($(this).attr('name') != undefined){
+                        let position = $(this).attr('name').indexOf('file');
+                        let variable = $(this).attr('name');
+                        if (position !== -1) {
+                            let lastTwo = $(this).attr('name').slice(-2);
+                            let truncatedString = variable.slice(0, -2);
+                            variable = truncatedString;
+                        }
+                        
+                        if(objeto.data[seccion][index][variable] !== undefined){
+                            objeto.data[seccion][index][variable] = $(this).val();
+                            if(camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo == 'file'){
+                                objTempBen.seccion_campo = seccion;
+                                objTempBen.variable = $(this).attr('name');
+                                objTempBen.tipo_campo = camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo;
+                                objTempBen.id_ben = id;
+                                objTempBen.file_name = $(this).val();
+                                objBen.push(objTempBen);
+                            }
+                        }
+                    }
+                }else{
+                    if($(this).attr('name') != undefined){
+                        let cloneObj = { ...objBeneficiarios };
+                        objeto.data[seccion].push(cloneObj);
+                        objeto.data[seccion][index][$(this).attr('name')] = $(this).val();
+                    }
+                }
+                
+            });
+            console.log(posBen);
+
+        }else{
+            $('#' + seccion).find("input, select").each(function() {
+                if($(this).attr('name') != undefined){
+                    objeto.data[seccion][$(this).attr('name')] = $(this).val();
+                }
+            });
+        }
+
         $('#datos').val(JSON.stringify(objeto));
+        $('#datosBen').val(JSON.stringify(objBen));
         
     }
     
