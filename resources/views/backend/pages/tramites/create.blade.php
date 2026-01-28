@@ -765,6 +765,7 @@ Crear Trámite - Admin Panel
             if(seccion == 'BENEFICIARIOS'){
                 objeto.data[seccion] = [];
                 let obj = {};
+                obj['id'] = "";
                 for (let campo of camposPorSeccion[seccion]) {
                     obj[campo.variable] = "";
                     if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){

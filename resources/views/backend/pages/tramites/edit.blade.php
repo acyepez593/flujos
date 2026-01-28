@@ -311,6 +311,10 @@ Editar Trámite - Admin Panel
     console.log(catalogosByCatalogoId);
 
     let countBeneficiario = datos.data['BENEFICIARIOS'].length;
+    let benIds = [];
+    for (let index in datos.data['BENEFICIARIOS']) {
+        benIds.push(datos.data['BENEFICIARIOS'][index]['id']);
+    }
 
     function renderFormPorSecuenciaProceso(){
         let html_components = "";
@@ -842,6 +846,7 @@ Editar Trámite - Admin Panel
             if(seccion == 'BENEFICIARIOS'){
                 objeto.data[seccion] = [];
                 let obj = {};
+                obj['id'] = "";
                 for (let campo of camposPorSeccion[seccion]) {
                     obj[campo.variable] = "";
                     if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){
@@ -905,14 +910,18 @@ Editar Trámite - Admin Panel
                 let index = posBen.indexOf(id);
 
                 if(objeto.data[seccion][index] !== undefined){
+                    if(benIds[index] !== undefined){
+                        objeto.data[seccion][index]['id'] = benIds[index];
+                    }
+                    
                     if($(this).attr('name') != undefined){
                         let position = $(this).attr('name').indexOf('file');
                         let variable = $(this).attr('name');
-                        if (position !== -1) {
+                        /*if (position !== -1) {
                             let lastTwo = $(this).attr('name').slice(-2);
                             let truncatedString = variable.slice(0, -2);
                             variable = truncatedString;
-                        }
+                        }*/
                         
                         if(objeto.data[seccion][index][variable] !== undefined){
                             objeto.data[seccion][index][variable] = $(this).val();
