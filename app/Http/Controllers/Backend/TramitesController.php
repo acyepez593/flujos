@@ -339,32 +339,41 @@ class TramitesController extends Controller
             }
 
             $tramite = Tramite::findOrFail($id);
-            $tramite->datos = $datos;
-            $tramite->save();
-
-            Beneficiario::where('tramite_id',$tramite->id)->delete();
 
             $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
+
+            $beneficiariosIdsActuales = Beneficiario::where('tramite_id', $id)->get(['id'])->pluck('id')->toArray();
+            $beneficiariosIdsNuevos=[];
             $benIds=[];
             foreach($beneficiarios as $ben){
-                $beneficiario = new Beneficiario();
-                $beneficiario->tramite_id = $tramite->id;
-                $beneficiario->datos =json_encode($ben);
-                $beneficiario->creado_por = $creado_por;
-                $beneficiario->save();
-                array_push($benIds, $beneficiario->id);
+                if($ben['id'] != ''){
+                    $beneficiariosIdsNuevos[] = $ben['id'];
+                    array_push($benIds, $ben['id']);
+                }else{
+                    $beneficiario = new Beneficiario();
+                    $beneficiario->tramite_id = $id;
+                    $beneficiario->datos =json_encode($ben);
+                    $beneficiario->creado_por = $creado_por;
+                    $beneficiario->save();
+                    $benTmp = json_decode($beneficiario->datos, true);
+                    $benTmp['id'] = $beneficiario->id;
+                    $beneficiario->datos =json_encode($benTmp);
+                    $beneficiario->save();
+                    array_push($benIds, $beneficiario->id);
+                }
             }
+            
+            $benIdsAEliminar = [];
+            $benIdsAEliminar = array_diff($beneficiariosIdsActuales, $beneficiariosIdsNuevos);
 
-            $trazabilidad_tramite = new TrazabilidadTramite();
-            $trazabilidad_tramite->tramite_id = $tramite->id;
-            $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
-            $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
-            $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
-            $trazabilidad_tramite->datos = $tramite->datos;
-            $trazabilidad_tramite->estatus = $tramite->estatus;
-            $trazabilidad_tramite->creado_por = $tramite->creado_por;
-            $trazabilidad_tramite->tipo = 'MODIFICACION';
-            $trazabilidad_tramite->save();
+            foreach($benIdsAEliminar as $ben){
+                $beneficiario = Beneficiario::findOrFail($ben);
+                $beneficiario->delete();
+                $files = File::where('tramite_id', $id)->where('beneficiario_id', $ben)->first();
+                if($files){
+                    $files->delete();
+                }
+            }
 
             $secuenciaProceso = SecuenciaProceso::find($tramite->secuencia_proceso_id);
             $configuracionSecuencia = $secuenciaProceso->configuracion;
@@ -404,7 +413,7 @@ class TramitesController extends Controller
                             $file = new File();
                             $file->name = $fileData['name'];
                             $file->proceso_id = $tramite->proceso_id;
-                            $file->tramite_id = $tramite->id;
+                            $file->tramite_id = $id;
                             $file->beneficiario_id = $benIds[$index];
                             $file->variable = $campo['variable'];
                             $file->seccion_campo = $campo['seccion_campo'];
@@ -425,7 +434,7 @@ class TramitesController extends Controller
                             $file = new File();
                             $file->name = $fileData['name'];
                             $file->proceso_id = $tramite->proceso_id;
-                            $file->tramite_id = $tramite->id;
+                            $file->tramite_id = $id;
                             $file->variable = $activeFile;
                             $file->seccion_campo = $campo['seccion_campo'];
                             $file->save();
@@ -435,7 +444,7 @@ class TramitesController extends Controller
                 
             }
 
-            $storedFiles = File::where('tramite_id', $tramite->id)->get();
+            $storedFiles = File::where('tramite_id', $id)->get();
             $tramiteDataField = json_decode($datos, true);
             foreach ($storedFiles as $file) {
                 if($file->seccion_campo == 'BENEFICIARIOS'){
@@ -448,22 +457,28 @@ class TramitesController extends Controller
 
             $modifiedData = json_encode($tramiteDataField);
 
-            $tramiteMod = Tramite::find($tramite->id);
-            $tramiteMod->datos = $modifiedData;
-            $tramiteMod->save();
+            $tramite->datos = $modifiedData;
+            $tramite->save();
 
-            $trazabilidadTramiteMod = TrazabilidadTramite::find($trazabilidad_tramite->id);
-            $trazabilidadTramiteMod->datos = $modifiedData;
-            $trazabilidadTramiteMod->save();
+            $trazabilidad_tramite = new TrazabilidadTramite();
+            $trazabilidad_tramite->tramite_id = $id;
+            $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
+            $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
+            $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
+            $trazabilidad_tramite->datos = $modifiedData;
+            $trazabilidad_tramite->estatus = $tramite->estatus;
+            $trazabilidad_tramite->creado_por = $tramite->creado_por;
+            $trazabilidad_tramite->tipo = 'MODIFICACION';
+            $trazabilidad_tramite->save();
 
-            $beneficiarios = Beneficiario::where('tramite_id', $tramite->id)->get();
+            $beneficiarios = Beneficiario::where('tramite_id', $id)->get();
             foreach ($beneficiarios as $ben) {
                 $index = array_search($ben->id, $benIds);
                 $ben->datos = json_encode($tramiteDataField['data']['BENEFICIARIOS'][$index]);
                 $ben->save();
             }
 
-            session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.'.$camposDeTipoArchivo . '--' . $benIds);
+            session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.');
             return redirect()->route('admin.tramites.inbox');
         } catch (FileException $e) {
             session()->flash('error', 'Trámite ha sido actualizado satisfactoriamente.'.$e);

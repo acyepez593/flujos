@@ -389,10 +389,10 @@ Editar Trámite - Admin Panel
             let valor = '';
             if(seccion == 'BENEFICIARIOS'){
                 let valor_campo = '';
-                if(beneficiario_id !== null){
+                if(beneficiario_id !== null && datos.data[seccion][beneficiario_id] != undefined){
                     valor_campo = datos.data[seccion][beneficiario_id][campo.variable];
                 }
-                html_components += getCampos(count,long,seccion,campo,valor_campo);
+                html_components += getCampos(count,long,seccion,campo,valor_campo,beneficiario_id);
             }else{
                 html_components += getCampos(count,long,seccion,campo,datos.data[campo.seccion_campo][campo.variable]);
             }
@@ -403,7 +403,7 @@ Editar Trámite - Admin Panel
         return html_components;
     }
 
-    function getCampos(count,long,seccion,campo,valor_campo){
+    function getCampos(count,long,seccion,campo,valor_campo,countBen=null){
         let html_components = '';
         
         switch (campo.tipo_campo) {
@@ -558,13 +558,37 @@ Editar Trámite - Admin Panel
                         html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
                         
                         if(campo.editable && campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required>';
+                            //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required>';
+
+                            if(seccion == 'BENEFICIARIOS'){
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
+                            }else{
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
+                            }
                         }else if(campo.editable && !campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf">';
+                            //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf">';
+
+                            if(seccion == 'BENEFICIARIOS'){
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
+                            }else{
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
+                            }
                         }else if(!campo.editable && campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required readonly>';
+                            //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required readonly>';
+
+                            if(seccion == 'BENEFICIARIOS'){
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                            }else{
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                            }
                         }else if(!campo.editable && !campo.requerido){
-                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
+                            //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
+
+                            if(seccion == 'BENEFICIARIOS'){
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                            }else{
+                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                            }
                         }
                     }
 
@@ -711,7 +735,7 @@ Editar Trámite - Admin Panel
         '<div class="card-body">'+
         '<div class="form-row">';
 
-        html_components += construirCampos(count,long,seccion);
+        html_components += construirCampos(count,long,seccion,countBeneficiario);
 
         html_components += '</div></div></div>';
 
@@ -912,16 +936,17 @@ Editar Trámite - Admin Panel
                 if(objeto.data[seccion][index] !== undefined){
                     if(benIds[index] !== undefined){
                         objeto.data[seccion][index]['id'] = benIds[index];
+                        //objeto.data[seccion][index][$(this).attr('name')] = datos['data'][seccion][index][$(this).attr('name')];
                     }
                     
                     if($(this).attr('name') != undefined){
                         let position = $(this).attr('name').indexOf('file');
                         let variable = $(this).attr('name');
-                        /*if (position !== -1) {
+                        if (position !== -1 && variable.includes('_file')) {
                             let lastTwo = $(this).attr('name').slice(-2);
                             let truncatedString = variable.slice(0, -2);
                             variable = truncatedString;
-                        }*/
+                        }
                         
                         if(objeto.data[seccion][index][variable] !== undefined){
                             objeto.data[seccion][index][variable] = $(this).val();
