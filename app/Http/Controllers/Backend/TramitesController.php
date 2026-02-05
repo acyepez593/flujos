@@ -341,27 +341,63 @@ class TramitesController extends Controller
             $tramite = Tramite::findOrFail($id);
 
             $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
+            $datosBen = json_decode($request->datosBen, true);
+            $datosBenOri = json_decode($request->datosBen, true);
+
+            $indexIdsNuevos=[];
+            foreach($datosBen as $index => $ben){
+                if($ben['ben_id'] == ''){
+                    array_push($indexIdsNuevos, $index);
+                }
+            }
 
             $beneficiariosIdsActuales = Beneficiario::where('tramite_id', $id)->get(['id'])->pluck('id')->toArray();
             $beneficiariosIdsNuevos=[];
             $benIds=[];
-            foreach($beneficiarios as $ben){
+            $benIdsNuevos=[];
+            
+            $indexBenefIdsNuevos=[];
+            foreach($beneficiarios as $index => $ben){
+                if($ben['id'] == ''){
+                    array_push($indexBenefIdsNuevos, $index);
+                }
+            }
+
+            $indexEquivalente = [];
+            foreach($indexBenefIdsNuevos as $index => $ide){
+                $ide = intval($ide);
+                $indexEquivalente[$ide] =  $indexIdsNuevos[$index];
+            }
+
+            //$key = array_search(2, $indexEquivalente);
+
+            /*session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.' .json_encode($indexBenefIdsNuevos) . '--//--' . json_encode($indexIdsNuevos). '--////--' . json_encode($indexEquivalente). '--//--//--' . $indexEquivalente['2']. '--//-//-//--' . $indexEquivalente['3']);
+            return redirect()->route('admin.tramites.inbox');*/
+
+            foreach($beneficiarios as $index => $ben){
                 if($ben['id'] != ''){
                     $beneficiariosIdsNuevos[] = $ben['id'];
                     array_push($benIds, $ben['id']);
+                    //$datosBen[$index]['ben_id'] = intval($ben['id']);
                 }else{
                     $beneficiario = new Beneficiario();
                     $beneficiario->tramite_id = $id;
                     $beneficiario->datos =json_encode($ben);
                     $beneficiario->creado_por = $creado_por;
                     $beneficiario->save();
-                    $benTmp = json_decode($beneficiario->datos, true);
+                    $benTmp = $ben;
                     $benTmp['id'] = $beneficiario->id;
                     $beneficiario->datos =json_encode($benTmp);
                     $beneficiario->save();
                     array_push($benIds, $beneficiario->id);
+                    array_push($benIdsNuevos, $beneficiario->id);
+    
+                    $datosBen[$indexEquivalente[$index]]['ben_id'] = $beneficiario->id;
                 }
             }
+
+            /*session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.' .json_encode($indexIdsNuevos) . '--//--' . json_encode($datosBenOri) . '----' . json_encode($datosBen));
+            return redirect()->route('admin.tramites.inbox');*/
             
             $benIdsAEliminar = [];
             $benIdsAEliminar = array_diff($beneficiariosIdsActuales, $beneficiariosIdsNuevos);
@@ -396,7 +432,8 @@ class TramitesController extends Controller
             foreach($camposDeTipoArchivo as $campo){
                 $files = [];
                 if($campo['seccion_campo'] == 'BENEFICIARIOS'){
-                    $datosBen = json_decode($request->datosBen, true);
+                    //$datosBen = json_decode($request->datosBen, true);
+                    //$datosBenef = $datosBen;
                     foreach($datosBen as $index => $ben){
                         $filesBen = [];
                         
@@ -414,7 +451,7 @@ class TramitesController extends Controller
                             $file->name = $fileData['name'];
                             $file->proceso_id = $tramite->proceso_id;
                             $file->tramite_id = $id;
-                            $file->beneficiario_id = $benIds[$index];
+                            $file->beneficiario_id = intval($ben['ben_id']);
                             $file->variable = $campo['variable'];
                             $file->seccion_campo = $campo['seccion_campo'];
                             $file->save();
@@ -455,6 +492,14 @@ class TramitesController extends Controller
                 }
             }
 
+            $beneficiarios = Beneficiario::where('tramite_id', $id)->get();
+            foreach ($beneficiarios as $ben) {
+                $index = array_search($ben->id, $benIds);
+                $tramiteDataField['data']['BENEFICIARIOS'][$index]['id'] = $ben->id;
+                $ben->datos = json_encode($tramiteDataField['data']['BENEFICIARIOS'][$index]);
+                $ben->save();
+            }
+
             $modifiedData = json_encode($tramiteDataField);
 
             $tramite->datos = $modifiedData;
@@ -470,13 +515,6 @@ class TramitesController extends Controller
             $trazabilidad_tramite->creado_por = $tramite->creado_por;
             $trazabilidad_tramite->tipo = 'MODIFICACION';
             $trazabilidad_tramite->save();
-
-            $beneficiarios = Beneficiario::where('tramite_id', $id)->get();
-            foreach ($beneficiarios as $ben) {
-                $index = array_search($ben->id, $benIds);
-                $ben->datos = json_encode($tramiteDataField['data']['BENEFICIARIOS'][$index]);
-                $ben->save();
-            }
 
             session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.');
             return redirect()->route('admin.tramites.inbox');

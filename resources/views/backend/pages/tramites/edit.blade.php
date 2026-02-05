@@ -346,8 +346,14 @@ Editar Trámite - Admin Panel
 
                 if(seccion == 'BENEFICIARIOS'){
                     for (let [index, beneficiario] of datos.data[seccion].entries()) {
-
-                        html_components += '<div id="beneficiario_' + (index + 1) + '" class="card">'+
+                        console.log('beneficiario:');
+                        console.log(beneficiario);
+                        let ben_id = '';
+                        if(beneficiario.id != ''){
+                            ben_id = beneficiario.id;
+                        }
+                        
+                        html_components += '<div id="beneficiario_' + (index + 1) + '" class="card" ben_id="' + ben_id + '">'+
                         '<div class="card-header">'+
                         'Beneficiario';
                         if(index == 0){
@@ -726,7 +732,7 @@ Editar Trámite - Admin Panel
         count = 1;
         let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
         let id_ben = 'beneficiario_' + countBeneficiario;
-        let html_components = '<div id="' + id_ben + '" class="card">';
+        let html_components = '<div id="' + id_ben + '" class="card" ben_id="">';
         html_components += '<div class="card-header">'+
         'Beneficiario'+
         '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Eliminar" href="javascript:void(0);" onclick="event.preventDefault(); eliminarBeneficiario(this)"><i class="fa fa-trash fa-2x"></i></a>'+
@@ -925,6 +931,9 @@ Editar Trámite - Admin Panel
 
             $('#' + seccion).find("input, select").each(function() {
                 let id = $(this).parents('.card').attr('id');
+                let ben_id = $(this).parents('.card').attr('ben_id');
+                console.log('ben_id:');
+                console.log(ben_id);
                 let separador = id.split('_');
                 let objTempBen = {};
                 
@@ -935,7 +944,7 @@ Editar Trámite - Admin Panel
 
                 if(objeto.data[seccion][index] !== undefined){
                     if(benIds[index] !== undefined){
-                        objeto.data[seccion][index]['id'] = benIds[index];
+                        objeto.data[seccion][index]['id'] = ben_id;
                         //objeto.data[seccion][index][$(this).attr('name')] = datos['data'][seccion][index][$(this).attr('name')];
                     }
                     
@@ -956,6 +965,7 @@ Editar Trámite - Admin Panel
                                 objTempBen.tipo_campo = camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo;
                                 objTempBen.id_ben = id;
                                 objTempBen.file_name = $(this).val();
+                                objTempBen.ben_id = ben_id;
                                 objBen.push(objTempBen);
                             }
                         }
