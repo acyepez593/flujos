@@ -566,7 +566,7 @@ class TramitesController extends Controller
             $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
         }
         if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
-            $tramites = $tramites->where('proceso_id', $filtroSecuenciaIdProcesoSearch);
+            $tramites = $tramites->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatus);
@@ -870,7 +870,7 @@ class TramitesController extends Controller
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroProcesoSearch) && !empty($filtroProcesoSearch)){
-            $tramites = $tramites->where('proceso_id', 1);
+            $tramites = $tramites->where('proceso_id', $filtroProcesoSearch);
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatus);
