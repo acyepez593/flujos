@@ -253,7 +253,9 @@ Editar Trámite - Admin Panel
             for (let seccion in camposPorSeccion) {
                 generarDataObjeto(seccion);
             }
-            //$('#form').submit();
+            if(document.getElementById('form').reportValidity()){
+                $('#form').submit();
+            }
             
         });
 

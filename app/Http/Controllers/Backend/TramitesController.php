@@ -395,9 +395,6 @@ class TramitesController extends Controller
                     $datosBen[$indexEquivalente[$index]]['ben_id'] = $beneficiario->id;
                 }
             }
-
-            /*session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.' .json_encode($indexIdsNuevos) . '--//--' . json_encode($datosBenOri) . '----' . json_encode($datosBen));
-            return redirect()->route('admin.tramites.inbox');*/
             
             $benIdsAEliminar = [];
             $benIdsAEliminar = array_diff($beneficiariosIdsActuales, $beneficiariosIdsNuevos);

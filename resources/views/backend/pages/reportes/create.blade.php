@@ -130,7 +130,7 @@
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="fecha_creacion_tramite_desde_search">Fecha de Creación Desde</label>
                                                 <div class="datepicker date input-group">
-                                                    <input type="text" class="form-control datepicker" name="fecha_creacion_tramite_desde_search">
+                                                    <input type="text" id="fecha_creacion_tramite_desde_search" class="form-control datepicker" name="fecha_creacion_tramite_desde_search">
                                                     <div class="input-group-append">
                                                         <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                                                     </div>
@@ -139,7 +139,7 @@
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="fecha_creacion_tramite_hasta_search">Fecha de Creación Hasta</label>
                                                 <div class="datepicker date input-group">
-                                                    <input type="text" class="form-control datepicker" name="fecha_creacion_tramite_hasta_search">
+                                                    <input type="text" id="fecha_creacion_tramite_hasta_search" class="form-control datepicker" name="fecha_creacion_tramite_hasta_search">
                                                     <div class="input-group-append">
                                                         <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                                                     </div>
@@ -333,7 +333,6 @@
             $( "#generarReporte" ).on( "click", function() {
                 if(document.getElementById('reporte').reportValidity()){
                     $("#overlay").fadeIn(300);
-
                     /*$.ajax({
                     url: "{{url('/generarReporteByTipoReporte')}}",
                     method: "POST",

@@ -184,11 +184,13 @@ class ReportesController extends Controller
         }
 
         if(isset($filtroFechaCreacionDesdeSearch) && !empty($filtroFechaCreacionDesdeSearch)){
-            $tramites = $tramites->where('created_at', '>=', $filtroFechaCreacionDesdeSearch);
+            $fecha_desde = Carbon::createFromFormat('Y-m-d', $filtroFechaCreacionDesdeSearch)->startOfDay();
+            $tramites = $tramites->where('created_at', '>=', $fecha_desde);
         }
 
         if(isset($filtroFechaCreacionHastaSearch) && !empty($filtroFechaCreacionHastaSearch)){
-            $tramites = $tramites->where('created_at', '<=', $filtroFechaCreacionHastaSearch);
+            $fecha_hasta = Carbon::createFromFormat('Y-m-d', $filtroFechaCreacionHastaSearch)->endOfDay();
+            $tramites = $tramites->where('created_at', '<=', $fecha_hasta);
         }
 
         if(isset($filtrosSearch) && !empty($filtrosSearch)){
