@@ -61,6 +61,7 @@ Crear Campo por Proceso - Admin Panel
                                 <option value="datetime">FECHA Y HORA</option>
                                 <option value="file">ARCHIVO</option>
                                 <option value="select">SELECCIONABLE</option>
+                                <option value="checkbox">CHECKBOX</option>
                             </select>
                             @error('tipo_campo')
                                 <div class="alert alert-danger">{{ $message }}</div>

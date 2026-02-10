@@ -262,6 +262,7 @@ Crear Trámite - Admin Panel
 
     });
 
+    let proceso_id = '{{$proceso_id}}';
     let secuencia_proceso_id = '{{$secuenciaProcesoId}}';
 
     $('#secuencia_proceso_id').val(secuencia_proceso_id);
@@ -320,7 +321,7 @@ Crear Trámite - Admin Panel
                 html_components += '<div class="card">'+
                 '<div class="card-header" id="headingOne">'+
                 '<h5 class="mb-0">'+
-                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">' + seccion + '</button>'+
+                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">INFORMACIÓN ' + seccion + '</button>'+
                 '</h5>'+
                 '</div>'+
                 '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
@@ -328,9 +329,11 @@ Crear Trámite - Admin Panel
                 if(seccion == 'BENEFICIARIOS'){
                     html_components += '<div id="beneficiario_' + countBeneficiario + '" class="card">'+
                     '<div class="card-header">'+
-                    'Beneficiario'+
-                    '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>'+
-                    '</div>'+
+                    'Beneficiario';
+                    if(proceso_id != 3){
+                        html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';
+                    }
+                    html_components += '</div>'+
                     '<div class="card-body">';
                 }
                 html_components += '<div class="form-row">';
@@ -611,6 +614,39 @@ Crear Trámite - Admin Panel
                     }
                     
                     break;
+                case "checkbox":
+                    
+                    if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<div class="form-check">';
+
+                        if(campo.editable && campo.requerido){
+                            html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="' + campo.configuracion.checkbox_field_value + '" required>';
+                            html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                        }else if(campo.editable && !campo.requerido){
+                            html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="' + campo.configuracion.checkbox_field_value + '">';
+                            html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                        }else if(!campo.editable && campo.requerido){
+                            html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="' + campo.configuracion.checkbox_field_value + '" required readonly>';
+                            html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                        }else if(!campo.editable && !campo.requerido){
+                            html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="' + campo.configuracion.checkbox_field_value + '" readonly>';
+                            html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                        }
+                        
+                        if(long == count){
+                            html_components += '</div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components += '</div></div></div><div class="form-row">';
+                            }else{
+                                html_components += '</div></div>';
+                            }
+                        }
+                        count ++;
+                    }
+
+                    break;
             }
             //count ++;
         }
@@ -844,7 +880,11 @@ Crear Trámite - Admin Panel
         }else{
             $('#' + seccion).find("input, select").each(function() {
                 if($(this).attr('name') != undefined){
-                    objeto.data[seccion][$(this).attr('name')] = $(this).val();
+                    if($(this).attr('type') == 'checkbox'){
+                        objeto.data[seccion][$(this).attr('name')] = this.checked;
+                    }else{
+                        objeto.data[seccion][$(this).attr('name')] = $(this).val();
+                    }
                 }
             });
         }

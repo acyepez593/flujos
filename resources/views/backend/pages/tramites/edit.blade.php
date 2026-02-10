@@ -261,6 +261,7 @@ Editar Trámite - Admin Panel
 
     });
 
+    let proceso_id = '{{$proceso_id}}';
     let secuencia_proceso_id = '{{$secuenciaProcesoId}}';
 
     $('#secuencia_proceso_id').val(secuencia_proceso_id);
@@ -340,7 +341,7 @@ Editar Trámite - Admin Panel
                 html_components += '<div class="card">'+
                 '<div class="card-header" id="headingOne">'+
                 '<h5 class="mb-0">'+
-                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">' + seccion + '</button>'+
+                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">INFORMACIÓN ' + seccion + '</button>'+
                 '</h5>'+
                 '</div>'+
                 '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
@@ -358,11 +359,13 @@ Editar Trámite - Admin Panel
                         html_components += '<div id="beneficiario_' + (index + 1) + '" class="card" ben_id="' + ben_id + '">'+
                         '<div class="card-header">'+
                         'Beneficiario';
-                        if(index == 0){
-                            html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';
-                        }else{
-                            html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Eliminar" href="javascript:void(0);" onclick="event.preventDefault(); eliminarBeneficiario(this)"><i class="fa fa-trash fa-2x"></i></a>'+
-                            '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';
+                        if(proceso_id != 3){
+                            if(index == 0){
+                                html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';
+                            }else{
+                                html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Eliminar" href="javascript:void(0);" onclick="event.preventDefault(); eliminarBeneficiario(this)"><i class="fa fa-trash fa-2x"></i></a>'+
+                                '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';
+                            }
                         }
                         
                         html_components += '</div>'+
@@ -690,6 +693,42 @@ Editar Trámite - Admin Panel
                 }
                 
                 break;
+            case "checkbox":
+                let checked = '';
+                if(valor_campo == true){
+                    checked = 'checked';
+                }
+                if(campo.visible){
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<div class="form-check">';
+
+                    if(campo.editable && campo.requerido){
+                        html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + ' required>';
+                        html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                    }else if(campo.editable && !campo.requerido){
+                        html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + ' >';
+                        html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                    }else if(!campo.editable && campo.requerido){
+                        html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + '  required readonly>';
+                        html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                    }else if(!campo.editable && !campo.requerido){
+                        html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + '  readonly>';
+                            html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                    }
+                    
+                    if(long == count){
+                        html_components += '</div></div></div></div>';
+                    }else{
+                        if(count % 2 === 0){
+                            html_components += '</div></div></div><div class="form-row">';
+                        }else{
+                            html_components += '</div></div>';
+                        }
+                    }
+                    count ++;
+                }
+
+                break;
         }
         return html_components;
     }
@@ -986,7 +1025,11 @@ Editar Trámite - Admin Panel
         }else{
             $('#' + seccion).find("input, select").each(function() {
                 if($(this).attr('name') != undefined){
-                    objeto.data[seccion][$(this).attr('name')] = $(this).val();
+                    if($(this).attr('type') == 'checkbox'){
+                        objeto.data[seccion][$(this).attr('name')] = this.checked;
+                    }else{
+                        objeto.data[seccion][$(this).attr('name')] = $(this).val();
+                    }
                 }
             });
         }

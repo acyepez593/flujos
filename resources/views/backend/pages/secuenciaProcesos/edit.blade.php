@@ -726,6 +726,55 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             </div>
                         </div>
                     </div>
+                    <!-- Modal Actualizar campo tipo checkbox -->
+                    <div class="modal fade" id="modalActualizarCampoTipoCheckbox" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Checkbox</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="checkbox_field_label">Label</label>
+                                        <input type="text" class="form-control" id="checkbox_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="checkbox_field_value">Value</label>
+                                        <input type="text" class="form-control" id="checkbox_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="checkbox_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="checkbox_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="checkbox_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="checkbox_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="checkbox_field_class">Class</label>
+                                        <input type="text" class="form-control" id="checkbox_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="checkbox_field_name">Name</label>
+                                        <input type="text" class="form-control" id="checkbox_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoCheckbox" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -895,6 +944,19 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             conf = {};
             $('#configuracion_campos').val(JSON.stringify(listaCampos));
             $('#modalActualizarCampoTipoSelect').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoCheckbox").click(function() {
+            $("#modalActualizarCampoTipoCheckbox").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#configuracion_campos').val(JSON.stringify(listaCampos));
+            $('#modalActualizarCampoTipoCheckbox').modal('hide');
         });
 
         table = $('#configuracion_campos_table').DataTable( {
@@ -1076,6 +1138,17 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                     select_field_multiple_selection: false
                 };
             break;
+            case "checkbox":
+                campo.configuracion = {
+                    checkbox_field_id: campo.id,
+                    checkbox_field_label: campo.nombre,
+                    checkbox_field_value: "",
+                    checkbox_field_helper_text: "",
+                    checkbox_field_placeholder: "",
+                    checkbox_field_class: "form-check-input",
+                    checkbox_field_name: campo.variable
+                };
+            break;
         }
         return campo;  
         
@@ -1139,6 +1212,14 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                         $('#'+element.id).val(campo.configuracion[element.id]);
                     }
                 });
+                
+                break;
+            case "checkbox":
+                $("#modalActualizarCampoTipoCheckbox").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoCheckbox').modal('show');
                 
                 break;
         }

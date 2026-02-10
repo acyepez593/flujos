@@ -62,6 +62,7 @@ Editar Campos por Sección - Panel Campos por Sección
                                     <option value="datetime" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'datetime' ? 'selected' : '' }}>FECHA Y HORA</option>
                                     <option value="file" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'file' ? 'selected' : '' }}>ARCHIVO</option>
                                     <option value="select" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'select' ? 'selected' : '' }}>SELECCIONABLE</option>
+                                    <option value="checkbox" {{ old('tipo_campo', $camposPorProceso->tipo_campo) == 'checkbox' ? 'selected' : '' }}>CHECKBOX</option>
                                 </select>
                                 @error('tipo_campo')
                                     <div class="alert alert-danger">{{ $message }}</div>

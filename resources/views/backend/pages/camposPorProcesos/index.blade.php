@@ -100,6 +100,7 @@
                                                     <option value="datetime">FECHA Y HORA</option>
                                                     <option value="file">ARCHIVO</option>
                                                     <option value="select">SELECCIONABLE</option>
+                                                    <option value="checkbox">CHECKBOX</option>
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">

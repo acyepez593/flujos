@@ -155,6 +155,7 @@ class ReportesController extends Controller
                 return $a['orden'] > $b['orden'];
             });
 
+            array_push($headers, "Número Trámite", "Fecha de Creación");
             foreach($campos as $obj){
                 if($obj['habilitado'] == true || $obj['habilitado'] == 1){
                     $listadoCampos[] = $obj['campo'];
@@ -203,6 +204,10 @@ class ReportesController extends Controller
         
         $tramites = $tramites->orderBy('id', 'asc')->get();
 
+        $identificadorProteccion = '';
+        if($filtroProcesoIdSearch == 3){
+            $identificadorProteccion = 'PRO-DIS-';
+        }
         $tramitesIds = [];
         $tramitesObj = [];
         foreach ($tramites as $tramite) {
@@ -233,7 +238,7 @@ class ReportesController extends Controller
             $celdaInicio = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ','BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ'];
             $columnaInicio = 2;
             $filaInicioPivot = 2;
-            $columnaInicioPivot = 0;
+            $columnaInicioPivot = 2;
 
             foreach ($headers as $index => $header) {
                 $active_sheet->setCellValue($celdaInicio[$index].'1', $header);
@@ -246,6 +251,11 @@ class ReportesController extends Controller
                 $beneficiario['tramite'] = $tramitesObj[$beneficiario->tramite_id];
                 $camposTramite = json_decode($beneficiario['tramite']['datos'], true);
                 $columnaInicioPivot = 0;
+
+                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario['tramite_id']) || empty($beneficiario['tramite_id']) ? "" : $identificadorProteccion . $beneficiario['tramite_id']);
+                $columnaInicioPivot += 1;
+                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario['created_at']) || empty($beneficiario['created_at']) ? "" : Carbon::createFromFormat('Y-m-d H:i:s', $beneficiario['created_at'], 'UTC')->setTimezone('America/Los_Angeles')->format('Y-m-d H:i:s'));
+                $columnaInicioPivot += 1;
 
                 foreach($listadoCampos as $index => $campo){
                     if($secciones[$index] == 'BENEFICIARIOS'){
@@ -270,6 +280,9 @@ class ReportesController extends Controller
                                 case 'select':
                                     $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $catalogosTemp[$datosBeneficiario[$campo]]);
                                     break;
+                                case 'checkbox':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) ? "" : (($datosBeneficiario[$campo] == 'true' || $datosBeneficiario[$campo] == true) ? "SI" : "NO"));
+                                    break;
                             }
                             $columnaInicioPivot += 1;
                         }
@@ -292,6 +305,9 @@ class ReportesController extends Controller
                                 break;
                             case 'select':
                                 $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $catalogosTemp[$camposTramite['data'][$secciones[$index]][$campo]]);
+                                break;
+                            case 'checkbox':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) ? "xxxx rrr" : (($camposTramite['data'][$secciones[$index]][$campo] == 'true' || $camposTramite['data'][$secciones[$index]][$campo] == true) ? "SI" : "NO"));
                                 break;
                         }
                         $columnaInicioPivot += 1;
