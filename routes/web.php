@@ -12,8 +12,10 @@ use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\RolesController;
 use App\Http\Controllers\Backend\ConfiguracionesCamposReporteController;
 use App\Http\Controllers\Backend\ConsultaCiudadanaTramitesController;
+use App\Http\Controllers\Backend\NormativaDiscapacidadesController;
 use App\Http\Controllers\Backend\PantallasController;
 use App\Http\Controllers\Backend\ProcesosController;
+use App\Http\Controllers\Backend\RangoDiscapacidadesController;
 use App\Http\Controllers\Backend\ReportesController;
 use App\Http\Controllers\Backend\SeccionPantallasController;
 use App\Http\Controllers\Backend\SecuenciaProcesosController;
@@ -124,6 +126,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     //Route::resource('seccionPantallas', SeccionPantallasController::class);
     Route::resource('configuracionesCamposReporte', ConfiguracionesCamposReporteController::class);
     Route::resource('reportes', ReportesController::class);
+    Route::resource('normativaDiscapacidades', NormativaDiscapacidadesController::class);
+    Route::resource('rangoDiscapacidades', RangoDiscapacidadesController::class);
 
     // Login Routes.
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

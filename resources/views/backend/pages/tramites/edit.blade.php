@@ -336,12 +336,16 @@ Editar Trámite - Admin Panel
         for (let seccion in camposPorSeccion) {
             count = 1;
             let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
+            let nombre_seccion = seccion;
+            if(seccion == 'BENEFICIARIOS'){
+                nombre_seccion = 'SOLICITANTE';
+            }
 
             if(long > 0){
                 html_components += '<div class="card">'+
                 '<div class="card-header" id="headingOne">'+
                 '<h5 class="mb-0">'+
-                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">INFORMACIÓN ' + seccion + '</button>'+
+                '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">INFORMACIÓN ' + nombre_seccion + '</button>'+
                 '</h5>'+
                 '</div>'+
                 '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
@@ -358,7 +362,7 @@ Editar Trámite - Admin Panel
                         
                         html_components += '<div id="beneficiario_' + (index + 1) + '" class="card" ben_id="' + ben_id + '">'+
                         '<div class="card-header">'+
-                        'Beneficiario';
+                        '';
                         if(proceso_id != 3){
                             if(index == 0){
                                 html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';

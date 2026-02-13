@@ -276,8 +276,21 @@ class TramitesController extends Controller
             $ben->save();
         }
 
-        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. '));
-        return redirect()->route('admin.tramites.inbox'); 
+        $numeroTramite = '';
+        switch ($proceso_id) {
+            case 1:
+                $numeroTramite = 'PRO-FAL-' . $tramite->id;
+                break;
+            case 2:
+                $numeroTramite = 'PRO-FUN-' . $tramite->id;
+                break;
+            case 3:
+                $numeroTramite = 'PRO-DIS-' . $tramite->id;
+                break;
+        }
+
+        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. El número de trámite es: ' . $numeroTramite));
+        return redirect()->route('admin.tramites.inbox',['numeroTramite' => $numeroTramite]); 
     }
 
     public function edit(int $id): Renderable

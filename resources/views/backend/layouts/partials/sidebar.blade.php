@@ -117,6 +117,40 @@
                                 </ul>
                             </li>
                             @endif
+                            @if ($usr->can('normativaDiscapacidad.create') || $usr->can('normativaDiscapacidad.view') || $usr->can('normativaDiscapacidad.edit') || $usr->can('normativaDiscapacidad.delete'))
+                            <li>
+                                <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
+                                    Normativa Discapacidad
+                                </span></a>
+                                <ul class="collapse {{ Route::is('admin.normativaDiscapacidades.create') || Route::is('admin.normativaDiscapacidades.index') || Route::is('admin.normativaDiscapacidades.edit') || Route::is('admin.normativaDiscapacidades.show') ? 'in' : '' }}">
+                                    
+                                    @if ($usr->can('normativaDiscapacidad.view'))
+                                        <li class="{{ Route::is('admin.normativaDiscapacidades.index')  || Route::is('admin.normativaDiscapacidades.edit') ? 'active' : '' }}"><a href="{{ route('admin.normativaDiscapacidades.index') }}">Todos las Normativas Discapacidad</a></li>
+                                    @endif
+
+                                    @if ($usr->can('normativaDiscapacidad.create'))
+                                        <li class="{{ Route::is('admin.normativaDiscapacidades.create')  ? 'active' : '' }}"><a href="{{ route('admin.normativaDiscapacidades.create') }}">Crear Rango Discapacidad</a></li>
+                                    @endif
+                                </ul>
+                            </li>
+                            @endif
+                            @if ($usr->can('rangoDiscapacidad.create') || $usr->can('rangoDiscapacidad.view') || $usr->can('rangoDiscapacidad.edit') || $usr->can('rangoDiscapacidad.delete'))
+                            <li>
+                                <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
+                                    Rango Discapacidades
+                                </span></a>
+                                <ul class="collapse {{ Route::is('admin.rangoDiscapacidades.create') || Route::is('admin.rangoDiscapacidades.index') || Route::is('admin.rangoDiscapacidades.edit') || Route::is('admin.rangoDiscapacidades.show') ? 'in' : '' }}">
+                                    
+                                    @if ($usr->can('rangoDiscapacidad.view'))
+                                        <li class="{{ Route::is('admin.rangoDiscapacidades.index')  || Route::is('admin.rangoDiscapacidades.edit') ? 'active' : '' }}"><a href="{{ route('admin.rangoDiscapacidades.index') }}">Todos los Rangos Discapacidad</a></li>
+                                    @endif
+
+                                    @if ($usr->can('rangoDiscapacidad.create'))
+                                        <li class="{{ Route::is('admin.rangoDiscapacidades.create')  ? 'active' : '' }}"><a href="{{ route('admin.rangoDiscapacidades.create') }}">Crear Rango Discapacidad</a></li>
+                                    @endif
+                                </ul>
+                            </li>
+                            @endif
                             @if ($usr->can('configuracionCamposReporte.view'))
                                 <li class="{{ Route::is('admin.configuracionesCamposReporte.index')  || Route::is('admin.configuracionesCamposReporte.edit') ? 'active' : '' }}"><a href="{{ route('admin.configuracionesCamposReporte.index') }}">Campos Reporte</a></li>
                             @endif

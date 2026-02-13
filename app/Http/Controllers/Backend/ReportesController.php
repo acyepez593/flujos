@@ -155,11 +155,15 @@ class ReportesController extends Controller
                 return $a['orden'] > $b['orden'];
             });
 
-            array_push($headers, "Número Trámite", "Fecha de Creación");
+            array_push($headers, "Número Trámite", "Creado Por", "Fecha de Creación");
             foreach($campos as $obj){
                 if($obj['habilitado'] == true || $obj['habilitado'] == 1){
+                    $nombreSeccion = $obj['nombre_seccion'];
+                    if($filtroProcesoIdSearch == 3 && $nombreSeccion == 'BENEFICIARIOS'){
+                        $nombreSeccion = 'SOLICITANTE';
+                    }
                     $listadoCampos[] = $obj['campo'];
-                    $headers[] = $obj['nombre_campo'] . PHP_EOL . '(' . $obj['nombre_seccion'] . ')';
+                    $headers[] = $obj['nombre_campo'] . PHP_EOL . '(' . $nombreSeccion . ')';
                     $tiposCampos[] = $camposPorProcesos->where('seccion_campo',$obj['nombre_seccion'])->where('variable',$obj['campo'])->first()['tipo_campo'];
                     $secciones [] = $obj['nombre_seccion'];
                 }
@@ -248,11 +252,14 @@ class ReportesController extends Controller
             $active_sheet->getStyle('A1'.':'.$celdaInicio[count($headers)-1].'1')->applyFromArray($sourceStyle);
 
             foreach ($beneficiarios as $beneficiario) {
+                $creadoPor = $tramitesObj[$beneficiario->tramite_id]['creado_por'];
                 $beneficiario['tramite'] = $tramitesObj[$beneficiario->tramite_id];
                 $camposTramite = json_decode($beneficiario['tramite']['datos'], true);
                 $columnaInicioPivot = 0;
 
                 $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario['tramite_id']) || empty($beneficiario['tramite_id']) ? "" : $identificadorProteccion . $beneficiario['tramite_id']);
+                $columnaInicioPivot += 1;
+                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($creadoPor) || empty($creadoPor) ? "" : $responsables[$creadoPor]);
                 $columnaInicioPivot += 1;
                 $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario['created_at']) || empty($beneficiario['created_at']) ? "" : Carbon::createFromFormat('Y-m-d H:i:s', $beneficiario['created_at'], 'UTC')->setTimezone('America/Los_Angeles')->format('Y-m-d H:i:s'));
                 $columnaInicioPivot += 1;

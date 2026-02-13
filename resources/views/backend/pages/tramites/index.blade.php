@@ -434,12 +434,16 @@
                     for (let seccion in camposPorSeccion) {
                         let count = 1;
                         let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
+                        let nombre_seccion = seccion;
+                        if(seccion == 'BENEFICIARIOS'){
+                            nombre_seccion = 'SOLICITANTE';
+                        }
                         
                         if(long > 0){
                             html_components += '<div class="card">'+
                             '<div class="card-header" id="headingOne">'+
                             '<h5 class="mb-0">'+
-                            '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">INFORMACIÓN ' + seccion + '</button>'+
+                            '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">INFORMACIÓN ' + nombre_seccion + '</button>'+
                             '</h5>'+
                             '</div>'+
                             '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
@@ -449,7 +453,7 @@
 
                                     html_components += '<div id="beneficiario_' + (index + 1) + '" class="card">'+
                                     '<div class="card-header">'+
-                                    'Beneficiario';
+                                    '';
                                     
                                     html_components += '</div>'+
                                     '<div class="card-body" style="pointer-events: none;">';

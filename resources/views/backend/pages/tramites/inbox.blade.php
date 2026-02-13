@@ -261,6 +261,25 @@
                 </div>
             </div>
         </div>
+        <!-- Modal Mostrar numero tramite -->
+        <div class="modal fade" id="modalNumeroTramite" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Número de Trámite</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: 25px;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="overlay">
         <div class="cv-spinner">
@@ -377,6 +396,11 @@
     
                 
             });
+
+            if(numero_tramite != ""){
+                $("#modalNumeroTramite .modal-body p").append('El número de tramite es: <b>' + numero_tramite + '</b>');
+                $('#modalNumeroTramite').modal('show');
+            }
             
             $('#proceso_id_search').trigger("change");
             $("#procesarTramite").prop("disabled", true);
@@ -548,6 +572,9 @@
         let datos = [];
         let trazabilidad = [];
         let files = [];
+        let numero_tramite = '{{ isset($_GET["numeroTramite"]) ? $_GET["numeroTramite"] : "" }}';
+        console.log('numero_tramite');
+        console.log(numero_tramite);
 
         let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
 
@@ -582,12 +609,16 @@
                     for (let seccion in camposPorSeccion) {
                         let count = 1;
                         let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
+                        let nombre_seccion = seccion;
+                        if(seccion == 'BENEFICIARIOS'){
+                            nombre_seccion = 'SOLICITANTE';
+                        }
                         
                         if(long > 0){
                             html_components += '<div class="card">'+
                             '<div class="card-header" id="headingOne">'+
                             '<h5 class="mb-0">'+
-                            '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">INFORMACIÓN ' + seccion + '</button>'+
+                            '<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#' + seccion + '" aria-expanded="true" aria-controls="' + seccion + '">INFORMACIÓN ' + nombre_seccion + '</button>'+
                             '</h5>'+
                             '</div>'+
                             '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
@@ -597,7 +628,7 @@
 
                                     html_components += '<div id="beneficiario_' + (index + 1) + '" class="card">'+
                                     '<div class="card-header">'+
-                                    'Beneficiario';
+                                    '';
                                     
                                     html_components += '</div>'+
                                     '<div class="card-body">';
