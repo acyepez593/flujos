@@ -60,6 +60,20 @@ Editar Normativa Discapacidad - Panel Normativa Discapacidad
                                 </div>
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="inicio_vigencia">Inicio Vigencia</label>
+                                <div class="datepicker date input-group">
+                                    <input type="text" class="form-control datepicker" placeholder="Inicio Vigencia" title="Inicio Vigencia" name="inicio_vigencia" value="{{ old('inicio_vigencia', $normativaDiscapacidad->inicio_vigencia) }}" required>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                    @error('inicio_vigencia')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
                                     <option value="ACTIVO" {{ old('estatus', $normativaDiscapacidad->estatus) == 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
@@ -92,6 +106,10 @@ Editar Normativa Discapacidad - Panel Normativa Discapacidad
 <script>
     $(document).ready(function() {
         $('.select2').select2();
+        $('.datepicker').datepicker({
+            autoclose: true,
+            format: "yyyy-mm-dd"
+        });
     })
 </script>
 @endsection

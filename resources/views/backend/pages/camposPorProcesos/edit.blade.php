@@ -98,6 +98,7 @@ Editar Campos por Sección - Panel Campos por Sección
                                     <option value="RECLAMANTE" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'RECLAMANTE' ? 'selected' : '' }}>RECLAMANTE</option>
                                     <option value="BENEFICIARIOS" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'BENEFICIARIOS' ? 'selected' : '' }}>BENEFICIARIOS</option>
                                     <option value="MEDICA" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'MEDICA' ? 'selected' : '' }}>MEDICA</option>
+                                    <option value="PROCEDENCIA" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'PROCEDENCIA' ? 'selected' : '' }}>PROCEDENCIA</option>
                                     <option value="FINANCIERO" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'FINANCIERO' ? 'selected' : '' }}>FINANCIERO</option>
                                 </select>
                                 @error('seccion_campo')

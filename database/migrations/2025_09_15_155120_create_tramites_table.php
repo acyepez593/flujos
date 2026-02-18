@@ -23,7 +23,7 @@ return new class extends Migration
             $table->index('funcionario_actual_id');*/
             $table->foreignId('funcionario_actual_id')->constrained('admins');
             $table->json('datos');
-            $table->enum('estatus', ['INGRESADO', 'EN PROCESO DAP', 'EN ANALISIS DE PROCEDENCIA', 'EN PROCESO FINANCIERO', 'PAGADO'])->default('INGRESADO');
+            $table->enum('estatus', ['INGRESADO', 'EN PROCESO DAP', 'EN PERTINENCIA MEDICA', 'EN ANALISIS DE PROCEDENCIA', 'EN PROCESO FINANCIERO', 'PAGADO'])->default('INGRESADO');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();

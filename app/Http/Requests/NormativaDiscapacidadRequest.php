@@ -25,6 +25,7 @@ class NormativaDiscapacidadRequest extends FormRequest
     {
         return [
             'nombre' => 'required',
+            'inicio_vigencia' => 'required',
             'estatus' => 'required'
         ];
     }
@@ -38,6 +39,7 @@ class NormativaDiscapacidadRequest extends FormRequest
     {
         return [
             'nombre.required' => 'El campo :attribute es requerido',
+            'inicio_vigencia.required' => 'El campo :attribute es requerido',
             'estatus.required' => 'El campo :attribute es requerido',
         ];
     }

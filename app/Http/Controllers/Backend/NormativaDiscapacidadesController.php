@@ -46,7 +46,7 @@ class NormativaDiscapacidadesController extends Controller
         ]);
     }
 
-    public function store(TipoCatalogoRequest $request): RedirectResponse
+    public function store(NormativaDiscapacidadRequest $request): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['normativaDiscapacidad.create']);
         
@@ -57,6 +57,11 @@ class NormativaDiscapacidadesController extends Controller
         }else{
             $nombre = $request->nombre;
         }
+        if(!$request->inicio_vigencia || !isset($request->inicio_vigencia) || empty($request->inicio_vigencia || is_null($request->inicio_vigencia))){
+            $inicio_vigencia = "";
+        }else{
+            $inicio_vigencia = $request->inicio_vigencia;
+        }
         if(!$request->estatus || !isset($request->estatus) || empty($request->estatus) || is_null($request->estatus)){
             $estatus = "";
         }else{
@@ -65,6 +70,7 @@ class NormativaDiscapacidadesController extends Controller
 
         $normativaDiscapacidad = new NormativaDiscapacidad();
         $normativaDiscapacidad->nombre = $nombre;
+        $normativaDiscapacidad->inicio_vigencia = $inicio_vigencia;
         $normativaDiscapacidad->estatus = $estatus;
         $normativaDiscapacidad->creado_por = $creado_por;
         $normativaDiscapacidad->save();
@@ -99,6 +105,11 @@ class NormativaDiscapacidadesController extends Controller
         }else{
             $nombre = $request->nombre;
         }
+        if(!$request->inicio_vigencia || !isset($request->inicio_vigencia) || empty($request->inicio_vigencia || is_null($request->inicio_vigencia))){
+            $inicio_vigencia = "";
+        }else{
+            $inicio_vigencia = $request->inicio_vigencia;
+        }
         if(!$request->estatus || !isset($request->estatus) || empty($request->estatus) || is_null($request->estatus)){
             $estatus = "";
         }else{
@@ -107,6 +118,7 @@ class NormativaDiscapacidadesController extends Controller
 
         $normativaDiscapacidad = NormativaDiscapacidad::findOrFail($id);
         $normativaDiscapacidad->nombre = $nombre;
+        $normativaDiscapacidad->inicio_vigencia = $inicio_vigencia;
         $normativaDiscapacidad->estatus = $estatus;
         $normativaDiscapacidad->save();
 
@@ -139,11 +151,16 @@ class NormativaDiscapacidadesController extends Controller
         $normativaDiscapacidades = NormativaDiscapacidad::where('estatus','ACTIVO');
 
         $filtroNombreSearch = $request->nombre_search;
+        $filtroInicioVigenciaSearch = $request->inicio_vigencia_search;
         $filtroEstatusSearch = json_decode($request->estatus_search, true);
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
         if(isset($filtroNombreSearch) && !empty($filtroNombreSearch)){
             $normativaDiscapacidades = $normativaDiscapacidades->where('nombre', 'like', '%'.$filtroNombreSearch.'%');
+        }
+        if(isset($filtroInicioVigenciaSearch) && !empty($filtroInicioVigenciaSearch)){
+            $fecha_inicio = Carbon::createFromFormat('Y-m-d', $filtroInicioVigenciaSearch)->startOfDay();
+            $normativaDiscapacidades = $normativaDiscapacidades->where('inicio_vigencia', $fecha_inicio);
         }
         if(isset($filtroEstatusSearch) && !empty($filtroEstatusSearch)){
             $normativaDiscapacidades = $normativaDiscapacidades->whereIn('estatus', $filtroEstatusSearch);

@@ -192,6 +192,13 @@ Crear Secuencia Proceso - Admin Panel
                             </div>
                         </div>
                         <div class="form-row">
+                            <!--<div class="form-group col-md-6 col-sm-12">
+                                <label for="distribuir_manualmente_tramites">¿Se Distribuyen Manualmente los Trámites?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" onchange="generarConfiguracionObjeto('distribuir_manualmente_tramites',this.checked)" class="custom-control-input" id="distribuir_manualmente_tramites">
+                                    <label class="custom-control-label" for="distribuir_manualmente_tramites"></label>
+                                </div>
+                            </div>-->
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="distribuir_automaticamente_tramites">¿Se Distribuyen Automáticamente los Trámites?:</label>
                                 <div class="custom-control custom-switch">

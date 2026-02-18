@@ -47,17 +47,20 @@ Crear Rango Discapacidad - Admin Panel
                     <h4 class="header-title">Crear Nuevo Rango Discapacidad</h4>
                     @include('backend.layouts.partials.messages')
                     
-                    <form action="{{ route('admin.tipoCatalogos.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.rangoDiscapacidades.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="nombre_normativa">Nombre Normativa</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control @error('nombre_normativa') is-invalid @enderror" id="nombre_normativa" name="nombre_normativa" value="{{ old('nombre_normativa') }}" required>
-                                    @error('nombre_normativa')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                <label for="normativa_id">Tipo Normativa:</label>
+                                <select id="normativa_id" name="normativa_id" class="form-control selectpicker" data-live-search="true" required>
+                                    <option value="">Seleccione una Normativa</option>
+                                    @foreach ($normativas as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('normativa_id')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="grado_discapacidad">Grado Discapacidad</label>
@@ -99,20 +102,6 @@ Crear Rango Discapacidad - Admin Panel
                                     @enderror
                                 </div>
                             </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="vigencia_desde">Vigencia Desde</label>
-                                <div class="datepicker date input-group">
-                                    <input type="text" class="form-control datepicker" placeholder="Vigencia Desde" title="Vigencia Desde" name="vigencia_desde" value="" required>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-                                    </div>
-                                    @error('vigencia_desde')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="estatus">Seleccione un Estatus:</label>
                                 <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>

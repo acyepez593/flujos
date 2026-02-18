@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('beneficiario_id')->nullable();
             $table->index('beneficiario_id');
             $table->string('variable');
-            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIOS', 'MEDICA', 'FINANCIERO']);
+            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIOS', 'MEDICA', 'PROCEDENCIA', 'FINANCIERO']);
             $table->softDeletes();
             $table->timestamps();
         });

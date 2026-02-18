@@ -59,7 +59,7 @@
                 <h4 class="page-title pull-left">{{ __('Normativa Discapacidad') }}</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li><span>{{ __('Todos las Normativas Discapacidad') }}</span></li>
+                    <li><span>{{ __('Todas las Normativas Discapacidad') }}</span></li>
                 </ul>
             </div>
         </div>
@@ -96,14 +96,23 @@
                                                 <input type="text" class="form-control" id="nombre_search" name="nombre_search">
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
+                                                <label for="inicio_vigencia_search">Buscar por Inicio Vigencia</label>
+                                                <div class="datepicker date input-group">
+                                                    <input type="text" class="form-control datepicker" id="inicio_vigencia_search" name="inicio_vigencia_search">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="ACTIVO">ACTIVO</option>
                                                     <option value="INACTIVO">INACTIVO</option>
                                                 </select>
                                             </div>
-                                        </div>
-                                        <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="creado_por_search">Buscar por Creador:</label>
                                                 <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true" multiple>
@@ -212,6 +221,7 @@
                 method: "POST",
                 data: {
                     nombre_search: $('#nombre_search').val(),
+                    inicio_vigencia_search: $('#inicio_vigencia_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
                     _token: '{{csrf_token()}}'
@@ -230,6 +240,7 @@
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
                         "<th>Nombre</th>"+
+                        "<th>Inicio Vigencia</th>"+
                         "<th>Estatus</th>"+
                         "<th>Creador Por</th>"+
                         "<th>Fecha de Creación</th>"+
@@ -246,12 +257,13 @@
                         let htmlEdit = "";
                         let htmlDelete = "";
                         
-                        htmlEdit +=@if (auth()->user()->can('catalogo.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
-                        htmlDelete += @if (auth()->user()->can('catalogo.delete')) '<a class="icon-margin" title="Borrar" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+normativaDiscapacidad.id+')"><i class="fa fa-trash fa-2x"></i></a> <form id="delete-form-'+normativaDiscapacidad.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
+                        htmlEdit +=@if (auth()->user()->can('normativaDiscapacidad.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
+                        htmlDelete += @if (auth()->user()->can('normativaDiscapacidad.delete')) '<a class="icon-margin" title="Borrar" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+normativaDiscapacidad.id+')"><i class="fa fa-trash fa-2x"></i></a> <form id="delete-form-'+normativaDiscapacidad.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
                             "<td>"+ normativaDiscapacidad.nombre+ "</td>"+
+                            "<td>"+ moment(normativaDiscapacidad.inicio_vigencia).format("YYYY-MM-DD")+ "</td>"+
                             "<td>"+ normativaDiscapacidad.estatus+ "</td>"+
                             "<td>"+ normativaDiscapacidad.creado_por_nombre+ "</td>"+
                             "<td>"+ moment(normativaDiscapacidad.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";

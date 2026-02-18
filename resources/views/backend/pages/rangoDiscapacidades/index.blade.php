@@ -1,7 +1,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-    {{ __('Tipo Catalogo - Panel de Tipo Catalogo') }}
+    {{ __('Rango Discapacidad - Panel de Rango Discapacidad') }}
 @endsection
 
 @section('styles')
@@ -56,10 +56,10 @@
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">{{ __('Tipo Catalogo') }}</h4>
+                <h4 class="page-title pull-left">{{ __('Rango Discapacidad') }}</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li><span>{{ __('Todos los Tipos Catalogos') }}</span></li>
+                    <li><span>{{ __('Todos los Rangos Discapacidades') }}</span></li>
                 </ul>
             </div>
         </div>
@@ -92,19 +92,33 @@
                                     <form>
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
-                                                <label for="nombre_search">Buscar por Nombre</label>
-                                                <input type="text" class="form-control" id="nombre_search" name="nombre_search">
-                                            </div>
-                                            <div class="form-group col-md-6 col-sm-12">
-                                                <label for="tipo_catalogo_relacionado_id_search">Buscar por Tipo Catálogo Relacionado:</label>
-                                                <select id="tipo_catalogo_relacionado_id_search" name="tipo_catalogo_relacionado_id_search" class="form-control selectpicker" data-live-search="true" multiple>
-                                                    @foreach ($tipoCatalogosRelacionados as $key => $value)
+                                                <label for="normativa_id_search">Buscar por Normativa:</label>
+                                                <select id="normativa_id_search" name="normativa_id_search" class="form-control selectpicker" data-live-search="true" multiple>
+                                                    @foreach ($normativas as $key => $value)
                                                         <option value="{{ $value->id }}">{{ $value->nombre }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="grado_discapacidad_search">Buscar por Grado Discapacidad</label>
+                                                <input type="text" class="form-control" id="grado_discapacidad_search" name="grado_discapacidad_search">
+                                            </div>
                                         </div>
                                         <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="rango_desde_search">Buscar por Rango Desde</label>
+                                                <input type="number" class="form-control" id="rango_desde_search" name="rango_desde_search">
+                                            </div>
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="rango_hasta_search">Buscar por Rango Hasta</label>
+                                                <input type="number" class="form-control" id="rango_hasta_search" name="rango_hasta_search">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="valor_cobertura_search">Buscar por Valor Cobertura</label>
+                                                <input type="number" class="form-control" id="valor_cobertura_search" name="valor_cobertura_search">
+                                            </div>
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
@@ -112,6 +126,8 @@
                                                     <option value="INACTIVO">INACTIVO</option>
                                                 </select>
                                             </div>
+                                        </div>
+                                        <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="creado_por_search">Buscar por Creador:</label>
                                                 <select id="creado_por_search" name="creado_por_search" class="form-control selectpicker" data-live-search="true" multiple>
@@ -123,7 +139,7 @@
                                             </div>
                                         </div>
 
-                                        <button type="button" id="buscarTipoCatalogos" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
+                                        <button type="button" id="buscarRangoDiscapacidades" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
                                     </form>
                                 </div>
                             </div>
@@ -132,17 +148,17 @@
                             <div class="card-header" id="headingTwo">
                             <h5 class="mb-0">
                                 <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                                Tipo Catalogos
+                                Rango Discapacidades
                                 </button>
                             </h5>
                             </div>
 
                             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                                 <div class="card-body">
-                                    <h4 class="header-title float-left">{{ __('Tipo Catalogos') }}</h4>
+                                    <h4 class="header-title float-left">{{ __('Rango Discapacidades') }}</h4>
                                     <p class="float-right mb-2" style="padding: 5px;">
-                                        @if (auth()->user()->can('catalogo.create'))
-                                            <a class="btn btn-primary text-white" href="{{ route('admin.tipoCatalogos.create') }}">
+                                        @if (auth()->user()->can('rangoDiscapacidad.create'))
+                                            <a class="btn btn-primary text-white" href="{{ route('admin.rangoDiscapacidades.create') }}">
                                                 {{ __('Crear Nuevo') }}
                                             </a>
                                         @endif
@@ -188,12 +204,12 @@
         let table = "";
         let tableRef = "";
         let tableHeaderRef = "";
-        let tipoCatalogos = [];
+        let rangoDiscapacidades = [];
         let creadores = [];
 
         $(document).ready(function() {
 
-            $( "#buscarTipoCatalogos" ).on( "click", function() {
+            $( "#buscarRangoDiscapacidades" ).on( "click", function() {
                 $("#overlay").fadeIn(300);
                 $('#dataTable').empty();
 
@@ -216,11 +232,14 @@
 
         function loadDataTable(){
             $.ajax({
-                url: "{{url('/getTipoCatalogosByFilters')}}",
+                url: "{{url('/getRangoDiscapacidadesByFilters')}}",
                 method: "POST",
                 data: {
-                    nombre_search: $('#nombre_search').val(),
-                    tipo_catalogo_relacionado_id_search: JSON.stringify($('#tipo_catalogo_relacionado_id_search').val()),
+                    normativa_id_search: JSON.stringify($('#normativa_id_search').val()),
+                    grado_discapacidad_search: $('#grado_discapacidad_search').val(),
+                    rango_desde_search: $('#rango_desde_search').val(),
+                    rango_hasta_search: $('#rango_hasta_search').val(),
+                    valor_cobertura_search: $('#valor_cobertura_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
                     creado_por_search: JSON.stringify($('#creado_por_search').val()),
                     _token: '{{csrf_token()}}'
@@ -231,15 +250,18 @@
 
                     $("#collapseTwo").collapse('show');
                     
-                    tipoCatalogos = response.tipoCatalogos;
+                    rangoDiscapacidades = response.rangoDiscapacidades;
                     creadores = response.creadores;
 
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
 
                     tableHeaderRef.insertRow().innerHTML = 
                         "<th>#</th>"+
-                        "<th>Nombre</th>"+
-                        "<th>Tipo Catálogo Relacionado</th>"+
+                        "<th>Normativa</th>"+
+                        "<th>Grado Discapacidad</th>"+
+                        "<th>Rango Desde</th>"+
+                        "<th>Rango Hasta</th>"+
+                        "<th>Valor Cobertura</th>"+
                         "<th>Estatus</th>"+
                         "<th>Creador Por</th>"+
                         "<th>Fecha de Creación</th>"+
@@ -248,25 +270,28 @@
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
 
                     let contador = 1;
-                    for (let tipoCatalogo of tipoCatalogos) {
+                    for (let rangoDiscapacidad of rangoDiscapacidades) {
                         
-                        let rutaEdit = "{{url()->current()}}"+"/"+tipoCatalogo.id+"/edit";
-                        let rutaDelete = "{{url()->current()}}"+"/"+tipoCatalogo.id;
+                        let rutaEdit = "{{url()->current()}}"+"/"+rangoDiscapacidad.id+"/edit";
+                        let rutaDelete = "{{url()->current()}}"+"/"+rangoDiscapacidad.id;
                         let innerHTML = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
                         
-                        htmlEdit +=@if (auth()->user()->can('catalogo.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
-                        htmlDelete += @if (auth()->user()->can('catalogo.delete')) '<a class="icon-margin" title="Borrar" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tipoCatalogo.id+')"><i class="fa fa-trash fa-2x"></i></a> <form id="delete-form-'+tipoCatalogo.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
+                        htmlEdit +=@if (auth()->user()->can('rangoDiscapacidad.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
+                        htmlDelete += @if (auth()->user()->can('rangoDiscapacidad.delete')) '<a class="icon-margin" title="Borrar" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+rangoDiscapacidad.id+')"><i class="fa fa-trash fa-2x"></i></a> <form id="delete-form-'+rangoDiscapacidad.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ contador+ "</td>"+
-                            "<td>"+ tipoCatalogo.nombre+ "</td>"+
-                            "<td>"+ tipoCatalogo.tipo_catalogo_relacionado_nombre+ "</td>"+
-                            "<td>"+ tipoCatalogo.estatus+ "</td>"+
-                            "<td>"+ tipoCatalogo.creado_por_nombre+ "</td>"+
-                            "<td>"+ moment(tipoCatalogo.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
-                            if(tipoCatalogo.esCreadorRegistro){
+                            "<td>"+ rangoDiscapacidad.normativa_nombre+ "</td>"+
+                            "<td>"+ rangoDiscapacidad.grado_discapacidad+ "</td>"+
+                            "<td>"+ rangoDiscapacidad.rango_desde+ "</td>"+
+                            "<td>"+ rangoDiscapacidad.rango_hasta+ "</td>"+
+                            "<td>"+ rangoDiscapacidad.valor_cobertura+ "</td>"+
+                            "<td>"+ rangoDiscapacidad.estatus+ "</td>"+
+                            "<td>"+ rangoDiscapacidad.creado_por_nombre+ "</td>"+
+                            "<td>"+ moment(rangoDiscapacidad.created_at).format("YYYY-MM-DD HH:mm")+ "</td>";
+                            if(rangoDiscapacidad.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlEdit + htmlDelete + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
@@ -327,7 +352,7 @@
                             },
                             dataType: 'json',
                             success: function (response) {
-                                $( "#buscarTipoCatalogos" ).trigger( "click" );
+                                $( "#buscarRangoDiscapacidades" ).trigger( "click" );
                             }
                         });
                     },

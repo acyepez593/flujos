@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('normativa_discapacidades', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
+            $table->timestamp('inicio_vigencia');
             $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');

@@ -24,12 +24,11 @@ class RangoDiscapacidadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre_normativa' => 'required',
+            'normativa_id' => 'required',
             'grado_discapacidad' => 'required',
             'rango_desde' => 'required',
             'rango_hasta' => 'required',
             'valor_cobertura' => 'required',
-            'vigencia_desde' => 'required',
             'estatus' => 'required'
         ];
     }
@@ -42,12 +41,11 @@ class RangoDiscapacidadRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nombre_normativa.required' => 'El campo :attribute es requerido',
+            'normativa_id.required' => 'El campo :attribute es requerido',
             'grado_discapacidad.required' => 'El campo :attribute es requerido',
             'rango_desde.required' => 'El campo :attribute es requerido',
             'rango_hasta.required' => 'El campo :attribute es requerido',
             'valor_cobertura.required' => 'El campo :attribute es requerido',
-            'vigencia_desde.required' => 'El campo :attribute es requerido',
             'estatus.required' => 'El campo :attribute es requerido',
         ];
     }

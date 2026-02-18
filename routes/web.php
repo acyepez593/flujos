@@ -82,6 +82,10 @@ Route::post('/consultaTramiteSppat',[ConsultaCiudadanaTramitesController::class,
 Route::get('files/{fileName}', [TramitesController::class, 'download'])->name('download')->middleware('auth:admin');
 Route::post('/deleteFile', [TramitesController::class, 'deleteFile'])->name('deleteFile')->middleware('auth:admin');
 
+Route::post('/getNormativaDiscapacidadesByFilters',[NormativaDiscapacidadesController::class, 'getNormativaDiscapacidadesByFilters'])->middleware('auth:admin');
+Route::post('/getRangoDiscapacidadesByFilters',[RangoDiscapacidadesController::class, 'getRangoDiscapacidadesByFilters'])->middleware('auth:admin');
+
+
 /**
  * Admin routes
  */

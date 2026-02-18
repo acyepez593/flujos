@@ -11,6 +11,7 @@ use App\Http\Requests\TramiteRequest;
 use App\Mail\Notification;
 use App\Models\Admin;
 use App\Models\Catalogo;
+use App\Models\NormativaDiscapacidad;
 use App\Models\Proceso;
 use App\Models\RangoDiscapacidad;
 use App\Models\Tramite;
@@ -38,9 +39,11 @@ class RangoDiscapacidadesController extends Controller
         $this->checkAuthorization(auth()->user(), ['rangoDiscapacidad.view']);
 
         $creadores = Admin::get(["name", "id"]);
+        $normativas = NormativaDiscapacidad::where('estatus','ACTIVO')->get(['nombre', 'id']);
 
         return view('backend.pages.rangoDiscapacidades.index', [
-            'creadores' => $creadores
+            'creadores' => $creadores,
+            'normativas' => $normativas
         ]);
     }
 
@@ -49,9 +52,11 @@ class RangoDiscapacidadesController extends Controller
         $this->checkAuthorization(auth()->user(), ['rangoDiscapacidad.create']);
 
         $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
+        $normativas = NormativaDiscapacidad::where('estatus','ACTIVO')->get(['nombre', 'id'])->pluck('nombre','id');
 
         return view('backend.pages.rangoDiscapacidades.create', [
-            'creadores' => $creadores
+            'creadores' => $creadores,
+            'normativas' => $normativas
         ]);
     }
 
@@ -61,10 +66,10 @@ class RangoDiscapacidadesController extends Controller
         
         $creado_por = Auth::id();
 
-        if(!$request->nombre_normativa || !isset($request->nombre_normativa) || empty($request->nombre_normativa || is_null($request->nombre_normativa))){
-            $nombre_normativa = "";
+        if(!$request->normativa_id || !isset($request->normativa_id) || empty($request->normativa_id || is_null($request->normativa_id))){
+            $normativa_id = "";
         }else{
-            $nombre_normativa = $request->nombre_normativa;
+            $normativa_id = $request->normativa_id;
         }
         if(!$request->grado_discapacidad || !isset($request->grado_discapacidad) || empty($request->grado_discapacidad || is_null($request->grado_discapacidad))){
             $grado_discapacidad = "";
@@ -86,11 +91,6 @@ class RangoDiscapacidadesController extends Controller
         }else{
             $valor_cobertura = $request->valor_cobertura;
         }
-        if(!$request->vigencia_desde || !isset($request->vigencia_desde) || empty($request->vigencia_desde || is_null($request->vigencia_desde))){
-            $vigencia_desde = "";
-        }else{
-            $vigencia_desde = $request->vigencia_desde;
-        }
         if(!$request->estatus || !isset($request->estatus) || empty($request->estatus || is_null($request->estatus))){
             $estatus = "";
         }else{
@@ -98,12 +98,11 @@ class RangoDiscapacidadesController extends Controller
         }
 
         $rangoDiscapacidad = new RangoDiscapacidad();
-        $rangoDiscapacidad->nombre_normativa = $nombre_normativa;
+        $rangoDiscapacidad->normativa_id = $normativa_id;
         $rangoDiscapacidad->grado_discapacidad = $grado_discapacidad;
         $rangoDiscapacidad->rango_desde = $rango_desde;
         $rangoDiscapacidad->rango_hasta = $rango_hasta;
         $rangoDiscapacidad->valor_cobertura = $valor_cobertura;
-        $rangoDiscapacidad->vigencia_desde = $vigencia_desde;
         $rangoDiscapacidad->estatus = $estatus;
         $rangoDiscapacidad->creado_por = $creado_por;
         $rangoDiscapacidad->save();
@@ -121,9 +120,12 @@ class RangoDiscapacidadesController extends Controller
             abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
         }
         $creadores = Admin::get(["name", "id"])->pluck('nombre','id');
+        $normativas = NormativaDiscapacidad::where('estatus','ACTIVO')->get(['nombre', 'id']);
 
         return view('backend.pages.rangoDiscapacidades.edit', [
-            'creadores' => $creadores
+            'creadores' => $creadores,
+            'normativas' => $normativas,
+            'rangoDiscapacidad' => $rangoDiscapacidad
         ]);
     }
 
@@ -131,10 +133,10 @@ class RangoDiscapacidadesController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['rangoDiscapacidad.edit']);
 
-        if(!$request->nombre_normativa || !isset($request->nombre_normativa) || empty($request->nombre_normativa || is_null($request->nombre_normativa))){
-            $nombre_normativa = "";
+        if(!$request->normativa_id || !isset($request->normativa_id) || empty($request->normativa_id || is_null($request->normativa_id))){
+            $normativa_id = "";
         }else{
-            $nombre_normativa = $request->nombre_normativa;
+            $normativa_id = $request->normativa_id;
         }
         if(!$request->grado_discapacidad || !isset($request->grado_discapacidad) || empty($request->grado_discapacidad || is_null($request->grado_discapacidad))){
             $grado_discapacidad = "";
@@ -156,11 +158,6 @@ class RangoDiscapacidadesController extends Controller
         }else{
             $valor_cobertura = $request->valor_cobertura;
         }
-        if(!$request->vigencia_desde || !isset($request->vigencia_desde) || empty($request->vigencia_desde || is_null($request->vigencia_desde))){
-            $vigencia_desde = "";
-        }else{
-            $vigencia_desde = $request->vigencia_desde;
-        }
         if(!$request->estatus || !isset($request->estatus) || empty($request->estatus || is_null($request->estatus))){
             $estatus = "";
         }else{
@@ -168,18 +165,35 @@ class RangoDiscapacidadesController extends Controller
         }
 
         $rangoDiscapacidad = RangoDiscapacidad::findOrFail($id);;
-        $rangoDiscapacidad->nombre_normativa = $nombre_normativa;
+        $rangoDiscapacidad->normativa_id = $normativa_id;
         $rangoDiscapacidad->grado_discapacidad = $grado_discapacidad;
         $rangoDiscapacidad->rango_desde = $rango_desde;
         $rangoDiscapacidad->rango_hasta = $rango_hasta;
         $rangoDiscapacidad->valor_cobertura = $valor_cobertura;
-        $rangoDiscapacidad->vigencia_desde = $vigencia_desde;
         $rangoDiscapacidad->estatus = $estatus;
         $rangoDiscapacidad->save();
 
         session()->flash('success', 'El Rango de discapacidad ha sido actualizado satisfactoriamente.');
-        return redirect()->route('admin.rangoDiscapacidades.inbox');
+        return redirect()->route('admin.rangoDiscapacidades.index');
         
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['rangoDiscapacidad.delete']);
+
+        $rangoDiscapacidad = RangoDiscapacidad::findOrFail($id);
+        if($rangoDiscapacidad->creado_por != Auth::id()){
+            abort(403, 'Lo sentimos !! Usted no está autorizado para realizar esta acción.');
+        }
+
+        $rangoDiscapacidad->delete();
+
+        $data['status'] = 200;
+        $data['message'] = "El Rango de discapacidad ha sido borrado satisfactoriamente.";
+  
+        return response()->json($data);
+
     }
 
     public function getRangoDiscapacidadesByFilters(Request $request): JsonResponse
@@ -188,7 +202,7 @@ class RangoDiscapacidadesController extends Controller
 
         $rangoDiscapacidades = RangoDiscapacidad::where('id',">",0);
 
-        $filtroNombreNormativaSearch = $request->nombre_normativa_search;
+        $filtroNormativaIdSearch = json_decode($request->normativa_id_search, true);
         $filtroGradoDiscapacidadSearch = $request->grado_discapacidad_search;
         $filtroRangoDesdeSearch = $request->rango_desde_search;
         $filtroRangoHastaSearch = $request->rango_hasta_search;
@@ -197,8 +211,8 @@ class RangoDiscapacidadesController extends Controller
         $filtroEstatus = json_decode($request->estatus_search, true);
         $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
         
-        if(isset($filtroNombreNormativaSearch) && !empty($filtroNombreNormativaSearch)){
-            $rangoDiscapacidades = $rangoDiscapacidades->where('nombre_normativa', $filtroNombreNormativaSearch);
+        if(isset($filtroNormativaIdSearch) && !empty($filtroNormativaIdSearch)){
+            $rangoDiscapacidades = $rangoDiscapacidades->whereIn('normativa_id', $filtroNormativaIdSearch);
         }
         if(isset($filtroGradoDiscapacidadSearch) && !empty($filtroGradoDiscapacidadSearch)){
             $rangoDiscapacidades = $rangoDiscapacidades->where('grado_discapacidad', $filtroGradoDiscapacidadSearch);
@@ -231,15 +245,24 @@ class RangoDiscapacidadesController extends Controller
             $creadores_temp[$creador->id] = $creador->name;
         }
 
+        $normativas = NormativaDiscapacidad::all();
+
+        $normativas_temp = [];
+        foreach($normativas as $normativa){
+            $normativas_temp[$normativa->id] = $normativa->nombre;
+        }
+
         $usuario_actual_id = Auth::id();
 
         foreach($rangoDiscapacidades as $rango){
             $rango->creado_por_nombre = array_key_exists($rango->creado_por, $creadores_temp) ? $creadores_temp[$rango->creado_por] : "";
+            $rango->normativa_nombre = array_key_exists($rango->normativa_id, $normativas_temp) ? $normativas_temp[$rango->normativa_id] : "";
             $rango->esCreadorRegistro = $usuario_actual_id == $rango->creado_por ? true : false;
         }
 
         $data['rangoDiscapacidades'] = $rangoDiscapacidades;
         $data['creadores'] = $creadores;
+        $data['normativas'] = $normativas;
   
         return response()->json($data);
     }

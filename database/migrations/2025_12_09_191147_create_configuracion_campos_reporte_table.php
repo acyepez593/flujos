@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->foreignId('proceso_id')->constrained('procesos');
-            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIOS', 'MEDICA', 'FINANCIERO']);
+            $table->enum('seccion_campo', ['RECEPCION', 'SINIESTRO', 'VICTIMA', 'VEHICULO', 'RECLAMANTE', 'BENEFICIARIOS', 'MEDICA', 'PROCEDENCIA', 'FINANCIERO']);
             $table->boolean('habilitar');
             $table->json('campos');
             $table->foreignId('funcionario_id')->constrained('admins');

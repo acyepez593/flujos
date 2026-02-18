@@ -120,6 +120,7 @@
                                                     <option value="">Seleccione un Estatus</option>
                                                     <option value="INGRESADO">INGRESADO</option>
                                                     <option value="EN PROCESO DAP">EN PROCESO DAP</option>
+                                                    <option value="EN PERTINENCIA MEDICA">EN PERTINENCIA MEDICA</option>
                                                     <option value="EN ANALISIS DE PROCEDENCIA">EN ANALISIS DE PROCEDENCIA</option>
                                                     <option value="EN PROCESO FINANCIERO">EN PROCESO FINANCIERO</option>
                                                     <option value="PAGADO">PAGADO</option>
