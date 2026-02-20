@@ -192,13 +192,13 @@ Crear Secuencia Proceso - Admin Panel
                             </div>
                         </div>
                         <div class="form-row">
-                            <!--<div class="form-group col-md-6 col-sm-12">
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="distribuir_manualmente_tramites">¿Se Distribuyen Manualmente los Trámites?:</label>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" onchange="generarConfiguracionObjeto('distribuir_manualmente_tramites',this.checked)" class="custom-control-input" id="distribuir_manualmente_tramites">
                                     <label class="custom-control-label" for="distribuir_manualmente_tramites"></label>
                                 </div>
-                            </div>-->
+                            </div>
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="distribuir_automaticamente_tramites">¿Se Distribuyen Automáticamente los Trámites?:</label>
                                 <div class="custom-control custom-switch">
@@ -206,6 +206,8 @@ Crear Secuencia Proceso - Admin Panel
                                     <label class="custom-control-label" for="distribuir_automaticamente_tramites"></label>
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div id="con_distribucion_automatica" class="form-group col-md-6 col-sm-12">
                                 <label for="rol_id">Seleccione un Rol:</label>
                                 <select id="rol_id" name="rol_id" class="form-control selectpicker @error('rol_id') is-invalid @enderror" data-live-search="true">
@@ -230,8 +232,6 @@ Crear Secuencia Proceso - Admin Panel
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="requiere_evaluacion">¿Requiere evaluación?:</label>
                                 <div class="custom-control custom-switch">
@@ -297,6 +297,32 @@ Crear Secuencia Proceso - Admin Panel
                                     @endforeach
                                 </select>
                                 @error('camino_sin_evaluacion')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <h4 class="header-title">Configuración de Variables de llenado masivo</h4>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="habilitar_llenado_masivo_variables">Habilitar llenado de variables masivo?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" onchange="generarConfiguracionObjetoLlenadoMasivo('habilitar_llenado_masivo_variables',this.checked)" class="custom-control-input" id="habilitar_llenado_masivo_variables">
+                                    <label class="custom-control-label" for="habilitar_llenado_masivo_variables"></label>
+                                </div>
+                            </div>
+                            <div id="habilitar_llenado_masivo" class="form-group col-md-6 col-sm-12">
+                                <label for="variables_llenado_masivo">Seleccione la variable a ser llenada</label>
+                                <select id="variables_llenado_masivo" onchange="generarConfiguracionObjetoLlenadoMasivo('variables_llenado_masivo',this.value)" name="variables_llenado_masivo" class="form-control selectpicker @error('variables_llenado_masivo') is-invalid @enderror" data-live-search="true" multiple>
+                                    <option value="">Seleccione la variable a ser llenada</option>
+                                    @foreach ($campos as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('variables_llenado_masivo')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -822,19 +848,45 @@ Crear Secuencia Proceso - Admin Panel
             generarConfiguracionObjeto('requiere_evaluacion',this.checked);
         });
 
-        $('#distribuir_automaticamente_tramites').change(function() {
+        $('#distribuir_manualmente_tramites').change(function() {
             if(this.checked){
+                $('#distribuir_automaticamente_tramites').prop('disabled', true);
                 $('#con_distribucion_automatica').show();
                 $('#sin_distribucion_automatica').hide();
             }else{
+                $('#distribuir_automaticamente_tramites').prop('disabled', false);
+                $('#con_distribucion_automatica').hide();
+                $('#sin_distribucion_automatica').show();
+            }
+            generarConfiguracionObjeto('distribuir_manualmente_tramites',this.checked);
+        });
+
+        $('#distribuir_automaticamente_tramites').change(function() {
+            if(this.checked){
+                $('#distribuir_manualmente_tramites').prop('disabled', true);
+                $('#con_distribucion_automatica').show();
+                $('#sin_distribucion_automatica').hide();
+            }else{
+                $('#distribuir_manualmente_tramites').prop('disabled', false);
                 $('#con_distribucion_automatica').hide();
                 $('#sin_distribucion_automatica').show();
             }
             generarConfiguracionObjeto('distribuir_automaticamente_tramites',this.checked);
         });
 
+        $('#habilitar_llenado_masivo_variables').change(function() {
+            if(this.checked){
+                $('#habilitar_llenado_masivo').show();
+            }else{
+                $('#habilitar_llenado_masivo').hide();
+            }
+            generarConfiguracionObjetoLlenadoMasivo('habilitar_llenado_masivo_variables',this.checked);
+        });
+
         $('#requiere_evaluacion').change();
+        $('#distribuir_manualmente_tramites').change();
         $('#distribuir_automaticamente_tramites').change();
+        $('#habilitar_llenado_masivo_variables').change();
 
         tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
 
@@ -1005,13 +1057,18 @@ Crear Secuencia Proceso - Admin Panel
     let jj = 0;
 
     let objeto = {
+        distribuir_manualmente_tramites: false,
         distribuir_automaticamente_tramites: false,
         requiere_evaluacion: false,
         pregunta_evaluacion: "",
         variable_evaluacion: "",
         camino_evaluacion_verdadero: "",
         camino_evaluacion_falso: "",
-        camino_sin_evaluacion: ""
+        camino_sin_evaluacion: "",
+        llenado_masivo: {
+            habilitar_llenado_masivo_variables: false, 
+            variables_llenado_masivo: []
+        }
     }
 
     let objetoCorreo = {
@@ -1198,6 +1255,23 @@ Crear Secuencia Proceso - Admin Panel
     function generarConfiguracionObjeto(campo,valor){
         objeto[campo] = valor;
         $('#configuracion').val(JSON.stringify(objeto));
+    }
+
+    function generarConfiguracionObjetoLlenadoMasivo(campo,valor){
+        if(campo == 'habilitar_llenado_masivo_variables'){
+            if(valor == false){
+                objeto.llenado_masivo.variables_llenado_masivo = [];
+            }
+            objeto.llenado_masivo[campo] = valor;
+            $('#configuracion').val(JSON.stringify(objeto));
+        }else{
+            if($('#variables_llenado_masivo').val() == null){
+                objeto.llenado_masivo[campo] = [];
+            }else{
+                objeto.llenado_masivo[campo] = $('#variables_llenado_masivo').val();
+            }
+            $('#configuracion').val(JSON.stringify(objeto));
+        }
     }
 
     function generarConfiguracionCamposObjeto(id,obj){

@@ -190,12 +190,21 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
+                                <label for="distribuir_manualmente_tramites">¿Se Distribuyen Manualmente los Trámites?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" onchange="generarConfiguracionObjeto('distribuir_manualmente_tramites',this.checked)" class="custom-control-input" id="distribuir_manualmente_tramites">
+                                    <label class="custom-control-label" for="distribuir_manualmente_tramites"></label>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="distribuir_automaticamente_tramites">¿Se Distribuyen Automáticamente los Trámites?:</label>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" onchange="generarConfiguracionObjeto('distribuir_automaticamente_tramites',this.checked)" class="custom-control-input" id="distribuir_automaticamente_tramites">
                                     <label class="custom-control-label" for="distribuir_automaticamente_tramites"></label>
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div id="con_distribucion_automatica" class="form-group col-md-6 col-sm-12">
                                 <label for="rol_id">Seleccione un Rol:</label>
                                 <select id="rol_id" name="rol_id" class="form-control selectpicker @error('rol_id') is-invalid @enderror" data-live-search="true">
@@ -220,8 +229,6 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="requiere_evaluacion">Requiere evaluación?:</label>
                                 <div class="custom-control custom-switch">
@@ -287,6 +294,32 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                     @endforeach
                                 </select>
                                 @error('camino_sin_evaluacion')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <h4 class="header-title">Configuración de Variables de llenado masivo</h4>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="habilitar_llenado_masivo_variables">Habilitar llenado de variables masivo?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" onchange="generarConfiguracionObjetoLlenadoMasivo('habilitar_llenado_masivo_variables',this.checked)" class="custom-control-input" id="habilitar_llenado_masivo_variables">
+                                    <label class="custom-control-label" for="habilitar_llenado_masivo_variables"></label>
+                                </div>
+                            </div>
+                            <div id="habilitar_llenado_masivo" class="form-group col-md-6 col-sm-12">
+                                <label for="variables_llenado_masivo">Seleccione la variable a ser llenada</label>
+                                <select id="variables_llenado_masivo" onchange="generarConfiguracionObjetoLlenadoMasivo('variables_llenado_masivo',this.value)" name="variables_llenado_masivo" class="form-control selectpicker @error('variables_llenado_masivo') is-invalid @enderror" data-live-search="true" multiple>
+                                    <option value="">Seleccione la variable a ser llenada</option>
+                                    @foreach ($campos as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('variables_llenado_masivo')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -809,22 +842,50 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             generarConfiguracionObjeto('requiere_evaluacion',this.checked);
         });
 
-        $('#distribuir_automaticamente_tramites').change(function() {
+        $('#distribuir_manualmente_tramites').change(function() {
             if(this.checked){
+                $('#distribuir_automaticamente_tramites').prop('disabled', true);
                 $('#con_distribucion_automatica').show();
                 $('#sin_distribucion_automatica').hide();
             }else{
+                $('#distribuir_automaticamente_tramites').prop('disabled', false);
+                $('#con_distribucion_automatica').hide();
+                $('#sin_distribucion_automatica').show();
+            }
+            generarConfiguracionObjeto('distribuir_manualmente_tramites',this.checked);
+        });
+        
+        $('#distribuir_automaticamente_tramites').change(function() {
+            if(this.checked){
+                $('#distribuir_manualmente_tramites').prop('disabled', true);
+                $('#con_distribucion_automatica').show();
+                $('#sin_distribucion_automatica').hide();
+            }else{
+                $('#distribuir_manualmente_tramites').prop('disabled', false);
                 $('#con_distribucion_automatica').hide();
                 $('#sin_distribucion_automatica').show();
             }
             generarConfiguracionObjeto('distribuir_automaticamente_tramites',this.checked);
         });
 
+        $('#habilitar_llenado_masivo_variables').change(function() {
+            if(this.checked){
+                $('#habilitar_llenado_masivo').show();
+            }else{
+                $('#habilitar_llenado_masivo').hide();
+            }
+            generarConfiguracionObjetoLlenadoMasivo('habilitar_llenado_masivo_variables',this.checked);
+        });
+
         $('#requiere_evaluacion').prop('checked', configuraciones.requiere_evaluacion);
+        $('#distribuir_manualmente_tramites').prop('checked', configuraciones.distribuir_manualmente_tramites);
         $('#distribuir_automaticamente_tramites').prop('checked', configuraciones.distribuir_automaticamente_tramites);
+        $('#habilitar_llenado_masivo_variables').prop('checked', configuraciones.llenado_masivo.habilitar_llenado_masivo_variables);
 
         $('#requiere_evaluacion').change();
+        $('#distribuir_manualmente_tramites').change();
         $('#distribuir_automaticamente_tramites').change();
+        $('#habilitar_llenado_masivo_variables').change();
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
         $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
 
@@ -1228,6 +1289,25 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     function generarConfiguracionObjeto(campo,valor){
         configuraciones[campo] = valor;
         $('#configuracion').val(JSON.stringify(configuraciones));
+    }
+
+    function generarConfiguracionObjetoLlenadoMasivo(campo,valor){
+        if(campo == 'habilitar_llenado_masivo_variables'){
+            if(valor == false){
+                configuraciones.llenado_masivo.variables_llenado_masivo = [];
+            }else{
+                $('#variables_llenado_masivo').selectpicker('val', configuraciones.llenado_masivo.variables_llenado_masivo);
+            }
+            configuraciones.llenado_masivo[campo] = valor;
+            $('#configuracion').val(JSON.stringify(configuraciones));
+        }else{
+            if($('#variables_llenado_masivo').val() == null){
+                configuraciones.llenado_masivo[campo] = [];
+            }else{
+                configuraciones.llenado_masivo[campo] = $('#variables_llenado_masivo').val();
+            }
+            $('#configuracion').val(JSON.stringify(configuraciones));
+        }
     }
 
     function setearConfiguracionObjeto(campo,valor){

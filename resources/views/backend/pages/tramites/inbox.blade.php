@@ -177,7 +177,7 @@
                                     </p>
                                     <p class="float-right mb-2" style="padding: 5px;">
                                         @if (auth()->user()->can('tramite.edit'))
-                                            <button id="procesarTramite" class="btn btn-success" type="button" data-toggle="modal" data-target="#modalSubmitTramite">Procesar trámites</button>
+                                            <button id="procesarTramite" class="btn btn-success" type="button">Procesar trámites</button>
                                         @endif
                                     </p>
                                     <div class="clearfix"></div>
@@ -304,6 +304,7 @@
         let tableHeaderRef = "";
         let tramites = [];
         let secuencia = [];
+        let configuracion_secuencia = [];
         let rutaDownloadFiles = "{{url('/files')}}"+"/";
 
         $(document).ready(function() {
@@ -358,6 +359,17 @@
                         console.error('Error en la solicitud, por favor vuelva a intentar.');
                     }
                 });
+            });
+
+            $("#procesarTramite").on( "click", function() {
+                if(configuracion_secuencia.llenado_masivo.habilitar_llenado_masivo_variables){
+                    let variables_llenado_masivo = configuracion_secuencia.llenado_masivo.variables_llenado_masivo;
+                    //getCampos(count,long,seccion,campo,valor_campo)
+                    $('#modalSubmitTramite').modal('show');
+                }else{
+                    $('#modalSubmitTramite').modal('show');
+                }
+                
             });
 
             $("#procesar").on( "click", function() {
@@ -429,6 +441,7 @@
                     
                     tramites = response.tramites;
                     secuencia = response.secuencia;
+                    configuracion_secuencia = JSON.parse(secuencia.configuracion);
 
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
 

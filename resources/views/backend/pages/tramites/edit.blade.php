@@ -435,9 +435,9 @@ Editar Trámite - Admin Panel
                         }else if(campo.editable && !campo.requerido){
                             html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '">';
                         }else if(!campo.editable && campo.requerido){
-                            html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" required readonly>';
+                            html_components += '<input type="text" style="pointer-events: none;" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" required readonly>';
                         }else if(!campo.editable && !campo.requerido){
-                            html_components += '<input type="text" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" readonly>';
+                            html_components += '<input type="text" style="pointer-events: none;" onchange="consultarSCI('+seccion+',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" readonly>';
                         }
                     }else{
                         if(campo.editable && campo.requerido){
@@ -445,9 +445,9 @@ Editar Trámite - Admin Panel
                         }else if(campo.editable && !campo.requerido){
                             html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '">';
                         }else if(!campo.editable && campo.requerido){
-                            html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" required readonly>';
+                            html_components += '<input type="text" style="pointer-events: none;" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" required readonly>';
                         }else if(!campo.editable && !campo.requerido){
-                            html_components += '<input type="text" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" readonly>';
+                            html_components += '<input type="text" style="pointer-events: none;" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="' + valor_campo + '" readonly>';
                         }
                     }
                     
@@ -476,9 +476,9 @@ Editar Trámite - Admin Panel
                     }else if(campo.editable && !campo.requerido){
                         html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + valor_campo + '">';
                     }else if(!campo.editable && campo.requerido){
-                        html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + valor_campo + '" required readonly>';
+                        html_components += '<input type="text" style="pointer-events: none;" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + valor_campo + '" required readonly>';
                     }else if(!campo.editable && !campo.requerido){
-                        html_components += '<input type="text" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + valor_campo + '" readonly>';
+                        html_components += '<input type="text" style="pointer-events: none;" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="' + valor_campo + '" readonly>';
                     }
 
                     html_components += '<div class="input-group-append">';
@@ -510,9 +510,9 @@ Editar Trámite - Admin Panel
                     }else if(campo.editable && !campo.requerido){
                         html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + valor_campo + '">';
                     }else if(!campo.editable && campo.requerido){
-                        html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + valor_campo + '" required readonly>';
+                        html_components += '<input type="number" style="pointer-events: none;" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + valor_campo + '" required readonly>';
                     }else if(!campo.editable && !campo.requerido){
-                        html_components += '<input type="number" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + valor_campo + '" readonly>';
+                        html_components += '<input type="number" style="pointer-events: none;" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="' + valor_campo + '" readonly>';
                     }
 
                     if(long == count){
@@ -540,9 +540,9 @@ Editar Trámite - Admin Panel
                     }else if(campo.editable && !campo.requerido){
                         html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + valor_campo + '">';
                     }else if(!campo.editable && campo.requerido){
-                        html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + valor_campo + '" required readonly>';
+                        html_components += '<input type="email" style="pointer-events: none;" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + valor_campo + '" required readonly>';
                     }else if(!campo.editable && !campo.requerido){
-                        html_components += '<input type="email" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + valor_campo + '" readonly>';
+                        html_components += '<input type="email" style="pointer-events: none;" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="' + valor_campo + '" readonly>';
                     }
 
                     if(long == count){
@@ -592,17 +592,17 @@ Editar Trámite - Admin Panel
                             //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required readonly>';
 
                             if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                                html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
                             }else{
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
+                                html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
                             }
                         }else if(!campo.editable && !campo.requerido){
                             //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
 
                             if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                                html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
                             }else{
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
+                                html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
                             }
                         }
                     }
@@ -623,10 +623,9 @@ Editar Trámite - Admin Panel
             case "select":
 
                 if(campo.visible){
-                    html_components += '<div class="form-group col-md-6 col-sm-12">';
-                    html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
-
                     if(campo.editable && campo.requerido){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
                         html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required>';
                         for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
                             if(typeof valor_campo !== 'undefined' && valor_campo !== null){
@@ -641,6 +640,8 @@ Editar Trámite - Admin Panel
                         }
                         html_components += '</select>';
                     }else if(campo.editable && !campo.requerido){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
                         html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
                         for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
                             if(typeof valor_campo !== 'undefined' && valor_campo !== null){
@@ -655,6 +656,8 @@ Editar Trámite - Admin Panel
                         }
                         html_components += '</select>';
                     }else if(!campo.editable && campo.requerido){
+                        html_components += '<div class="form-group col-md-6 col-sm-12" style="pointer-events: none;">';
+                        html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
                         html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required readonly>';
                         for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
                             if(typeof valor_campo !== 'undefined' && valor_campo !== null){
@@ -669,6 +672,8 @@ Editar Trámite - Admin Panel
                         }
                         html_components += '</select>';
                     }else if(!campo.editable && !campo.requerido){
+                        html_components += '<div class="form-group col-md-6 col-sm-12" style="pointer-events: none;">';
+                        html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
                         html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
                         for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
                             if(typeof valor_campo !== 'undefined' && valor_campo !== null){
@@ -713,10 +718,10 @@ Editar Trámite - Admin Panel
                         html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + ' >';
                         html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
                     }else if(!campo.editable && campo.requerido){
-                        html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + '  required readonly>';
+                        html_components += '<input type="checkbox" style="pointer-events: none;" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + '  required readonly>';
                         html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
                     }else if(!campo.editable && !campo.requerido){
-                        html_components += '<input type="checkbox" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + '  readonly>';
+                        html_components += '<input type="checkbox" style="pointer-events: none;" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + '  readonly>';
                             html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
                     }
                     
