@@ -244,16 +244,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <!--<div class="form-row">
-                        <div class="form-group col-md-12 col-sm-12">
-                            <label for="numero_memorando">Número de memorando</label>
-                            <input type="text" class="form-control" id="numero_memorando" value="">
-                        </div>
-                        <div class="form-group col-md-6 col-sm-12">
-                            <label for="archivo_memorando">Archivo</label>
-                            <input type="file" class="form-control" id="files" name="archivo_memorando" value="" accept=".pdf">
-                        </div>
-                    </div>-->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -306,6 +296,7 @@
         let secuencia = [];
         let configuracion_secuencia = [];
         let rutaDownloadFiles = "{{url('/files')}}"+"/";
+        let objCamposLlenadoMasivo = [];
 
         $(document).ready(function() {
 
@@ -362,9 +353,45 @@
             });
 
             $("#procesarTramite").on( "click", function() {
+                $("#modalSubmitTramite .modal-body").html('');
+                objCamposLlenadoMasivo = [];
                 if(configuracion_secuencia.llenado_masivo.habilitar_llenado_masivo_variables){
                     let variables_llenado_masivo = configuracion_secuencia.llenado_masivo.variables_llenado_masivo;
-                    //getCampos(count,long,seccion,campo,valor_campo)
+                    let html_components = '';
+                    let contador = 0;
+                    let tamaño = variables_llenado_masivo.length;
+                    html_components += '<div class="form-row">';
+                    for (let variable of variables_llenado_masivo) {
+                        let objTmp = {};
+                        let campo = campos_por_proceso.find(cpp => cpp.id === parseInt(variable, 10));
+
+                        objTmp.seccion_campo = campo.seccion_campo;
+                        objTmp.variable = campo.variable;
+                        objTmp.valor = '';
+                        objCamposLlenadoMasivo.push(objTmp);
+
+                        html_components += construirCamposLlenadoMasivo(campo.seccion_campo,campo.variable);
+                        
+                        
+                        if(contador % 2 !== 0 && contador != 0){
+                            html_components += '</div><div class="form-row">';
+                        }else{
+                            if(tamaño-1 == contador){
+                                html_components += '</div>';
+                            }
+                        }
+                        
+                        contador++;
+                    }
+                    
+                    $("#modalSubmitTramite .modal-body").append(html_components);
+                    
+                    $('.datepicker').datepicker({
+                        autoclose: true,
+                        format: "yyyy-mm-dd"
+                    });
+                    $('.selectpicker').selectpicker('refresh');
+                    
                     $('#modalSubmitTramite').modal('show');
                 }else{
                     $('#modalSubmitTramite').modal('show');
@@ -375,7 +402,7 @@
             $("#procesar").on( "click", function() {
                 let proceso_id = $('#proceso_id_search').val();
                 let secuencia_proceso_id = $('#secuencia_proceso_id').val();
-                let numero_memorando = $('#numero_memorando').val();
+                let obj_campos_llenado_masivo = JSON.stringify(objCamposLlenadoMasivo);
                 $("#overlay").fadeIn(300);
 
                 $.ajax({
@@ -384,7 +411,7 @@
                     data: {
                         proceso_id: proceso_id,
                         tramites_ids: JSON.stringify(selected_table_items),
-                        numero_memorando: numero_memorando,
+                        obj_campos_llenado_masivo: obj_campos_llenado_masivo,
                         _token: '{{csrf_token()}}'
                     },
                     dataType: 'json',
@@ -441,7 +468,10 @@
                     
                     tramites = response.tramites;
                     secuencia = response.secuencia;
+                    campos_por_proceso = response.camposPorProceso;
                     configuracion_secuencia = JSON.parse(secuencia.configuracion);
+                    listaCampos = JSON.parse(response.listaCampos);
+                    camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
 
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
 
@@ -587,10 +617,9 @@
         let trazabilidad = [];
         let files = [];
         let numero_tramite = '{{ isset($_GET["numeroTramite"]) ? $_GET["numeroTramite"] : "" }}';
-        console.log('numero_tramite');
-        console.log(numero_tramite);
 
         let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
+        let campos_por_proceso = [];
 
         function mostrarDetalle(tramite_id){
 
@@ -929,6 +958,142 @@
                         }
                         count ++;
                     }
+
+                    break;
+            }
+            return html_components;
+        }
+
+        function setValoresLlenadoMasivo(seccion_campo, variable, tipo, valor){
+            let objCampo = objCamposLlenadoMasivo.find(olm => olm.seccion_campo === seccion_campo && olm.variable === variable);
+            if(objCampo){
+                if(tipo == 'text' || tipo == 'date' || tipo == 'number' || tipo == 'email' || tipo == 'select'){
+                    objCampo.valor = valor.value;
+                }else if(tipo == 'checkbox'){
+                    objCampo.valor = valor.checked;
+                }
+            }
+        }
+
+        function construirCamposLlenadoMasivo(seccion,variable){
+            let html_components = '';
+
+            for (let campo of camposPorSeccion[seccion]) {
+                if(seccion == campo.seccion_campo && variable == campo.variable){
+                    html_components += getCamposLlenadoMasivo(seccion,campo);
+                }
+            }
+            return html_components;
+        }
+
+        function getCamposLlenadoMasivo(seccion,campo){
+            let html_components = '';
+
+            switch (campo.tipo_campo) {
+                case "text":
+                    
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
+                                        '<div class="input-group mb-3">';
+
+                    html_components += '<input type="text" onchange="setValoresLlenadoMasivo(\'' + seccion + '\',\'' + campo.variable + '\',\'' + campo.tipo_campo + '\',this)" class="' + campo.configuracion.text_field_class + '" minlength="' + campo.configuracion.text_field_min_legth + '" maxlength="' + campo.configuracion.text_field_max_legth + '" placeholder="' + campo.configuracion.text_field_placeholder + '" title="' + campo.configuracion.text_field_helper_text + '" name="' + campo.configuracion.text_field_name + '" value="">';
+                    html_components += '</div></div>';
+
+                    break;
+                case "date":
+
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<label for="' + campo.configuracion.date_field_name + '">' + campo.nombre + '</label>'+
+                                        '<div class="datepicker date input-group">';
+
+                    html_components += '<input type="text" onchange="setValoresLlenadoMasivo(\'' + seccion + '\',\'' + campo.variable + '\',\'' + campo.tipo_campo + '\',this)" class="' + campo.configuracion.date_field_class + '" min="' + campo.configuracion.date_field_min_legth + '" max="' + campo.configuracion.date_field_max_legth + '" placeholder="' + campo.configuracion.date_field_placeholder + '" title="' + campo.configuracion.date_field_helper_text + '" name="' + campo.configuracion.date_field_name + '" value="">';
+
+                    html_components += '<div class="input-group-append">';
+                    html_components += '<span class="input-group-text"><i class="fa fa-calendar"></i></span>';
+                    html_components += '</div>';
+                    html_components += '</div></div>';
+                    
+                    break;
+                case "number":
+
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<label for="' + campo.configuracion.number_field_name + '">' + campo.nombre + '</label>'+
+                                        '<div class="input-group mb-3">';
+
+                    html_components += '<input type="number" onchange="setValoresLlenadoMasivo(\'' + seccion + '\',\'' + campo.variable + '\',\'' + campo.tipo_campo + '\',this)" class="' + campo.configuracion.number_field_class + '" min="' + campo.configuracion.number_field_min + '" max="' + campo.configuracion.number_field_max + '" placeholder="' + campo.configuracion.number_field_placeholder + '" title="' + campo.configuracion.number_field_helper_text + '" name="' + campo.configuracion.number_field_name + '" value="">';
+                    html_components += '</div></div>';
+                    
+                    break;
+                case "email":
+
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<label for="nombre">' + campo.nombre + '</label>'+
+                                        '<div class="input-group mb-3">';
+
+                    html_components += '<input type="email" onchange="setValoresLlenadoMasivo(\'' + seccion + '\',\'' + campo.variable + '\',\'' + campo.tipo_campo + '\',this)" class="' + campo.configuracion.email_field_class + '" maxlength="' + campo.configuracion.email_field_max_legth + '" placeholder="' + campo.configuracion.email_field_placeholder + '" title="' + campo.configuracion.email_field_helper_text + '" name="' + campo.configuracion.email_field_name + '" value="">';
+                    html_components += '</div></div>';
+                    
+                    break;
+                case "file":
+
+                    /*if(campo.visible){
+                        let file = files.find(f => f.seccion_campo === seccion && f.variable === campo.variable && f.name === valor_campo);
+
+                        if(files.length > 0 && file != undefined){
+                            html_components += '<div class="form-group col-md-6 col-sm-12" style="pointer-events: auto;">';
+                            html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                            html_components += '<p><a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></p>';
+                        }else{
+                            html_components += '<div class="form-group col-md-6 col-sm-12">';
+                            html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
+                        }
+
+                        if(long == count){
+                            html_components += '</div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components += '</div></div><div class="form-row">';
+                            }else{
+                                html_components += '</div>';
+                            }
+                        }
+                        count ++;
+                    }*/
+                    
+                    break;
+                case "select":
+
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<label for="' + campo.configuracion.select_field_name + '">' + campo.nombre + '</label>';
+
+                    html_components += '<select onchange="setValoresLlenadoMasivo(\'' + seccion + '\',\'' + campo.variable + '\',\'' + campo.tipo_campo + '\',this)" name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
+                    for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                        if(typeof valor_campo !== 'undefined' && valor_campo !== null){
+                            if(valor_campo == catalogo.id){
+                                html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                            }else{
+                                html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                            }
+                        }else{
+                            html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
+                        }
+                    }
+                    html_components += '</select>';
+
+                    html_components += '</div>';
+                    
+                    break;
+                case "checkbox":
+                    let checked = '';
+                    
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<div class="form-check">';
+                    
+                    html_components += '<input type="checkbox" onchange="setValoresLlenadoMasivo(\'' + seccion + '\',\'' + campo.variable + '\',\'' + campo.tipo_campo + '\',this)" class="' + campo.configuracion.checkbox_field_class + '" placeholder="' + campo.configuracion.checkbox_field_placeholder + '" title="' + campo.configuracion.checkbox_field_helper_text + '" name="' + campo.configuracion.checkbox_field_name + '" value="" ' + checked + ' readonly>';
+                    html_components += '<label class="form-check-label" for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>';
+                    
+                    html_components += '</div></div>';
 
                     break;
             }

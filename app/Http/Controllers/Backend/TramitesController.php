@@ -627,10 +627,12 @@ class TramitesController extends Controller
 
         $secuencia = SecuenciaProceso::find($secuencia_proceso_id);
         $camposPorProceso = CamposPorProceso::where('proceso_id', $filtroProcesoIdSearch)->get();
+        $listaCampos = collect($secuencia->configuracion_campos)->sortBy('seccion_campo');
 
         $data['tramites'] = $tramites;
         $data['secuencia'] = $secuencia;
         $data['camposPorProceso'] = $camposPorProceso;
+        $data['listaCampos'] = $listaCampos;
   
         return response()->json($data);
     }
@@ -718,7 +720,7 @@ class TramitesController extends Controller
         try {
             $proceso_id = $request->proceso_id;
             $tramites_ids = json_decode($request->tramites_ids, true);
-            $numero_memorando = $request->numero_memorando;
+            $obj_campos_llenado_masivo = json_decode($request->obj_campos_llenado_masivo, true);
 
             $tramites = Tramite::whereIn('id',$tramites_ids)->get();
 
@@ -733,14 +735,11 @@ class TramitesController extends Controller
 
             foreach($tramites as $tramite){
                 $datos = json_decode($tramite->datos, true);
-                $datos['data']['MEMORANDOS'] = [];
-                $datos['data']['MEMORANDOS'][$tramite->secuencia_proceso_id] = [];
 
-                $obj1 = [];
-                $obj['secuencia_proceso_id'] = $tramite->secuencia_proceso_id;
-                $obj['numero_memorando'] = $numero_memorando;
-
-                array_push($datos['data']['MEMORANDOS'][$tramite->secuencia_proceso_id], $obj);
+                foreach($obj_campos_llenado_masivo as $obj_campo){
+                    $datos['data'][$obj_campo['seccion_campo']][$obj_campo['variable']] = $obj_campo['valor'];
+                }
+                
                 $tramite->datos = json_encode($datos);
 
                 if($configuracion_secuencia['requiere_evaluacion'] == false){
