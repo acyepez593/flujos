@@ -843,6 +843,8 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         });
 
         $('#distribuir_manualmente_tramites').change(function() {
+            console.log('distribuir_manualmente_tramites');
+            console.log(this.checked);
             if(this.checked){
                 $('#distribuir_automaticamente_tramites').prop('disabled', true);
                 $('#con_distribucion_automatica').show();
@@ -1072,6 +1074,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         });
 
         updateIframe(0);
+        
     })
 
     let table = "";

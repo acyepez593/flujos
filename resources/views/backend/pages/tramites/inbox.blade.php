@@ -176,6 +176,9 @@
                                         @endif
                                     </p>
                                     <p class="float-right mb-2" style="padding: 5px;">
+                                        <button id="asignarTramites" class="btn btn-warning" type="button">Asignar trámites</button>
+                                    </p>
+                                    <p class="float-right mb-2" style="padding: 5px;">
                                         @if (auth()->user()->can('tramite.edit'))
                                             <button id="procesarTramite" class="btn btn-success" type="button">Procesar trámites</button>
                                         @endif
@@ -234,6 +237,33 @@
                 </div>
             </div>
         </div>
+        <!-- Modal Asignar Trámites -->
+         <div class="modal fade" id="modalAsignarTramites" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Asignar trámites</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-6 col-sm-12">
+                            <label for="funcionario_id_asignar">Seleccione el funcionario a asignar:</label>
+                            <select id="funcionario_id_asignar" name="funcionario_id_asignar" class="form-control selectpicker" data-live-search="true">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" id="asignarT" class="btn btn-warning" >Asignar</button>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Submit Trámites -->
         <div class="modal fade" id="modalSubmitTramite" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -295,8 +325,11 @@
         let tramites = [];
         let secuencia = [];
         let configuracion_secuencia = [];
+        let distribuir_manualmente_tramites = false;
+        let usuarios_distribucion_manual = [];
         let rutaDownloadFiles = "{{url('/files')}}"+"/";
         let objCamposLlenadoMasivo = [];
+        let tramitesAsignadosAFuncionarios = [];
 
         $(document).ready(function() {
 
@@ -399,6 +432,44 @@
                 
             });
 
+            $("#asignarTramites").on( "click", function() {
+                $('#modalAsignarTramites').modal('show');
+            });
+
+            $("#asignarT").on( "click", function() {
+                let indexes = [];
+                
+                $.each(selected_table_items, function (key, value) {
+                    let objTramitePorFuncionario = {
+                        tramite_id: '',
+                        funcionario_id: ''
+                    };
+
+                    indexes = table.rows(function (idx, data, node) {
+                        return table.cell(idx, 0).data() === value ? true : false;
+                    }).indexes();
+
+                    let rowData = table.row(indexes).data();
+                    rowData[2] = $('#funcionario_id_asignar option:selected').text();
+                    table.row(indexes).data(rowData);
+                    table.row(indexes).invalidate().draw();
+
+                    let tramiteBuscado = tramitesAsignadosAFuncionarios.find(tau => tau.tramite_id === parseInt(value, 10));
+                    console.log('tramiteBuscado');
+                    console.log(tramiteBuscado);
+                    if(tramiteBuscado != undefined){
+                        tramiteBuscado.tramite_id = parseInt(value, 10);
+                        tramiteBuscado.funcionario_id = parseInt($('#funcionario_id_asignar').val(), 10);
+                    }else{
+                        objTramitePorFuncionario.tramite_id = parseInt(value, 10);
+                        objTramitePorFuncionario.funcionario_id = parseInt($('#funcionario_id_asignar').val(), 10);
+                        tramitesAsignadosAFuncionarios.push(objTramitePorFuncionario);
+                    }
+                });
+                
+                $('#modalAsignarTramites').modal('hide');
+            });
+
             $("#procesar").on( "click", function() {
                 let proceso_id = $('#proceso_id_search').val();
                 let secuencia_proceso_id = $('#secuencia_proceso_id').val();
@@ -412,6 +483,7 @@
                         proceso_id: proceso_id,
                         tramites_ids: JSON.stringify(selected_table_items),
                         obj_campos_llenado_masivo: obj_campos_llenado_masivo,
+                        tramites_asignados_a_funcionarios: JSON.stringify(tramitesAsignadosAFuncionarios),
                         _token: '{{csrf_token()}}'
                     },
                     dataType: 'json',
@@ -444,6 +516,8 @@
             
             $('#proceso_id_search').trigger("change");
             $("#procesarTramite").prop("disabled", true);
+            $("#asignarTramites").prop("disabled", true);
+            $('#asignarTramites').hide();
 
         });
 
@@ -469,22 +543,38 @@
                     tramites = response.tramites;
                     secuencia = response.secuencia;
                     campos_por_proceso = response.camposPorProceso;
+                    distribuir_manualmente_tramites = response.distribuir_manualmente_tramites;
+                    usuarios_distribucion_manual = response.usuarios_distribucion_manual;
                     configuracion_secuencia = JSON.parse(secuencia.configuracion);
                     listaCampos = JSON.parse(response.listaCampos);
                     camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
 
+                    if(distribuir_manualmente_tramites){
+                        $('#funcionario_id_asignar').html('<option value="">Seleccione el funcionario a asignar:</option>');
+                        $.each(usuarios_distribucion_manual, function (key, value) {
+                            $("#funcionario_id_asignar").append('<option value="' + value
+                                .id + '">' + value.name + '</option>');
+                        });
+                        $('#funcionario_id_asignar.selectpicker').selectpicker('refresh');
+                    }
+
                     tableHeaderRef = document.getElementById('dataTable').getElementsByTagName('thead')[0];
 
-                    tableHeaderRef.insertRow().innerHTML = 
+                    let htmlTable = 
                         "<th>#</th>"+
-                        "<th>Seleccionar</th>"+
-                        "<th>Proceso</th>"+
+                        "<th>Seleccionar</th>";
+                        if(distribuir_manualmente_tramites){
+                            htmlTable += "<th>Funcionario a asignar</th>";
+                        }
+                        htmlTable += "<th>Proceso</th>"+
                         "<th>Actividad Actual</th>"+
                         "<th>Funcionario encargado</th>"+
                         "<th>Estatus</th>"+
                         "<th>Creado Por</th>"+
                         "<th>Creado En</th>"+
                         "<th>Acción</th>";
+
+                    tableHeaderRef.insertRow().innerHTML = htmlTable;
 
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
 
@@ -512,6 +602,11 @@
                             }else{
                                 innerHTML += "<td></td>";
                             }
+
+                            if(distribuir_manualmente_tramites){
+                                innerHTML += "<td></td>";
+                            }
+
                             innerHTML +=
                             "<td>"+ tramite.proceso_nombre+ "</td>"+
                             "<td>"+ tramite.secuencia_nombre+ "</td>"+
@@ -558,6 +653,11 @@
                         responsive: false,
                     });
 
+                    if(distribuir_manualmente_tramites){
+                        $('#asignarTramites').show();
+                    }else{
+                        $('#asignarTramites').hide();
+                    }
                     setModalSubmitTramites(JSON.parse(secuencia.configuracion));
                     
                 },
@@ -1135,8 +1235,10 @@
             }
             if(selected_table_items.length == 0){
                 $("#procesarTramite").prop("disabled", true);
+                $("#asignarTramites").prop("disabled", true);
             }else{
                 $("#procesarTramite").prop("disabled", false);
+                $("#asignarTramites").prop("disabled", false);
             }
         }
         

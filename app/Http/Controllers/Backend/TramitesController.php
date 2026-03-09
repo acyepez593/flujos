@@ -14,6 +14,7 @@ use App\Models\CamposPorProceso;
 use App\Models\Catalogo;
 use App\Models\File;
 use App\Models\Proceso;
+use App\Models\RangoDiscapacidad;
 use App\Models\Tramite;
 use App\Models\SecuenciaProceso;
 use App\Models\TipoCatalogo;
@@ -620,12 +621,25 @@ class TramitesController extends Controller
             $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
             $tramite->esEditorRegistro = $usuario_actual_id == $tramite->funcionario_actual_id ? true : false;
             $tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
-            /*$tramite->requiere_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_memorando'] : "";
-            $tramite->requiere_fecha_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_fecha_memorando'] : "";
-            $tramite->requiere_adjuntar_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_adjuntar_memorando'] : "";*/
         }
 
+        
         $secuencia = SecuenciaProceso::find($secuencia_proceso_id);
+        $distribuir_manualmente_tramites = false;
+        $usuarios_distribucion_manual = [];
+        $configucacion = json_decode($secuencia->configuracion,true);
+        if($configucacion['requiere_evaluacion'] == false){
+            if($configucacion['camino_sin_evaluacion'] != ""){
+                $siguienteSecuencia = SecuenciaProceso::find(intval($configucacion['camino_sin_evaluacion']));
+                $configucacionSiguienteSecuencia = json_decode($siguienteSecuencia->configuracion,true);
+                if($configucacionSiguienteSecuencia['distribuir_manualmente_tramites']){
+                    $distribuir_manualmente_tramites = true;
+                    $rolId = $siguienteSecuencia->rol_id;
+                    $usersId = Role::getUsersByRol($rolId);
+                    $usuarios_distribucion_manual = Admin::whereIn('id', $usersId)->get(["id","name"]);
+                }
+            }
+        }
         $camposPorProceso = CamposPorProceso::where('proceso_id', $filtroProcesoIdSearch)->get();
         $listaCampos = collect($secuencia->configuracion_campos)->sortBy('seccion_campo');
 
@@ -633,6 +647,8 @@ class TramitesController extends Controller
         $data['secuencia'] = $secuencia;
         $data['camposPorProceso'] = $camposPorProceso;
         $data['listaCampos'] = $listaCampos;
+        $data['distribuir_manualmente_tramites'] = $distribuir_manualmente_tramites;
+        $data['usuarios_distribucion_manual'] = $usuarios_distribucion_manual;
   
         return response()->json($data);
     }
@@ -721,6 +737,7 @@ class TramitesController extends Controller
             $proceso_id = $request->proceso_id;
             $tramites_ids = json_decode($request->tramites_ids, true);
             $obj_campos_llenado_masivo = json_decode($request->obj_campos_llenado_masivo, true);
+            $tramites_asignados_a_funcionarios = json_decode($request->tramites_asignados_a_funcionarios, true);
 
             $tramites = Tramite::whereIn('id',$tramites_ids)->get();
 
@@ -746,15 +763,31 @@ class TramitesController extends Controller
                     $siguiente_secuencia_proceso = SecuenciaProceso::findOrFail($configuracion_secuencia['camino_sin_evaluacion']);
                     $configuracion_siguiente_secuencia = json_decode($siguiente_secuencia_proceso->configuracion, true);
                     $tramite->secuencia_proceso_id = $configuracion_secuencia['camino_sin_evaluacion'];
-                    if($configuracion_siguiente_secuencia['distribuir_automaticamente_tramites'] == false){
-                        $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
-                        $tramite->estatus = 'EN PROCESO DAP';
 
+                    if($configuracion_siguiente_secuencia['distribuir_manualmente_tramites'] == true){
+                        //distribucion manual de tramites
+                        $rolId = $siguiente_secuencia_proceso->rol_id;
+                        $usersId = Role::getUsersByRol($rolId);
                         if($contadorTramite == 0){
-                            $tramitesPorUsuario[$tramite->funcionario_actual_id] = [];
+                            foreach($usersId as $userId){
+                                $tramitesPorUsuario[$userId] = [];
+                            }
                         }
-                        array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
-                    }else{
+
+                        $tramite_id = $tramite->id;
+                        $filtered_array = array_filter($tramites_asignados_a_funcionarios, function ($obj) use ($tramite_id) {
+                            return $obj['tramite_id'] == $tramite_id;
+                        });
+                        
+                        $found_object = reset($filtered_array); 
+
+                        if ($found_object) {
+                            $tramite->funcionario_actual_id = $found_object['funcionario_id'];
+                            $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
+                            array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
+                        } 
+
+                    }else if($configuracion_siguiente_secuencia['distribuir_automaticamente_tramites'] == true){
                         //distribucion automatica de tramites
                         $rolId = $siguiente_secuencia_proceso->rol_id;
                         $usersId = Role::getUsersByRol($rolId);
@@ -774,7 +807,15 @@ class TramitesController extends Controller
                         $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
 
                         array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
+                        
+                    }else{
+                        $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                        $tramite->estatus = 'EN PROCESO DAP';
 
+                        if($contadorTramite == 0){
+                            $tramitesPorUsuario[$tramite->funcionario_actual_id] = [];
+                        }
+                        array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
                     }
                     
                 }
@@ -796,7 +837,7 @@ class TramitesController extends Controller
 
             foreach($tramitesPorUsuario as $tramitePorUsuario){
                 $numTramites = count($tramitePorUsuario);
-                $this->enviarCorreo($secuencia_proceso_id, $tramitePorUsuario[0], strval($numTramites));
+                //$this->enviarCorreo($secuencia_proceso_id, $tramitePorUsuario[0], strval($numTramites));
             }
 
             return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
@@ -1009,6 +1050,23 @@ class TramitesController extends Controller
         }
 
         return response()->json($response->body());
+    }
+
+    public function calcularMontoPagoDiscapacidad(Request $request): JsonResponse
+    {
+        $porcentaje_avalado_discapacidad = $request->porcentaje_avalado_discapacidad;
+        $fecha_accidente = Carbon::createFromFormat('Y-m-d', $request->fecha_accidente)->startOfDay();
+        $fecha_inicio_segunda_normativa = Carbon::createFromFormat('Y-m-d', '2025-08-14')->startOfDay();
+        $valor_cobertura = 0;
+        if ($fecha_accidente->gte($fecha_inicio_segunda_normativa)) {
+            $valor_cobertura = RangoDiscapacidad::where('normativa_id', 2)->where('rango_desde', '<=', intval($porcentaje_avalado_discapacidad))->where('rango_hasta', '>=', intval($porcentaje_avalado_discapacidad))->where('estatus', 'ACTIVO')->get(["valor_cobertura"]);
+        }else{
+            $valor_cobertura = RangoDiscapacidad::where('normativa_id', 1)->where('rango_desde', '<=', intval($porcentaje_avalado_discapacidad))->where('rango_hasta', '>=', intval($porcentaje_avalado_discapacidad))->where('estatus', 'ACTIVO')->get(["valor_cobertura"]);
+        }
+
+        $data['valor_a_pagar'] = $valor_cobertura[0]['valor_cobertura'];
+        
+        return response()->json($data);
     }
 
 }

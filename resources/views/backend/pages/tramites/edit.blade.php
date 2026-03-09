@@ -259,6 +259,10 @@ Editar Trámite - Admin Panel
             
         });
 
+        if(proceso_id == 3 && secuencia_proceso_id == 7){
+            calcularMontoPagoDiscapacidad($('#SINIESTRO' + ' input[name="fecha_accidente"]').val(), $('#MEDICA' + ' input[name="porcentaje_avalado_discapacidad"]').val());
+        }
+
     });
 
     let proceso_id = '{{$proceso_id}}';
@@ -295,8 +299,6 @@ Editar Trámite - Admin Panel
     let files = '{{$files}}';
     files = files.replace(/&quot;/g, '"');
     files = JSON.parse(files);
-    console.log('files');
-    console.log(files);
 
     let rutaDownloadFiles = "{{url('/files')}}"+"/";
 
@@ -310,8 +312,6 @@ Editar Trámite - Admin Panel
     let catalogosByCatalogoId = '{{$catalogosByCatalogoId}}';
     catalogosByCatalogoId = catalogosByCatalogoId.replace(/&quot;/g, '"');
     catalogosByCatalogoId = JSON.parse(catalogosByCatalogoId);
-    console.log('catalogosByCatalogoId');
-    console.log(catalogosByCatalogoId);
 
     let countBeneficiario = datos.data['BENEFICIARIOS'].length;
     let benIds = [];
@@ -326,8 +326,6 @@ Editar Trámite - Admin Panel
         listaCampos = JSON.parse(listaCampos);
 
         camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
-        console.log('camposPorSeccion');
-        console.log(camposPorSeccion);
 
         inicializarObjeto(camposPorSeccion);
 
@@ -919,6 +917,25 @@ Editar Trámite - Admin Panel
         let edad = moment.duration(fecha_actual.diff(fecha_nacimiento));
 
         return edad.years();
+    }
+
+    function calcularMontoPagoDiscapacidad(fecha_accidente, porcentaje_avalado_discapacidad){
+        $.ajax({
+            url: "{{url('/calcularMontoPagoDiscapacidad')}}",
+            type: "POST",
+            data: {
+                fecha_accidente: fecha_accidente,
+                porcentaje_avalado_discapacidad: porcentaje_avalado_discapacidad,
+                _token: '{{csrf_token()}}'
+            },
+            dataType: 'json',
+            success: function (response) {
+                
+                let valor_a_pagar = response.valor_a_pagar;
+                $('#PROCEDENCIA' + ' input[name="valor_a_pagar"]').val(valor_a_pagar);
+                
+            }
+        });
     }
 
     function inicializarObjeto(camposPorSeccion){

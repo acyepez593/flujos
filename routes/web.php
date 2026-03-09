@@ -85,6 +85,7 @@ Route::post('/deleteFile', [TramitesController::class, 'deleteFile'])->name('del
 Route::post('/getNormativaDiscapacidadesByFilters',[NormativaDiscapacidadesController::class, 'getNormativaDiscapacidadesByFilters'])->middleware('auth:admin');
 Route::post('/getRangoDiscapacidadesByFilters',[RangoDiscapacidadesController::class, 'getRangoDiscapacidadesByFilters'])->middleware('auth:admin');
 
+Route::post('/calcularMontoPagoDiscapacidad',[TramitesController::class, 'calcularMontoPagoDiscapacidad'])->middleware('auth:admin');
 
 /**
  * Admin routes
