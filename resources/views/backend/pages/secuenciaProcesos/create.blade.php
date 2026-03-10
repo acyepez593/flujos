@@ -242,13 +242,6 @@ Crear Secuencia Proceso - Admin Panel
                         </div>
                         <div class="form-row campos_con_evaluacion">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="pregunta_evaluacion">Pregunta Evaluación</label>
-                                <input type="text" class="form-control @error('pregunta_evaluacion') is-invalid @enderror" onchange="generarConfiguracionObjeto('pregunta_evaluacion',this.value)" id="pregunta_evaluacion" name="pregunta_evaluacion" value="{{ old('pregunta_evaluacion') }}">
-                                @error('pregunta_evaluacion')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
                                 <label for="variable_evaluacion">Seleccione la variable a evaluar</label>
                                 <select id="variable_evaluacion" onchange="generarConfiguracionObjeto('variable_evaluacion',this.value)" name="variable_evaluacion" class="form-control selectpicker @error('variable_evaluacion') is-invalid @enderror" data-live-search="true">
                                     <option value="">Seleccione la variable a evaluar</option>
@@ -271,18 +264,6 @@ Crear Secuencia Proceso - Admin Panel
                                     @endforeach
                                 </select>
                                 @error('camino_evaluacion_verdadero')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_evaluacion_falso">Secuencia en caso de evaluación falsa</label>
-                                <select id="camino_evaluacion_falso" onchange="generarConfiguracionObjeto('camino_evaluacion_falso',this.value)" name="camino_evaluacion_falso" class="form-control selectpicker @error('camino_evaluacion_falso') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Secuencia en caso de evaluación falsa</option>
-                                    @foreach ($listaActividades as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('camino_evaluacion_falso')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -1060,10 +1041,11 @@ Crear Secuencia Proceso - Admin Panel
         distribuir_manualmente_tramites: false,
         distribuir_automaticamente_tramites: false,
         requiere_evaluacion: false,
-        pregunta_evaluacion: "",
+        /*pregunta_evaluacion: "",*/
         variable_evaluacion: "",
-        camino_evaluacion_verdadero: "",
-        camino_evaluacion_falso: "",
+        caminos_evaluacion: [],
+        /*camino_evaluacion_verdadero: "",
+        camino_evaluacion_falso: "",*/
         camino_sin_evaluacion: "",
         llenado_masivo: {
             habilitar_llenado_masivo_variables: false, 

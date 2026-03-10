@@ -237,25 +237,32 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                 </div>
                             </div>
                         </div>
+
+                        <div class="clearfix"></div>
+
+                        <h4 class="header-title campos_con_evaluacion">Configuración de Cambio de Sección Cuando Requiere Evaluación</h4>
+
                         <div class="form-row campos_con_evaluacion">
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="pregunta_evaluacion">Pregunta Evaluación</label>
-                                <input type="text" class="form-control @error('pregunta_evaluacion') is-invalid @enderror" onchange="generarConfiguracionObjeto('pregunta_evaluacion',this.value)" id="pregunta_evaluacion" name="pregunta_evaluacion" value="{{ old('pregunta_evaluacion') }}">
-                                @error('pregunta_evaluacion')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="variable_evaluacion">Seleccione la variable a evaluar</label>
                                 <select id="variable_evaluacion" onchange="generarConfiguracionObjeto('variable_evaluacion',this.value)" name="variable_evaluacion" class="form-control selectpicker @error('variable_evaluacion') is-invalid @enderror" data-live-search="true">
                                     <option value="">Seleccione la variable a evaluar</option>
-                                    @foreach ($campos as $key => $value)
+                                    @foreach ($camposAprobaciones as $key => $value)
                                         <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
                                 </select>
                                 @error('variable_evaluacion')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
+                            </div>
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="tipo_catalogo_evaluacion">Seleccione un Tipo de Catálogo:</label>
+                                <select id="tipo_catalogo_evaluacion" name="tipo_catalogo_evaluacion" class="form-control selectpicker" data-live-search="true">
+                                    <option value="">Seleccione un Tipo de Catálogo:</option>
+                                    @foreach ($tiposCatalogos as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                         <div class="form-row campos_con_evaluacion">
@@ -268,18 +275,6 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                     @endforeach
                                 </select>
                                 @error('camino_evaluacion_verdadero')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_evaluacion_falso">Secuencia en caso de evaluación falsa</label>
-                                <select id="camino_evaluacion_falso" onchange="generarConfiguracionObjeto('camino_evaluacion_falso',this.value)" name="camino_evaluacion_falso" class="form-control selectpicker @error('camino_evaluacion_falso') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Secuencia en caso de evaluación falsa</option>
-                                    @foreach ($listaActividades as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
-                                    @endforeach
-                                </select>
-                                @error('camino_evaluacion_falso')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -1073,6 +1068,64 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             $('#modalActualizarCampoTipoSelect').modal('show');
         });
 
+        $('#tipo_catalogo_evaluacion').on('change', function () {
+            let tipo_catalogo_id = $('#tipo_catalogo_evaluacion').val();
+            let selected = '';
+
+            /*$("#select_field_default_value").empty();
+            $("#select_field_default_value").html('');
+            $('#select_field_default_value').selectpicker('destroy');
+            $('#select_field_default_value').addClass( "selectpicker" );*/
+
+            if(tipo_catalogo_id != ""){
+                
+                $.ajax({
+                    url: "{{url('/getCatalogoByTipoCatalogoId')}}",
+                    type: "POST",
+                    data: {
+                        tipo_catalogo_id: tipo_catalogo_id,
+                        _token: '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        let caminosEvaluacion = [];
+                        $.each(response.catalogos, function (key, value) {
+                            let objtemp = {};
+                            objtemp.catalogo_id = value.id;
+                            objtemp.nombre = value.nombre;
+                            objtemp.secuencia_id = "";
+                            caminosEvaluacion.push(objtemp);
+                        });
+
+                        configuraciones['tipo_catalogo_evaluacion'] = tipo_catalogo_id;
+                        configuraciones['caminos_evaluacion'] = caminosEvaluacion;
+                        $('#configuracion').val(JSON.stringify(configuraciones));
+                        
+
+
+
+                        //$('#select_field_default_value').html('<option value="">Seleccione un valor por defecto:</option>');
+                        console.log('configuraciones');
+                        console.log(configuraciones);
+                        /*$.each(response.catalogos, function (key, value) {
+                            if(value.id == select_field_default_value){
+                                selected = ' selected';
+                            }
+                            $("#select_field_default_value").append('<option value="' + value
+                                .id + '">' + value.nombre + '</option>');
+                        });*/
+
+                        /*$("#select_field_default_value").selectpicker('val', select_field_default_value);
+                        $('#select_field_default_value').selectpicker('render');
+                        $('#select_field_default_value').selectpicker('refresh');*/
+                        
+                        
+                    }
+                });
+            }
+            
+        });
+
         updateIframe(0);
         
     })
@@ -1094,6 +1147,10 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     let listaCampos = '{{$listaCampos}}';
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
+
+    let listaActividades = '{{$listaActividades}}';
+    listaActividades = listaActividades.replace(/&quot;/g, '"');
+    listaActividades = JSON.parse(listaActividades);
 
     let objetoCorreo = '{{$configuracion_correo}}';
     objetoCorreo = objetoCorreo.replace(/&quot;/g, '"');

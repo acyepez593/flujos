@@ -150,6 +150,7 @@ class SecuenciaProcesosController extends Controller
 
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->where('id','<>',$id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
+        $camposAprobaciones = CamposPorProceso::where('proceso_id', $proceso_id)->where('tipo_campo', 'select')->get(["nombre", "id"])->pluck('nombre','id');
         $configuracion_campos = json_decode($secuenciaProceso->configuracion_campos,true);
         $configuracion_correo = json_decode($secuenciaProceso->configuracion_correo,true);
         $listadoCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
@@ -182,6 +183,7 @@ class SecuenciaProcesosController extends Controller
             'listaCampos' => json_encode($listaCampos),
             'tiposCatalogos' => $tiposCatalogos,
             'campos' => $campos,
+            'camposAprobaciones' => $camposAprobaciones,
             'configuracion_correo' => json_encode($configuracion_correo),
             'contenido_html' => $contenido_html
         ]);
