@@ -52,6 +52,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso = SecuenciaProceso::where('proceso_id', $proceso_id)->get();
         $listaActividades = SecuenciaProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
+        $camposAprobaciones = CamposPorProceso::where('proceso_id', $proceso_id)->where('tipo_campo', 'select')->get(["nombre", "id"])->pluck('nombre','id');
         $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
         $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
@@ -65,7 +66,8 @@ class SecuenciaProcesosController extends Controller
             'listaActividades' => $listaActividades,
             'listaCampos' => $listaCampos,
             'tiposCatalogos' => $tiposCatalogos,
-            'campos' => $campos
+            'campos' => $campos,
+            'camposAprobaciones' => $camposAprobaciones,
         ]);
     }
 

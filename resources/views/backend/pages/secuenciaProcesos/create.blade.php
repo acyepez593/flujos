@@ -240,12 +240,17 @@ Crear Secuencia Proceso - Admin Panel
                                 </div>
                             </div>
                         </div>
+
+                        <div class="clearfix"></div>
+
+                        <h4 class="header-title campos_con_evaluacion">Configuración de Cambio de Sección Cuando Requiere Evaluación</h4>
+
                         <div class="form-row campos_con_evaluacion">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="variable_evaluacion">Seleccione la variable a evaluar</label>
                                 <select id="variable_evaluacion" onchange="generarConfiguracionObjeto('variable_evaluacion',this.value)" name="variable_evaluacion" class="form-control selectpicker @error('variable_evaluacion') is-invalid @enderror" data-live-search="true">
                                     <option value="">Seleccione la variable a evaluar</option>
-                                    @foreach ($campos as $key => $value)
+                                    @foreach ($camposAprobaciones as $key => $value)
                                         <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
                                 </select>
@@ -253,21 +258,17 @@ Crear Secuencia Proceso - Admin Panel
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        <div class="form-row campos_con_evaluacion">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="camino_evaluacion_verdadero">Secuencia en caso de evaluación verdadera</label>
-                                <select id="camino_evaluacion_verdadero" onchange="generarConfiguracionObjeto('camino_evaluacion_verdadero',this.value)" name="camino_evaluacion_verdadero" class="form-control selectpicker @error('camino_evaluacion_verdadero') is-invalid @enderror" data-live-search="true">
-                                    <option value="">Secuencia en caso de evaluación verdadera</option>
-                                    @foreach ($listaActividades as $key => $value)
+                                <label for="tipo_catalogo_evaluacion">Seleccione un Tipo de Catálogo:</label>
+                                <select id="tipo_catalogo_evaluacion" name="tipo_catalogo_evaluacion" class="form-control selectpicker" data-live-search="true">
+                                    <option value="">Seleccione un Tipo de Catálogo:</option>
+                                    @foreach ($tiposCatalogos as $key => $value)
                                         <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
                                 </select>
-                                @error('camino_evaluacion_verdadero')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
                             </div>
                         </div>
+                        <div id="caminosEvaluacion" class="form-row campos_con_evaluacion"></div>
                         <div class="form-row campos_sin_evaluacion">
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="camino_sin_evaluacion">Seleccione la siguiente secuencia</label>
@@ -1030,6 +1031,77 @@ Crear Secuencia Proceso - Admin Panel
             }
             $('#modalActualizarCampoTipoSelect').modal('show');
         });
+
+        $('#tipo_catalogo_evaluacion').on('change', function () {
+            let tipo_catalogo_id = $('#tipo_catalogo_evaluacion').val();
+            let selected = '';
+
+            $("#caminosEvaluacion").html('');
+
+            if(tipo_catalogo_id != ""){
+                
+                $.ajax({
+                    url: "{{url('/getCatalogoByTipoCatalogoId')}}",
+                    type: "POST",
+                    data: {
+                        tipo_catalogo_id: tipo_catalogo_id,
+                        _token: '{{csrf_token()}}'
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        let caminosEvaluacion = [];
+                        let count = 1;
+                        let lengthCatalogo = response.catalogos.length;
+                        let htmlCaminoEvaluacion = '';
+                        $.each(response.catalogos, function (key, value) {
+                            let objtemp = {};
+                            objtemp.catalogo_id = value.id;
+                            objtemp.nombre = value.nombre;
+                            objtemp.secuencia_id = "";
+                            caminosEvaluacion.push(objtemp);
+
+                            if(count == 1){
+                                htmlCaminoEvaluacion += '<div class="form-row" style="width: 100%">';
+                            }
+                            let catalogo_id = value.id;
+                            let identificador = 'camino_evaluacion_' + catalogo_id;
+                            let caminos_evaluacion = 'caminos_evaluacion';
+                            
+                            htmlCaminoEvaluacion += '<div class="form-group col-md-6 col-sm-12">'+
+                                '<label for="' + identificador + '">Secuencia en caso de evaluación ' + value.nombre + '</label>'+
+                                '<select id="' + identificador + '" name="' + identificador + '" onchange="setSecuenciaEvaluacion(\''+ caminos_evaluacion + '\',\''+ catalogo_id + '\',this.value)" class="form-control selectpicker" data-live-search="true">'+
+                                    '<option value="">Secuencia en caso de evaluación ' + value.nombre + '</option>';
+                            htmlCaminoEvaluacion += getOptionsCaminoEvaluacion();
+                            htmlCaminoEvaluacion += '</select>';
+                            htmlCaminoEvaluacion += '</div>';
+
+                            if(lengthCatalogo == count){
+                                htmlCaminoEvaluacion += '</div>';
+                            }else{
+                                if(count % 2 === 0 && count != 1){
+                                    htmlCaminoEvaluacion += '</div><div class="form-row" style="width: 100%">';
+                                }
+                            }
+
+                            count++;
+                        });
+                        $("#caminosEvaluacion").append(htmlCaminoEvaluacion);
+                        let inputsTypeSelect = $("#caminosEvaluacion");
+
+                        inputsTypeSelect.find("select").each(function() {
+                            $("#"+this.id).selectpicker('render');
+                            $("#"+this.id).selectpicker('refresh');
+                        });
+                        
+                        objeto['tipo_catalogo_evaluacion'] = tipo_catalogo_id;
+                        objeto['caminos_evaluacion'] = caminosEvaluacion;
+                        $('#configuracion').val(JSON.stringify(objeto));
+                        
+                    }
+                });
+            }
+            
+        });
     })
 
     let table = "";
@@ -1041,11 +1113,9 @@ Crear Secuencia Proceso - Admin Panel
         distribuir_manualmente_tramites: false,
         distribuir_automaticamente_tramites: false,
         requiere_evaluacion: false,
-        /*pregunta_evaluacion: "",*/
         variable_evaluacion: "",
+        tipo_catalogo_evaluacion: "",
         caminos_evaluacion: [],
-        /*camino_evaluacion_verdadero: "",
-        camino_evaluacion_falso: "",*/
         camino_sin_evaluacion: "",
         llenado_masivo: {
             habilitar_llenado_masivo_variables: false, 
@@ -1160,6 +1230,10 @@ Crear Secuencia Proceso - Admin Panel
         
     }
 
+    let listaActividades = '{{$listaActividades}}';
+    listaActividades = listaActividades.replace(/&quot;/g, '"');
+    listaActividades = JSON.parse(listaActividades);
+
     let campo_id = "";
     let select_field_default_value = "";
     let select_field_tipo_catalogo = "";
@@ -1272,6 +1346,20 @@ Crear Secuencia Proceso - Admin Panel
     function generarConfiguracionObjetoCorreo(campo,valor){
         objetoCorreo[campo] = valor;
         $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
+    }
+
+    function getOptionsCaminoEvaluacion(){
+        let htmlCaminoEvaluacion = '';
+        $.each(listaActividades, function (key, value) {
+            htmlCaminoEvaluacion += '<option value="' + key + '">' + value + '</option>';
+        });
+        return htmlCaminoEvaluacion;
+    }
+
+    function setSecuenciaEvaluacion(variable, catalogo_id, secuencia_id){
+        let itemBuscado = objeto[variable].find(obj => obj.catalogo_id == catalogo_id);
+        itemBuscado.secuencia_id = parseInt(secuencia_id, 10);
+        $('#configuracion').val(JSON.stringify(objeto));
     }
 
     function updateIframe(i) {
