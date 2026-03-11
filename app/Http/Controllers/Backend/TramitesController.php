@@ -620,7 +620,9 @@ class TramitesController extends Controller
             $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
             $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
             $tramite->esEditorRegistro = $usuario_actual_id == $tramite->funcionario_actual_id ? true : false;
-            $tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
+            //$tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
+            //Se debe validar si todos los campos requeridos de la secuencia estan completos
+            $tramite->habilidato_para_continuar = true;
         }
 
         
@@ -818,7 +820,26 @@ class TramitesController extends Controller
                         array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
                     }
                     
+                }else{
+                    $camposPorProceso = CamposPorProceso::find(intval($configuracion_secuencia['variable_evaluacion']));
+                    $datos = json_decode($tramite->datos, true);
+                    $valorSeleccionado = $datos['data'][$camposPorProceso->seccion_campo][$camposPorProceso->variable];
+                    $filtered_array = array_filter($configuracion_secuencia['caminos_evaluacion'], function ($obj) use ($valorSeleccionado) {
+                        return $obj['catalogo_id'] == $valorSeleccionado;
+                    });
+                    
+                    $found_object = reset($filtered_array); 
+
+                    if ($found_object) {
+                        $secuenciaId = intval($found_object['secuencia_id']);
+                        $tramite->secuencia_proceso_id = $secuenciaId;
+
+                        $siguiente_secuencia_proceso = SecuenciaProceso::findOrFail($secuenciaId);
+                        $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                        $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
+                    }
                 }
+
                 $tramite->save();
                 $contadorTramite += 1;
 

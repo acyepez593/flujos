@@ -1076,11 +1076,18 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                         let count = 1;
                         let lengthCatalogo = response.catalogos.length;
                         let htmlCaminoEvaluacion = '';
+                        let caminosEvaluacionGuardados = configuraciones.caminos_evaluacion;
                         $.each(response.catalogos, function (key, value) {
+                            let caminoBuscado = caminosEvaluacionGuardados.find(camino => camino.catalogo_id === value.id);
                             let objtemp = {};
                             objtemp.catalogo_id = value.id;
                             objtemp.nombre = value.nombre;
-                            objtemp.secuencia_id = "";
+                            if(caminoBuscado != undefined){
+                                objtemp.secuencia_id = caminoBuscado.secuencia_id;
+                            }else{
+                                objtemp.secuencia_id = "";
+                            }
+                            
                             caminosEvaluacion.push(objtemp);
 
                             if(count == 1){
@@ -1094,7 +1101,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                 '<label for="' + identificador + '">Secuencia en caso de evaluación ' + value.nombre + '</label>'+
                                 '<select id="' + identificador + '" name="' + identificador + '" onchange="setSecuenciaEvaluacion(\''+ caminos_evaluacion + '\',\''+ catalogo_id + '\',this.value)" class="form-control selectpicker" data-live-search="true">'+
                                     '<option value="">Secuencia en caso de evaluación ' + value.nombre + '</option>';
-                            htmlCaminoEvaluacion += getOptionsCaminoEvaluacion();
+                            htmlCaminoEvaluacion += getOptionsCaminoEvaluacion(objtemp.secuencia_id);
                             htmlCaminoEvaluacion += '</select>';
                             htmlCaminoEvaluacion += '</div>';
 
@@ -1125,6 +1132,18 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             }
             
         });
+
+        if(configuraciones.requiere_evaluacion){
+            $("#variable_evaluacion").selectpicker('val', parseInt(configuraciones.variable_evaluacion, 10));
+            $('#variable_evaluacion').selectpicker('render');
+            $('#variable_evaluacion').selectpicker('refresh');
+            $('#variable_evaluacion').change();
+
+            $("#tipo_catalogo_evaluacion").selectpicker('val', parseInt(configuraciones.tipo_catalogo_evaluacion, 10));
+            $('#tipo_catalogo_evaluacion').selectpicker('render');
+            $('#tipo_catalogo_evaluacion').selectpicker('refresh');
+            $('#tipo_catalogo_evaluacion').change();
+        }
 
         updateIframe(0);
         
@@ -1403,10 +1422,14 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
     }
 
-    function getOptionsCaminoEvaluacion(){
+    function getOptionsCaminoEvaluacion(secuencia_id){
         let htmlCaminoEvaluacion = '';
         $.each(listaActividades, function (key, value) {
-            htmlCaminoEvaluacion += '<option value="' + key + '">' + value + '</option>';
+            if(secuencia_id != "" && key == secuencia_id){
+                htmlCaminoEvaluacion += '<option value="' + key + '" selected>' + value + '</option>';
+            }else{
+                htmlCaminoEvaluacion += '<option value="' + key + '">' + value + '</option>';
+            }
         });
         return htmlCaminoEvaluacion;
     }
