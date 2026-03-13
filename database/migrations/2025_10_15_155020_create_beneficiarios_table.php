@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('beneficiarios', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tramite_id')->constrained('tramites');
+            //$table->foreignId('remesa_id')->constrained('remesas')->nullable();
+            $table->unsignedBigInteger('remesa_id')->nullable();
+            $table->index('remesa_id');
             $table->json('datos');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');

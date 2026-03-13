@@ -49,25 +49,26 @@ Crear Campo por Proceso - Admin Panel
                     
                     <form action="{{ url('admin') }}/camposPorProcesos/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="form-group col-md-6 col-sm-12">
-                            <label for="tipo_campo">Seleccione el Tipo de Campo:</label>
-                            <select id="tipo_campo" name="tipo_campo" class="form-control selectpicker @error('tipo_campo') is-invalid @enderror" data-live-search="true" required>
-                                <option value="text">TEXTO</option>
-                                <option value="textarea">ÁREA DE TEXTO</option>
-                                <option value="hidden">OCULTO</option>
-                                <option value="email">EMAIL</option>
-                                <option value="number">NUMÉRICO</option>
-                                <option value="date">FECHA</option>
-                                <option value="datetime">FECHA Y HORA</option>
-                                <option value="file">ARCHIVO</option>
-                                <option value="select">SELECCIONABLE</option>
-                                <option value="checkbox">CHECKBOX</option>
-                            </select>
-                            @error('tipo_campo')
-                                <div class="alert alert-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        
                         <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="tipo_campo">Seleccione el Tipo de Campo:</label>
+                                <select id="tipo_campo" name="tipo_campo" class="form-control selectpicker @error('tipo_campo') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="text">TEXTO</option>
+                                    <option value="textarea">ÁREA DE TEXTO</option>
+                                    <option value="hidden">OCULTO</option>
+                                    <option value="email">EMAIL</option>
+                                    <option value="number">NUMÉRICO</option>
+                                    <option value="date">FECHA</option>
+                                    <option value="datetime">FECHA Y HORA</option>
+                                    <option value="file">ARCHIVO</option>
+                                    <option value="select">SELECCIONABLE</option>
+                                    <option value="checkbox">CHECKBOX</option>
+                                </select>
+                                @error('tipo_campo')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <div class="form-group col-md-6 col-sm-12">
                                 <label for="nombre">Nombre</label>
                                 <div class="input-group mb-3">

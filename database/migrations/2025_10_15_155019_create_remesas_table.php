@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tramites', function (Blueprint $table) {
+        Schema::create('remesas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('proceso_id')->constrained('procesos');
             $table->foreignId('secuencia_proceso_id')->constrained('secuencia_procesos');
             $table->foreignId('funcionario_actual_id')->constrained('admins');
-            $table->json('datos');
-            $table->enum('estatus', ['INGRESADO', 'EN PROCESO DAP', 'EN PERTINENCIA MEDICA', 'EN ANALISIS DE PROCEDENCIA', 'EN PROCESO FINANCIERO', 'PAGADO'])->default('INGRESADO');
+            $table->enum('estatus', ['CREADA', 'EN PROCESO DAP', 'EN PROCESO DE APROBACION', 'EN PROCESO FINANCIERO', 'PAGADO'])->default('CREADA');
             $table->unsignedBigInteger('creado_por');
             $table->index('creado_por');
             $table->softDeletes();
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tramites');
+        Schema::dropIfExists('remesas');
     }
 };
