@@ -160,7 +160,7 @@ class ReportesController extends Controller
                 if($obj['habilitado'] == true || $obj['habilitado'] == 1){
                     $nombreSeccion = $obj['nombre_seccion'];
                     if($filtroProcesoIdSearch == 3 && $nombreSeccion == 'BENEFICIARIOS'){
-                        $nombreSeccion = 'SOLICITANTE';
+                        $nombreSeccion = 'BENEFICIARIO AUTORIZADO';
                     }
                     $listadoCampos[] = $obj['campo'];
                     $headers[] = $obj['nombre_campo'] . PHP_EOL . '(' . $nombreSeccion . ')';

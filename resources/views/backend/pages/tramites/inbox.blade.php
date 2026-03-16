@@ -596,7 +596,7 @@
                         htmlCheck += @if (auth()->user()->can('tramite.edit')) '<input type="checkbox" id="'+ tramite.id +'" name="select" class="checkSingle" onclick="toggle('+tramite.id+');">' @else '' @endif;
 
                         innerHTML += 
-                            "<td>"+ contador+ "</td>";
+                            "<td>"+ tramite.id + "</td>";
                             if(tramite.habilidato_para_continuar){
                                 innerHTML += "<td>"+ htmlCheck+ "</td>";
                             }else{
@@ -739,6 +739,7 @@
 
                     files = response.files;
                     let tramite = tramites.find(tramite => tramite.id === tramite_id);
+                    let proseso_id = tramite.proceso_id;
                     datos = JSON.parse(tramite.datos);
                     
                     listaCampos = JSON.parse(response.listaCampos);
@@ -753,8 +754,8 @@
                         let count = 1;
                         let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
                         let nombre_seccion = seccion;
-                        if(seccion == 'BENEFICIARIOS'){
-                            nombre_seccion = 'SOLICITANTE';
+                        if(proseso_id == 3 && seccion == 'BENEFICIARIOS'){
+                            nombre_seccion = 'BENEFICIARIO AUTORIZADO';
                         }
                         
                         if(long > 0){

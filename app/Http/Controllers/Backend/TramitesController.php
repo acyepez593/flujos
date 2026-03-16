@@ -13,6 +13,7 @@ use App\Models\Beneficiario;
 use App\Models\CamposPorProceso;
 use App\Models\Catalogo;
 use App\Models\File;
+use App\Models\NormativaDiscapacidad;
 use App\Models\Proceso;
 use App\Models\RangoDiscapacidad;
 use App\Models\Tramite;
@@ -380,7 +381,9 @@ class TramitesController extends Controller
             $indexEquivalente = [];
             foreach($indexBenefIdsNuevos as $index => $ide){
                 $ide = intval($ide);
-                $indexEquivalente[$ide] =  $indexIdsNuevos[$index];
+                if (!empty($indexIdsNuevos)) {
+                    $indexEquivalente[$ide] =  $indexIdsNuevos[$index];
+                }
             }
 
             //$key = array_search(2, $indexEquivalente);
@@ -406,7 +409,9 @@ class TramitesController extends Controller
                     array_push($benIds, $beneficiario->id);
                     array_push($benIdsNuevos, $beneficiario->id);
     
-                    $datosBen[$indexEquivalente[$index]]['ben_id'] = $beneficiario->id;
+                    if (!empty($indexIdsNuevos)) {
+                        $datosBen[$indexIdsNuevos[$index]]['ben_id'] = $beneficiario->id;
+                    }
                 }
             }
             
@@ -1079,12 +1084,23 @@ class TramitesController extends Controller
         $fecha_accidente = Carbon::createFromFormat('Y-m-d', $request->fecha_accidente)->startOfDay();
         $fecha_inicio_segunda_normativa = Carbon::createFromFormat('Y-m-d', '2025-08-14')->startOfDay();
         $valor_cobertura = 0;
+        $normativa = '';
+        $rango = '';
         if ($fecha_accidente->gte($fecha_inicio_segunda_normativa)) {
-            $valor_cobertura = RangoDiscapacidad::where('normativa_id', 2)->where('rango_desde', '<=', intval($porcentaje_avalado_discapacidad))->where('rango_hasta', '>=', intval($porcentaje_avalado_discapacidad))->where('estatus', 'ACTIVO')->get(["valor_cobertura"]);
+            $normativaDis = NormativaDiscapacidad::find(2);
+            $normativa = $normativaDis->nombre;
+            $valor_cobertura = RangoDiscapacidad::where('normativa_id', $normativaDis->id)->where('rango_desde', '<=', intval($porcentaje_avalado_discapacidad))->where('rango_hasta', '>=', intval($porcentaje_avalado_discapacidad))->where('estatus', 'ACTIVO')->get();
         }else{
-            $valor_cobertura = RangoDiscapacidad::where('normativa_id', 1)->where('rango_desde', '<=', intval($porcentaje_avalado_discapacidad))->where('rango_hasta', '>=', intval($porcentaje_avalado_discapacidad))->where('estatus', 'ACTIVO')->get(["valor_cobertura"]);
+            $normativaDis = NormativaDiscapacidad::find(1);
+            $normativa = $normativaDis->nombre;
+            $valor_cobertura = RangoDiscapacidad::where('normativa_id', $normativaDis->id)->where('rango_desde', '<=', intval($porcentaje_avalado_discapacidad))->where('rango_hasta', '>=', intval($porcentaje_avalado_discapacidad))->where('estatus', 'ACTIVO')->get();
         }
 
+        $rango = $valor_cobertura[0]['rango_desde'] . '% a ' . $valor_cobertura[0]['rango_hasta'] . '%';
+        $data['normativa'] = $normativa;
+        $data['rango_desde'] = $valor_cobertura[0]['rango_desde'];
+        $data['rango_hasta'] = $valor_cobertura[0]['rango_hasta'];
+        $data['rango'] = $rango;
         $data['valor_a_pagar'] = $valor_cobertura[0]['valor_cobertura'];
         
         return response()->json($data);

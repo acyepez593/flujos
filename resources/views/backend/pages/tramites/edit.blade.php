@@ -139,7 +139,7 @@ Editar Trámite - Admin Panel
                         <input type="hidden" id="datos" name="datos">
                         <input type="hidden" id="datosBen" name="datosBen">
                         <button type="button" id="guardar" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
-                        <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
+                        <a href="{{ url('admin') }}/tramites/inbox" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
                     </form>
                 </div>
             </div>
@@ -259,9 +259,22 @@ Editar Trámite - Admin Panel
             
         });
 
+        $('input[name="porcentaje_avalado_discapacidad"]').on("change", function() {
+            calcularMontoPagoDiscapacidad($('#SINIESTRO' + ' input[name="fecha_accidente"]').val(), $('#MEDICA' + ' input[name="porcentaje_avalado_discapacidad"]').val());
+        });
+
         if(proceso_id == 3 && secuencia_proceso_id == 7){
             calcularMontoPagoDiscapacidad($('#SINIESTRO' + ' input[name="fecha_accidente"]').val(), $('#MEDICA' + ' input[name="porcentaje_avalado_discapacidad"]').val());
         }
+
+        $('select[name="beneficiario_autorizado_id"]').on("change", function() {
+            if($(this).val() == 374){
+                $('#BENEFICIARIOS').show();
+            }else{
+                $('#BENEFICIARIOS').hide();
+            }
+        });
+        
 
     });
 
@@ -335,8 +348,9 @@ Editar Trámite - Admin Panel
             count = 1;
             let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
             let nombre_seccion = seccion;
-            if(seccion == 'BENEFICIARIOS'){
-                nombre_seccion = 'SOLICITANTE';
+            
+            if(proceso_id == 3 && seccion == 'BENEFICIARIOS'){
+                nombre_seccion = 'BENEFICIARIO AUTORIZADO';
             }
 
             if(long > 0){
@@ -931,7 +945,11 @@ Editar Trámite - Admin Panel
             dataType: 'json',
             success: function (response) {
                 
+                let normativa = response.normativa;
+                let rango = response.rango;
                 let valor_a_pagar = response.valor_a_pagar;
+                $('#MEDICA' + ' input[name="nombre_normativa_discapacidad"]').val(normativa);
+                $('#MEDICA' + ' input[name="rango_discapacidad"]').val(rango);
                 $('#PROCEDENCIA' + ' input[name="valor_a_pagar"]').val(valor_a_pagar);
                 
             }
