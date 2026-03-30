@@ -124,6 +124,7 @@
                                                     <option value="BENEFICIARIOS">BENEFICIARIOS</option>
                                                     <option value="MEDICA">MEDICA</option>
                                                     <option value="PROCEDENCIA">PROCEDENCIA</option>
+                                                    <option value="APROBACIONES">APROBACIONES</option>
                                                     <option value="FINANCIERO">FINANCIERO</option>
                                                 </select>
                                             </div>
