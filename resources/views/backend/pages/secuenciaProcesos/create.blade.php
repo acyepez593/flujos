@@ -358,7 +358,7 @@ Crear Secuencia Proceso - Admin Panel
 
                         <div class="clearfix"></div>
 
-                        <h4 class="header-title">Configuración de campos</h4>
+                        <h4 class="header-title">Configuración de campos en vista de trámites</h4>
                         
                         <div class="data-tables">
                             
@@ -378,9 +378,32 @@ Crear Secuencia Proceso - Admin Panel
                                 </tbody>
                             </table>
                         </div>
+
+                        <div class="clearfix"></div>
+
+                        <h4 class="header-title">Configuración de campos en vista de remesas</h4>
+
+                        <div class="data-tables">
+                            
+                            <table id="configuracion_campos_remesa_table" class="table text-center">
+                                <thead class="bg-light text-capitalize">
+                                    <th>Tipo Campo</th>
+                                    <th>Sección Campo</th>
+                                    <th>Nombre Campo</th>
+                                    <th>Variable</th>
+                                    <th>Requerido</th>
+                                    <th>Editable</th>
+                                    <th>Visible</th>
+                                </thead>
+                                <tbody>
+                                
+                                </tbody>
+                            </table>
+                        </div>
                         
                         <input type="hidden" id="configuracion" name="configuracion">
                         <input type="hidden" id="configuracion_campos" name="configuracion_campos">
+                        <input type="hidden" id="configuracion_campos_remesa" name="configuracion_campos_remesa">
                         <input type="hidden" id="configuracion_correo" name="configuracion_correo">
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
@@ -887,6 +910,21 @@ Crear Secuencia Proceso - Admin Panel
                 tableRef.insertRow().innerHTML = innerHTML;
         }
 
+        tableRefRemesa = document.getElementById('configuracion_campos_remesa_table').getElementsByTagName('tbody')[0];
+        for (let campo of camposRemesa) {
+            let innerHTML = "";
+            innerHTML += 
+                "<td>"+ campo.tipo_campo+ "</td>"+
+                "<td>"+ campo.seccion_campo+ "</td>"+
+                "<td>"+ campo.nombre+ "</td>"+
+                "<td>"+ campo.variable+ "</td>"+
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_requerido' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)'></td>"+
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.editable+ "' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)'></td>"+
+                "<td><input class='form-check-input' type='checkbox' value='"+ campo.visible+ "' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)'></td>";
+
+                tableRefRemesa.insertRow().innerHTML = innerHTML;
+        }
+
         $("#actualizarConfiguracionDetalladaCampoTexto").click(function() {
             $("#modalActualizarCampoTipoTexto").find("input").each(function(index, element) {
                 var valorInput = $(this).val();
@@ -982,6 +1020,17 @@ Crear Secuencia Proceso - Admin Panel
         });
 
         table = $('#configuracion_campos_table').DataTable( {
+            scrollX: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            destroy: true,
+            paging: true,
+            searching: true,
+            autoWidth: true,
+            responsive: false,
+        });
+
+        table = $('#configuracion_campos_remesa_table').DataTable( {
             scrollX: true,
             orderCellsTop: true,
             fixedHeader: true,
@@ -1106,6 +1155,7 @@ Crear Secuencia Proceso - Admin Panel
 
     let table = "";
     let tableRef = "";
+    let tableRefRemesa = "";
     let conf = {};
     let jj = 0;
 
@@ -1133,6 +1183,7 @@ Crear Secuencia Proceso - Admin Panel
     let listaCampos = '{{$listaCampos}}';
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
+
     for (let campo of listaCampos) {
         campo.requerido = false;
         campo.editable = false;
@@ -1228,6 +1279,15 @@ Crear Secuencia Proceso - Admin Panel
             break;
         }
         
+    }
+
+    let camposRemesa = '{{$listaCampos}}';
+    camposRemesa = camposRemesa.replace(/&quot;/g, '"');
+    camposRemesa = JSON.parse(camposRemesa);
+    for (let campo of camposRemesa) {
+        campo.requerido = false;
+        campo.editable = false;
+        campo.visible = false;
     }
 
     let listaActividades = '{{$listaActividades}}';
@@ -1341,6 +1401,19 @@ Crear Secuencia Proceso - Admin Panel
         }
         
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
+    }
+
+    function generarConfiguracionCamposRemesaObjeto(id,obj){
+        let campo = camposRemesa.find(campo => campo.id === id);
+        if(obj.id == id + '_requerido'){
+            campo.requerido = obj.checked;
+        }if(obj.id == id + '_editable'){
+            campo.editable = obj.checked;
+        }if(obj.id == id + '_visible'){
+            campo.visible = obj.checked;
+        }
+
+        $('#configuracion_campos_remesa').val(JSON.stringify(camposRemesa));
     }
 
     function generarConfiguracionObjetoCorreo(campo,valor){

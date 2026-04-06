@@ -54,6 +54,7 @@ class SecuenciaProcesosController extends Controller
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $camposAprobaciones = CamposPorProceso::where('proceso_id', $proceso_id)->where('tipo_campo', 'select')->get(["nombre", "id"])->pluck('nombre','id');
         $listaCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
+        $listaCamposRemesa = $listaCampos;
         $tiposCatalogos = TipoCatalogo::get(["nombre", "id"])->pluck('nombre','id');
         $actores = Admin::get(["name", "id"])->pluck('name','id');
         $roles = Role::get(["name", "id"])->pluck('name','id');
@@ -65,6 +66,7 @@ class SecuenciaProcesosController extends Controller
             'secuenciaProceso' => $secuenciaProceso,
             'listaActividades' => $listaActividades,
             'listaCampos' => $listaCampos,
+            'listaCamposRemesa' => $listaCamposRemesa,
             'tiposCatalogos' => $tiposCatalogos,
             'campos' => $campos,
             'camposAprobaciones' => $camposAprobaciones,
@@ -117,6 +119,11 @@ class SecuenciaProcesosController extends Controller
         }else{
             $configuracion_campos = $request->configuracion_campos;
         }
+        if(!$request->configuracion_campos_remesa || !isset($request->configuracion_campos_remesa) || empty($request->configuracion_campos_remesa) || is_null($request->configuracion_campos_remesa)){
+            $configuracion_campos_remesa = "";
+        }else{
+            $configuracion_campos_remesa = $request->configuracion_campos_remesa;
+        }
         if(!$request->configuracion_correo || !isset($request->configuracion_correo) || empty($request->configuracion_correo) || is_null($request->configuracion_correo)){
             $configuracion_correo = "";
         }else{
@@ -133,6 +140,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->rol_id = $rol_id;
         $secuenciaProceso->configuracion = $configuracion;
         $secuenciaProceso->configuracion_campos = $configuracion_campos;
+        $secuenciaProceso->configuracion_campos_remesa = $configuracion_campos_remesa;
         $secuenciaProceso->configuracion_correo = $configuracion_correo;
         $secuenciaProceso->creado_por = $creado_por;
         $secuenciaProceso->save();
@@ -154,9 +162,12 @@ class SecuenciaProcesosController extends Controller
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["nombre", "id"])->pluck('nombre','id');
         $camposAprobaciones = CamposPorProceso::where('proceso_id', $proceso_id)->where('tipo_campo', 'select')->get(["nombre", "id"])->pluck('nombre','id');
         $configuracion_campos = json_decode($secuenciaProceso->configuracion_campos,true);
+        $configuracion_campos_remesa = json_decode($secuenciaProceso->configuracion_campos_remesa,true);
         $configuracion_correo = json_decode($secuenciaProceso->configuracion_correo,true);
         $listadoCampos = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
+        $listadoCamposRemesa = CamposPorProceso::where('proceso_id', $proceso_id)->get(["id", "tipo_campo", "nombre", "variable", "seccion_campo"]);
         $temp = [];
+        $tempRemesa = [];
 
         foreach($listadoCampos as $index => $lista){
             if(!isset($configuracion_campos[$index])){
@@ -164,6 +175,13 @@ class SecuenciaProcesosController extends Controller
             }
         }
         $listaCampos = array_merge($configuracion_campos, $temp);
+
+        foreach($listadoCamposRemesa as $index => $lista){
+            if(!isset($configuracion_campos_remesa[$index])){
+                $tempRemesa[] = $lista;
+            }
+        }
+        $listaCamposRemesa = array_merge($configuracion_campos_remesa, $tempRemesa);
 
         $contenido_html = $configuracion_correo['contenido_html'];
         foreach($configuracion_correo as $index => $conf){
@@ -183,6 +201,7 @@ class SecuenciaProcesosController extends Controller
             'proceso_id' => $proceso_id,
             'listaActividades' => $listaActividades,
             'listaCampos' => json_encode($listaCampos),
+            'listaCamposRemesa' => json_encode($listaCamposRemesa),
             'tiposCatalogos' => $tiposCatalogos,
             'campos' => $campos,
             'camposAprobaciones' => $camposAprobaciones,
@@ -235,6 +254,11 @@ class SecuenciaProcesosController extends Controller
         }else{
             $configuracion_campos = $request->configuracion_campos;
         }
+        if(!$request->configuracion_campos_remesa || !isset($request->configuracion_campos_remesa) || empty($request->configuracion_campos_remesa) || is_null($request->configuracion_campos_remesa)){
+            $configuracion_campos_remesa = "";
+        }else{
+            $configuracion_campos_remesa = $request->configuracion_campos_remesa;
+        }
         if(!$request->configuracion_correo || !isset($request->configuracion_correo) || empty($request->configuracion_correo) || is_null($request->configuracion_correo)){
             $configuracion_correo = "";
         }else{
@@ -250,6 +274,7 @@ class SecuenciaProcesosController extends Controller
         $secuenciaProceso->rol_id = $rol_id;
         $secuenciaProceso->configuracion = $configuracion;
         $secuenciaProceso->configuracion_campos = $configuracion_campos;
+        $secuenciaProceso->configuracion_campos_remesa = $configuracion_campos_remesa;
         $secuenciaProceso->configuracion_correo = $configuracion_correo;
         $secuenciaProceso->save();
 
@@ -334,6 +359,10 @@ class SecuenciaProcesosController extends Controller
         if(isset($request->configuracion_campos) && !empty($request->configuracion_campos)){
             $filtroConfiguracionCampos = $request->configuracion_campos;
             $secuenciaProcesos = $secuenciaProcesos->where('configuracion_campos', 'like', '%'.$filtroConfiguracionCampos.'%');
+        }
+        if(isset($request->configuracion_campos_remesa) && !empty($request->configuracion_campos_remesa)){
+            $filtroConfiguracionCampos = $request->configuracion_campos_remesa;
+            $secuenciaProcesos = $secuenciaProcesos->where('configuracion_campos_remesa', 'like', '%'.$filtroConfiguracionCampos.'%');
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
             $secuenciaProcesos = $secuenciaProcesos->whereIn('creado_por', $filtroCreadoPorSearch);

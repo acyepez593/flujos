@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('remesas', function (Blueprint $table) {
             $table->id();
+            $table->string('numero_remesa');
             $table->foreignId('proceso_id')->constrained('procesos');
             $table->foreignId('secuencia_proceso_id')->constrained('secuencia_procesos');
             $table->foreignId('funcionario_actual_id')->constrained('admins');

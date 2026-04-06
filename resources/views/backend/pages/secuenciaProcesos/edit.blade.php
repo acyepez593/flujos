@@ -355,7 +355,7 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 
                         <div class="clearfix"></div>
 
-                        <h4 class="header-title">Configuración de campos</h4>
+                        <h4 class="header-title">Configuración de campos en vista de trámites</h4>
                         
                         <div class="data-tables">
                             
@@ -375,9 +375,32 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                 </tbody>
                             </table>
                         </div>
+
+                        <div class="clearfix"></div>
+
+                        <h4 class="header-title">Configuración de campos en vista de remesas</h4>
+
+                        <div class="data-tables">
+                            
+                            <table id="configuracion_campos_remesa_table" class="table text-center">
+                                <thead class="bg-light text-capitalize">
+                                    <th>Tipo Campo</th>
+                                    <th>Sección Campo</th>
+                                    <th>Nombre Campo</th>
+                                    <th>Variable</th>
+                                    <th>Requerido</th>
+                                    <th>Editable</th>
+                                    <th>Visible</th>
+                                </thead>
+                                <tbody>
+                                
+                                </tbody>
+                            </table>
+                        </div>
                         
                         <input type="hidden" id="configuracion" name="configuracion">
                         <input type="hidden" id="configuracion_campos" name="configuracion_campos">
+                        <input type="hidden" id="configuracion_campos_remesa" name="configuracion_campos_remesa">
                         <input type="hidden" id="configuracion_correo" name="configuracion_correo">
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ url('admin') }}/secuenciaProcesos/{{$proceso_id}}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
@@ -1166,6 +1189,15 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     let listaCampos = '{{$listaCampos}}';
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
+
+    let camposRemesa = '{{$listaCamposRemesa}}';
+    camposRemesa = camposRemesa.replace(/&quot;/g, '"');
+    camposRemesa = JSON.parse(camposRemesa);
+    for (let campo of camposRemesa) {
+        campo.requerido = false;
+        campo.editable = false;
+        campo.visible = false;
+    }
 
     let listaActividades = '{{$listaActividades}}';
     listaActividades = listaActividades.replace(/&quot;/g, '"');
