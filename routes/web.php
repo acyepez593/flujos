@@ -16,6 +16,7 @@ use App\Http\Controllers\Backend\NormativaDiscapacidadesController;
 use App\Http\Controllers\Backend\PantallasController;
 use App\Http\Controllers\Backend\ProcesosController;
 use App\Http\Controllers\Backend\RangoDiscapacidadesController;
+use App\Http\Controllers\Backend\RemesasController;
 use App\Http\Controllers\Backend\ReportesController;
 use App\Http\Controllers\Backend\SeccionPantallasController;
 use App\Http\Controllers\Backend\SecuenciaProcesosController;
@@ -59,6 +60,11 @@ Route::post('/getBandejaTramitesByFilters',[TramitesController::class, 'getBande
 Route::post('/getTramitesByFilters',[TramitesController::class, 'getTramitesByFilters'])->middleware('auth:admin');
 Route::post('/getListaCamposByTramite',[TramitesController::class, 'getListaCamposByTramite'])->middleware('auth:admin');
 Route::post('/getTramitesParaReasignarByFilters',[TramitesController::class, 'getTramitesParaReasignarByFilters'])->middleware('auth:admin');
+
+Route::post('/getBandejaRemesasByFilters',[RemesasController::class, 'getBandejaRemesasByFilters'])->middleware('auth:admin');
+Route::post('/getRemesasByFilters',[RemesasController::class, 'getRemesasByFilters'])->middleware('auth:admin');
+Route::post('/getListaCamposByRemesa',[RemesasController::class, 'getListaCamposByRemesa'])->middleware('auth:admin');
+Route::post('/getRemesasParaReasignarByFilters',[RemesasController::class, 'getRemesasParaReasignarByFilters'])->middleware('auth:admin');
 
 Route::post('/getTipoCatalogosByFilters',[TipoCatalogosController::class, 'getTipoCatalogosByFilters'])->middleware('auth:admin');
 Route::post('/getCatalogosByFilters',[CatalogosController::class, 'getCatalogosByFilters'])->middleware('auth:admin');
@@ -124,6 +130,16 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store'])->name('tramites.store');
     Route::get('/tramites/{id}/edit', [TramitesController::class, 'edit'])->name('tramites.edit');
     Route::put('/tramites/{id}/edit', [TramitesController::class, 'update'])->name('tramites.update');
+
+    Route::get('/remesas', [RemesasController::class, 'index'])->name('remesas.index');
+    Route::get('/remesas/inbox', [RemesasController::class, 'inbox'])->name('remesas.inbox');
+    Route::get('/remesas/reassign', [RemesasController::class, 'reassign'])->name('remesas.reassign');
+    Route::post('/remesas/procesarRemesas', [RemesasController::class, 'procesarRemesas'])->name('remesas.procesarRemesas');
+    Route::post('/remesas/reasignarRemesas', [RemesasController::class, 'reasignarRemesas'])->name('remesas.reasignarRemesas');
+    Route::get('/remesas/{proceso_id}/create', [RemesasController::class, 'create'])->name('remesas.create');
+    Route::post('/remesas/{proceso_id}/create', [RemesasController::class, 'store'])->name('remesas.store');
+    Route::get('/remesas/{id}/edit', [RemesasController::class, 'edit'])->name('remesas.edit');
+    Route::put('/remesas/{id}/edit', [RemesasController::class, 'update'])->name('remesas.update');
 
     Route::resource('tipoCatalogos', TipoCatalogosController::class);
     Route::resource('catalogos', CatalogosController::class);

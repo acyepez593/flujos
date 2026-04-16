@@ -161,7 +161,7 @@
                     @if ($usr->can('tramite.create') || $usr->can('tramite.view') ||  $usr->can('tramite.edit') ||  $usr->can('tramite.delete'))
                     <li>
                         <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
-                            Bandeje de Trámites
+                            Bandeja de Trámites
                         </span></a>
                         <ul class="collapse {{ Route::is('admin.tramites.create') || Route::is('admin.tramites.index') || Route::is('admin.tramites.edit') || Route::is('admin.tramites.show') || Route::is('admin.tramites.inbox')  ? 'in' : '' }}">
                             
@@ -180,6 +180,19 @@
                             
                             @if ($usr->can('tramite.view'))
                                 <li class="{{ Route::is('admin.tramites.index')  || Route::is('admin.tramites.edit') ? 'active' : '' }}"><a href="{{ route('admin.tramites.index') }}">Trámites</a></li>
+                            @endif
+                        </ul>
+                    </li>
+                    @endif
+                    @if ($usr->can('remesa.create') || $usr->can('remesa.view') ||  $usr->can('remesa.edit') ||  $usr->can('remesa.delete'))
+                    <li>
+                        <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-file-text"></i><span>
+                            Bandeja de Remesas
+                        </span></a>
+                        <ul class="collapse {{ Route::is('admin.remesas.create') || Route::is('admin.remesas.index') || Route::is('admin.remesas.edit') || Route::is('admin.remesas.show') || Route::is('admin.remesas.inbox')  ? 'in' : '' }}">
+                            
+                            @if ($usr->can('remesa.view'))
+                                <li class="{{ Route::is('admin.remesas.inbox') ? 'active' : '' }}"><a href="{{ route('admin.remesas.inbox') }}">Remesas Pendientes</a></li>
                             @endif
                         </ul>
                     </li>

@@ -1,0 +1,1109 @@
+<?php
+    
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Backend;
+    
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\RemesaRequest;
+use App\Mail\Notification;
+use App\Models\Admin;
+use App\Models\Beneficiario;
+use App\Models\CamposPorProceso;
+use App\Models\Catalogo;
+use App\Models\File;
+use App\Models\NormativaDiscapacidad;
+use App\Models\Proceso;
+use App\Models\RangoDiscapacidad;
+use App\Models\Remesa;
+use App\Models\SecuenciaProceso;
+use App\Models\TipoCatalogo;
+use App\Models\TrazabilidadTramite;
+use Carbon\Carbon;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
+
+class RemesasController extends Controller
+{
+    public function index(): Renderable
+    {
+        $this->checkAuthorization(auth()->user(), ['remesa.view']);
+
+        $procesos = Proceso::where('estatus','ACTIVO')->get(["nombre", "id"]);
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
+        $creadores = Admin::get(["name", "id"]);
+        $funcionarios = $creadores;
+
+        return view('backend.pages.remesas.index', [
+            'procesos' => $procesos,
+            'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
+            'funcionarios' => $funcionarios,
+            'creadores' => $creadores
+        ]);
+    }
+
+    public function inbox(): Renderable
+    {
+        $this->checkAuthorization(auth()->user(), ['remesa.view']);
+
+        $procesos = Proceso::where('estatus','ACTIVO')->get(["nombre", "id"]);
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
+        $creadores = Admin::get(["name", "id"]);
+        $funcionarios = $creadores;
+
+        return view('backend.pages.remesas.inbox', [
+            'procesos' => $procesos,
+            'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
+            'funcionarios' => $funcionarios,
+            'creadores' => $creadores
+        ]);
+    }
+
+    public function reassign(): Renderable
+    {
+        $this->checkAuthorization(auth()->user(), ['remesa.reassign']);
+
+        $procesos = Proceso::where('estatus','ACTIVO')->get(["nombre", "id"]);
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre"]);
+        $creadores = Admin::get(["name", "id"]);
+        $funcionarios = $creadores;
+
+        return view('backend.pages.remesas.reassign', [
+            'procesos' => $procesos,
+            'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
+            'funcionarios' => $funcionarios,
+            'creadores' => $creadores
+        ]);
+    }
+
+    public function create(int $proceso_id): Renderable
+    {
+        $this->checkAuthorization(auth()->user(), ['remesa.create']);
+
+        $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
+        $secuenciaProcesoId = $secuenciaProceso->id;
+        $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
+        $configuracionSecuencia = $secuenciaProceso->configuracion;
+        $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
+        $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre","catalogo_id"]);
+
+        $tiposCatalogosRelacionadosIds = [];
+        $tiposCatalogosIds = [];
+        foreach($tiposCatalogos as $tipoCatalogo){
+            if(!empty($tipoCatalogo->tipo_catalogo_relacionado_id)){
+                $tiposCatalogosRelacionadosIds[] = $tipoCatalogo->tipo_catalogo_relacionado_id;
+            }
+            $tiposCatalogosIds[] = $tipoCatalogo->id;
+        }
+
+        $catalogosRelacionadosByTipoCatalogo = Catalogo::whereIn('tipo_catalogo_id',$tiposCatalogosRelacionadosIds)->where('estatus','ACTIVO')->get(['tipo_catalogo_id','catalogo_id','id','nombre'])->groupBy('tipo_catalogo_id');
+
+        $catalogosByCatalogoId = Catalogo::where('estatus','ACTIVO')->whereNotNull('catalogo_id')->get(['id','tipo_catalogo_id','catalogo_id','nombre'])->groupBy('catalogo_id');
+
+        return view('backend.pages.remesas.create', [
+            'secuenciaProcesoId' => $secuenciaProcesoId,
+            'campos' => $campos,
+            'configuracionSecuencia' => $configuracionSecuencia,
+            'listaCampos' => $listaCampos[0],
+            'tiposCatalogos' => $tiposCatalogos,
+            'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
+            'catalogosRelacionadosByTipoCatalogo' => $catalogosRelacionadosByTipoCatalogo,
+            'catalogosByCatalogoId' => $catalogosByCatalogoId,
+            'proceso_id' => $proceso_id
+        ]);
+    }
+
+    public function store(int $proceso_id, RemesaRequest $request): RedirectResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['remesa.create']);
+        
+        $creado_por = Auth::id();
+        $funcionario_actual_id = $creado_por;
+        $estatus = "INGRESADO";
+
+        if(!$request->datos || !isset($request->datos) || empty($request->datos || is_null($request->datos))){
+            $datos = "";
+        }else{
+            $datos = $request->datos;
+        }
+        if(!$request->secuencia_proceso_id || !isset($request->secuencia_proceso_id) || empty($request->secuencia_proceso_id || is_null($request->secuencia_proceso_id))){
+            $secuencia_proceso_id = "";
+        }else{
+            $secuencia_proceso_id = $request->secuencia_proceso_id;
+        }
+
+        $tramite = new Remesa();
+        $tramite->proceso_id = $proceso_id;
+        $tramite->secuencia_proceso_id = $secuencia_proceso_id;
+        $tramite->funcionario_actual_id = $funcionario_actual_id;
+        $tramite->datos = $datos;
+        $tramite->estatus = $estatus;
+        $tramite->creado_por = $creado_por;
+        $tramite->save();
+
+        $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
+        $benIds=[];
+        foreach($beneficiarios as $ben){
+            $beneficiario = new Beneficiario();
+            $beneficiario->tramite_id = $tramite->id;
+            $beneficiario->datos =json_encode($ben);
+            $beneficiario->creado_por = $creado_por;
+            $beneficiario->save();
+            array_push($benIds, $beneficiario->id);
+        }
+
+        $trazabilidad_tramite = new TrazabilidadTramite();
+        $trazabilidad_tramite->tramite_id = $tramite->id;
+        $trazabilidad_tramite->proceso_id = $proceso_id;
+        $trazabilidad_tramite->secuencia_proceso_id = $secuencia_proceso_id;
+        $trazabilidad_tramite->funcionario_actual_id = $funcionario_actual_id;
+        $trazabilidad_tramite->datos = $datos;
+        $trazabilidad_tramite->estatus = $estatus;
+        $trazabilidad_tramite->creado_por = $creado_por;
+        $trazabilidad_tramite->tipo = 'CREACION';
+        $trazabilidad_tramite->save();
+
+        $secuenciaProceso = SecuenciaProceso::find($secuencia_proceso_id);
+        $configuracionSecuencia = $secuenciaProceso->configuracion;
+        $listaCampos = $secuenciaProceso->configuracion_campos;
+
+        $camposDeTipoArchivo = [];
+        $listaCampos = json_decode($listaCampos, true);
+        foreach($listaCampos as $lista){
+            $obj = [];
+            if($lista['tipo_campo'] == 'file'){
+                $obj['id'] = $lista['id'];
+                $obj['seccion_campo'] = $lista['seccion_campo'];
+                $obj['variable'] = $lista['variable'];
+                $camposDeTipoArchivo[] = $obj;
+            }
+        }
+
+        $data = json_decode($datos, true)['data'];
+
+        foreach($camposDeTipoArchivo as $campo){
+            $files = [];
+            if($campo['seccion_campo'] == 'BENEFICIARIOS'){
+                $datosBen = json_decode($request->datosBen, true);
+                foreach($datosBen as $index => $ben){
+                    $filesBen = [];
+                    
+                    $activeFile = $ben['variable'];
+                    if ($request->hasFile($activeFile)){
+                        
+                        $file = $request->file($activeFile);
+                        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $file->move(public_path('uploads/tramites'), $fileName);
+                        $filesBen[] = ['name' => $fileName];
+                    }
+            
+                    foreach ($filesBen as $fileData) {
+                        $file = new File();
+                        $file->name = $fileData['name'];
+                        $file->proceso_id = $proceso_id;
+                        $file->tramite_id = $tramite->id;
+                        $file->beneficiario_id = $benIds[$index];
+                        $file->variable = $campo['variable'];
+                        $file->seccion_campo = $campo['seccion_campo'];
+                        $file->save();
+                    }
+                }
+            }else{
+                if($data[$campo['seccion_campo']][$campo['variable']] != ""){
+                    $activeFile = $campo['variable'];
+                    if ($request->hasFile($activeFile)){
+                        $file = $request->file($activeFile);
+                        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $file->move(public_path('uploads/tramites'), $fileName);
+                        $files[] = ['name' => $fileName];
+                    }
+            
+                    foreach ($files as $fileData) {
+                        $file = new File();
+                        $file->name = $fileData['name'];
+                        $file->proceso_id = $proceso_id;
+                        $file->tramite_id = $tramite->id;
+                        $file->variable = $activeFile;
+                        $file->seccion_campo = $campo['seccion_campo'];
+                        $file->save();
+                    }
+                }
+            }
+            
+        }
+
+        $storedFiles = File::where('tramite_id', $tramite->id)->get();
+        $tramiteDataField = json_decode($datos, true);
+        foreach ($storedFiles as $file) {
+            if($file->seccion_campo == 'BENEFICIARIOS'){
+                $index = array_search($file->beneficiario_id, $benIds);
+                $tramiteDataField['data'][$file->seccion_campo][$index][$file->variable] = $file->name;
+            }else{
+                $tramiteDataField['data'][$file->seccion_campo][$file->variable] = $file->name;
+            }
+        }
+
+        foreach($benIds as $index => $benId){
+            $tramiteDataField['data']['BENEFICIARIOS'][$index]['id'] = $benId;
+        }
+
+        $modifiedData = json_encode($tramiteDataField);
+
+        $tramiteMod = Remesa::find($tramite->id);
+        $tramiteMod->datos = $modifiedData;
+        $tramiteMod->save();
+
+        $trazabilidadTramiteMod = TrazabilidadTramite::find($trazabilidad_tramite->id);
+        $trazabilidadTramiteMod->datos = $modifiedData;
+        $trazabilidadTramiteMod->save();
+
+        $beneficiarios = Beneficiario::where('tramite_id', $tramite->id)->get();
+        foreach ($beneficiarios as $ben) {
+            $index = array_search($ben->id, $benIds);
+            $ben->datos = json_encode($tramiteDataField['data']['BENEFICIARIOS'][$index]);
+            $ben->save();
+        }
+
+        $numeroTramite = '';
+        switch ($proceso_id) {
+            case 1:
+                $numeroTramite = 'PRO-FAL-' . $tramite->id;
+                break;
+            case 2:
+                $numeroTramite = 'PRO-FUN-' . $tramite->id;
+                break;
+            case 3:
+                $numeroTramite = 'PRO-DIS-' . $tramite->id;
+                break;
+        }
+
+        session()->flash('success', __('Trámite ha sido creado satisfactoriamente. El número de trámite es: ' . $numeroTramite));
+        return redirect()->route('admin.tramites.inbox',['numeroTramite' => $numeroTramite]); 
+    }
+
+    public function edit(int $id): Renderable
+    {
+        $this->checkAuthorization(auth()->user(), ['remesa.edit']);
+
+        $tramite = Remesa::findOrFail($id);
+        $proceso_id = $tramite->proceso_id;
+        $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
+        $secuenciaProcesoId = $secuenciaProceso->id;
+        $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
+        $configuracionSecuencia = $secuenciaProceso->configuracion;
+        $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
+        $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre","catalogo_id"]);
+        $beneficiarios = Beneficiario::where('tramite_id',$tramite->id)->get();
+        $files = File::where('tramite_id', $id)->get(['proceso_id','tramite_id','seccion_campo','variable','name']);
+
+        $tiposCatalogosRelacionadosIds = [];
+        $tiposCatalogosIds = [];
+        foreach($tiposCatalogos as $tipoCatalogo){
+            if(!empty($tipoCatalogo->tipo_catalogo_relacionado_id)){
+                $tiposCatalogosRelacionadosIds[] = $tipoCatalogo->tipo_catalogo_relacionado_id;
+            }
+            $tiposCatalogosIds[] = $tipoCatalogo->id;
+        }
+
+        $catalogosRelacionadosByTipoCatalogo = Catalogo::whereIn('tipo_catalogo_id',$tiposCatalogosRelacionadosIds)->where('estatus','ACTIVO')->get(['tipo_catalogo_id','catalogo_id','id','nombre'])->groupBy('tipo_catalogo_id');
+
+        $catalogosByCatalogoId = Catalogo::where('estatus','ACTIVO')->whereNotNull('catalogo_id')->get(['id','tipo_catalogo_id','catalogo_id','nombre'])->groupBy('catalogo_id');
+
+        return view('backend.pages.tramites.edit', [
+            'tramite' => $tramite,
+            'beneficiarios' => $beneficiarios,
+            'secuenciaProcesoId' => $secuenciaProcesoId,
+            'campos' => $campos,
+            'configuracionSecuencia' => $configuracionSecuencia,
+            'listaCampos' => $listaCampos[0],
+            'tiposCatalogos' => $tiposCatalogos,
+            'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
+            'catalogosRelacionadosByTipoCatalogo' => $catalogosRelacionadosByTipoCatalogo,
+            'catalogosByCatalogoId' => $catalogosByCatalogoId,
+            'proceso_id' => $proceso_id,
+            'files' => $files
+        ]);
+    }
+
+    public function update(RemesaRequest $request, int $id): RedirectResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.edit']);
+
+        try {
+            $creado_por = Auth::id();
+
+            if(!$request->datos || !isset($request->datos) || empty($request->datos || is_null($request->datos))){
+                $datos = "";
+            }else{
+                $datos = $request->datos;
+            }
+
+            $tramite = Remesa::findOrFail($id);
+
+            $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
+            $datosBen = json_decode($request->datosBen, true);
+            $datosBenOri = json_decode($request->datosBen, true);
+
+            $indexIdsNuevos=[];
+            foreach($datosBen as $index => $ben){
+                if($ben['ben_id'] == ''){
+                    array_push($indexIdsNuevos, $index);
+                }
+            }
+
+            $beneficiariosIdsActuales = Beneficiario::where('tramite_id', $id)->get(['id'])->pluck('id')->toArray();
+            $beneficiariosIdsNuevos=[];
+            $benIds=[];
+            $benIdsNuevos=[];
+            
+            $indexBenefIdsNuevos=[];
+            foreach($beneficiarios as $index => $ben){
+                if($ben['id'] == ''){
+                    array_push($indexBenefIdsNuevos, $index);
+                }
+            }
+
+            $indexEquivalente = [];
+            foreach($indexBenefIdsNuevos as $index => $ide){
+                $ide = intval($ide);
+                if (!empty($indexIdsNuevos)) {
+                    $indexEquivalente[$ide] =  $indexIdsNuevos[$index];
+                }
+            }
+
+            //$key = array_search(2, $indexEquivalente);
+
+            /*session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.' .json_encode($indexBenefIdsNuevos) . '--//--' . json_encode($indexIdsNuevos). '--////--' . json_encode($indexEquivalente). '--//--//--' . $indexEquivalente['2']. '--//-//-//--' . $indexEquivalente['3']);
+            return redirect()->route('admin.tramites.inbox');*/
+
+            foreach($beneficiarios as $index => $ben){
+                if($ben['id'] != ''){
+                    $beneficiariosIdsNuevos[] = $ben['id'];
+                    array_push($benIds, $ben['id']);
+                    //$datosBen[$index]['ben_id'] = intval($ben['id']);
+                }else{
+                    $beneficiario = new Beneficiario();
+                    $beneficiario->tramite_id = $id;
+                    $beneficiario->datos =json_encode($ben);
+                    $beneficiario->creado_por = $creado_por;
+                    $beneficiario->save();
+                    $benTmp = $ben;
+                    $benTmp['id'] = $beneficiario->id;
+                    $beneficiario->datos =json_encode($benTmp);
+                    $beneficiario->save();
+                    array_push($benIds, $beneficiario->id);
+                    array_push($benIdsNuevos, $beneficiario->id);
+    
+                    if (!empty($indexIdsNuevos)) {
+                        $datosBen[$indexIdsNuevos[$index]]['ben_id'] = $beneficiario->id;
+                    }
+                }
+            }
+            
+            $benIdsAEliminar = [];
+            $benIdsAEliminar = array_diff($beneficiariosIdsActuales, $beneficiariosIdsNuevos);
+
+            foreach($benIdsAEliminar as $ben){
+                $beneficiario = Beneficiario::findOrFail($ben);
+                $beneficiario->delete();
+                $files = File::where('tramite_id', $id)->where('beneficiario_id', $ben)->first();
+                if($files){
+                    $files->delete();
+                }
+            }
+
+            $secuenciaProceso = SecuenciaProceso::find($tramite->secuencia_proceso_id);
+            $configuracionSecuencia = $secuenciaProceso->configuracion;
+            $listaCampos = $secuenciaProceso->configuracion_campos;
+
+            $camposDeTipoArchivo = [];
+            $listaCampos = json_decode($listaCampos, true);
+            foreach($listaCampos as $lista){
+                $obj = [];
+                if($lista['tipo_campo'] == 'file'){
+                    $obj['id'] = $lista['id'];
+                    $obj['seccion_campo'] = $lista['seccion_campo'];
+                    $obj['variable'] = $lista['variable'];
+                    $camposDeTipoArchivo[] = $obj;
+                }
+            }
+
+            $data = json_decode($datos, true)['data'];
+
+            foreach($camposDeTipoArchivo as $campo){
+                $files = [];
+                if($campo['seccion_campo'] == 'BENEFICIARIOS'){
+                    //$datosBen = json_decode($request->datosBen, true);
+                    //$datosBenef = $datosBen;
+                    foreach($datosBen as $index => $ben){
+                        $filesBen = [];
+                        
+                        $activeFile = $ben['variable'];
+                        if ($request->hasFile($activeFile)){
+                            
+                            $file = $request->file($activeFile);
+                            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                            $file->move(public_path('uploads/tramites'), $fileName);
+                            $filesBen[] = ['name' => $fileName];
+                        }
+                
+                        foreach ($filesBen as $fileData) {
+                            $file = new File();
+                            $file->name = $fileData['name'];
+                            $file->proceso_id = $tramite->proceso_id;
+                            $file->tramite_id = $id;
+                            $file->beneficiario_id = intval($ben['ben_id']);
+                            $file->variable = $campo['variable'];
+                            $file->seccion_campo = $campo['seccion_campo'];
+                            $file->save();
+                        }
+                    }
+                }else{
+                    if($data[$campo['seccion_campo']][$campo['variable']] != ""){
+                        $activeFile = $campo['variable'];
+                        if ($request->hasFile($activeFile)){
+                            $file = $request->file($activeFile);
+                            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                            $file->move(public_path('uploads/tramites'), $fileName);
+                            $files[] = ['name' => $fileName];
+                        }
+                
+                        foreach ($files as $fileData) {
+                            $file = new File();
+                            $file->name = $fileData['name'];
+                            $file->proceso_id = $tramite->proceso_id;
+                            $file->tramite_id = $id;
+                            $file->variable = $activeFile;
+                            $file->seccion_campo = $campo['seccion_campo'];
+                            $file->save();
+                        }
+                    }
+                }
+                
+            }
+
+            $storedFiles = File::where('tramite_id', $id)->get();
+            $tramiteDataField = json_decode($datos, true);
+            foreach ($storedFiles as $file) {
+                if($file->seccion_campo == 'BENEFICIARIOS'){
+                    $index = array_search($file->beneficiario_id, $benIds);
+                    $tramiteDataField['data'][$file->seccion_campo][$index][$file->variable] = $file->name;
+                }else{
+                    $tramiteDataField['data'][$file->seccion_campo][$file->variable] = $file->name;
+                }
+            }
+
+            $beneficiarios = Beneficiario::where('tramite_id', $id)->get();
+            foreach ($beneficiarios as $ben) {
+                $index = array_search($ben->id, $benIds);
+                $tramiteDataField['data']['BENEFICIARIOS'][$index]['id'] = $ben->id;
+                $ben->datos = json_encode($tramiteDataField['data']['BENEFICIARIOS'][$index]);
+                $ben->save();
+            }
+
+            $modifiedData = json_encode($tramiteDataField);
+
+            $tramite->datos = $modifiedData;
+            $tramite->save();
+
+            $trazabilidad_tramite = new TrazabilidadTramite();
+            $trazabilidad_tramite->tramite_id = $id;
+            $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
+            $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
+            $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
+            $trazabilidad_tramite->datos = $modifiedData;
+            $trazabilidad_tramite->estatus = $tramite->estatus;
+            $trazabilidad_tramite->creado_por = $tramite->creado_por;
+            $trazabilidad_tramite->tipo = 'MODIFICACION';
+            $trazabilidad_tramite->save();
+
+            session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.');
+            return redirect()->route('admin.tramites.inbox');
+        } catch (FileException $e) {
+            session()->flash('error', 'Trámite ha sido actualizado satisfactoriamente.'.$e);
+            return redirect()->route('admin.tramites.inbox');
+        }
+    }
+
+    public function download(string $fileName)
+    {
+        //$this->checkAuthorization(auth()->user(), ['tramite.download']);
+        if(public_path('uploads/tramites/'.$fileName)){
+            $myFile = public_path('uploads/tramites/'.$fileName);
+
+            $headers = ['Content-Type: application/pdf'];
+    
+            $newName = $fileName;
+    
+            return response()->download($myFile, $newName, $headers);
+        }
+    }
+
+    public function deleteFile(Request $request): JsonResponse
+    {
+        $fileName = $request->file_name;
+        if(isset($fileName) && !empty($fileName)){
+            $file = File::where('name', $fileName)->first();
+            $file->delete();
+            
+            return response()->json(['status' => 200, 'message' => '¡Archivo borrado exitosamente!'], 200);
+        }
+
+        return response()->json(['status' => 500, 'message' => 'Algo salió mal, por favor intente nuevamente.' . $fileName . '--' . isset($fileName) . '----' .!empty($fileName) . '--//--' .$test], 500);
+    }
+
+    public function getBandejaTramitesByFilters(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.view']);
+
+        $funcionario_actual_id = Auth::id();
+        $tramites = Remesa::where('funcionario_actual_id',$funcionario_actual_id);
+
+        $filtroProcesoIdSearch = $request->proceso_id_search;
+        $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
+        $filtroEstatus = json_decode($request->estatus_search, true);
+        
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+        }
+        if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
+            $tramites = $tramites->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
+        }
+        if(isset($filtroEstatus) && !empty($filtroEstatus)){
+            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+        }
+        
+        $tramites = $tramites->orderBy('id', 'asc')->get();
+
+        $procesos = Proceso::where('estatus','ACTIVO')->get();
+
+        $procesos_temp = [];
+        foreach($procesos as $proceso){
+            $procesos_temp[$proceso->id] = $proceso->nombre;
+        }
+
+        $secuenciasProceso = SecuenciaProceso::where('proceso_id',$filtroProcesoIdSearch)->where('estatus','ACTIVO')->get();
+
+        $secuencias_proceso_temp = [];
+        $configuracion_secuencia_temp = [];
+        foreach($secuenciasProceso as $secuencia){
+            $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+            $configuracion_secuencia_temp[$secuencia->id] = json_decode($secuencia->configuracion, true);
+        }
+
+        $creadores = Admin::all();
+
+        $creadores_temp = [];
+        foreach($creadores as $creador){
+            $creadores_temp[$creador->id] = $creador->name;
+        }
+
+        $usuario_actual_id = Auth::id();
+
+        $secuencia_proceso_id = 0;
+
+        foreach($tramites as $tramite){
+            $secuencia_proceso_id = $tramite->secuencia_proceso_id;
+            $tramite->proceso_nombre = array_key_exists($tramite->proceso_id, $procesos_temp) ? $procesos_temp[$tramite->proceso_id] : "";
+            $tramite->secuencia_nombre = array_key_exists($tramite->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$tramite->secuencia_proceso_id] : "";
+            $tramite->funcionario_actual_nombre = array_key_exists($tramite->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$tramite->funcionario_actual_id] : "";
+            $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
+            $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
+            $tramite->esEditorRegistro = $usuario_actual_id == $tramite->funcionario_actual_id ? true : false;
+            //$tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
+            //Se debe validar si todos los campos requeridos de la secuencia estan completos
+            $tramite->habilidato_para_continuar = true;
+        }
+
+        
+        $secuencia = SecuenciaProceso::find($secuencia_proceso_id);
+        $distribuir_manualmente_tramites = false;
+        $usuarios_distribucion_manual = [];
+        $configucacion = json_decode($secuencia->configuracion,true);
+        if($configucacion['requiere_evaluacion'] == false){
+            if($configucacion['camino_sin_evaluacion'] != ""){
+                $siguienteSecuencia = SecuenciaProceso::find(intval($configucacion['camino_sin_evaluacion']));
+                $configucacionSiguienteSecuencia = json_decode($siguienteSecuencia->configuracion,true);
+                if($configucacionSiguienteSecuencia['distribuir_manualmente_tramites']){
+                    $distribuir_manualmente_tramites = true;
+                    $rolId = $siguienteSecuencia->rol_id;
+                    $usersId = Role::getUsersByRol($rolId);
+                    $usuarios_distribucion_manual = Admin::whereIn('id', $usersId)->get(["id","name"]);
+                }
+            }
+        }
+        $camposPorProceso = CamposPorProceso::where('proceso_id', $filtroProcesoIdSearch)->get();
+        $listaCampos = collect($secuencia->configuracion_campos)->sortBy('seccion_campo');
+
+        $data['tramites'] = $tramites;
+        $data['secuencia'] = $secuencia;
+        $data['camposPorProceso'] = $camposPorProceso;
+        $data['listaCampos'] = $listaCampos;
+        $data['distribuir_manualmente_tramites'] = $distribuir_manualmente_tramites;
+        $data['usuarios_distribucion_manual'] = $usuarios_distribucion_manual;
+  
+        return response()->json($data);
+    }
+
+    public function getTramitesParaReasignarByFilters(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.reassign']);
+
+        $funcionario_actual_id = Auth::id();
+        $tramites = Remesa::where('estatus','<>','PAGADO');
+
+        $filtroProcesoIdSearch = $request->proceso_id_search;
+        $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
+        $filtroEstatus = json_decode($request->estatus_search, true);
+        $filtroFuncionarioIdSearch = $request->funcionario_search;
+        
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+        }
+        if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
+            $tramites = $tramites->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
+        }
+        if(isset($filtroEstatus) && !empty($filtroEstatus)){
+            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+        }
+        if(isset($filtroFuncionarioIdSearch) && !empty($filtroFuncionarioIdSearch)){
+            $tramites = $tramites->where('funcionario_actual_id', $filtroFuncionarioIdSearch);
+        }
+        
+        $tramites = $tramites->orderBy('id', 'asc')->get();
+
+        $procesos = Proceso::where('estatus','ACTIVO')->get();
+
+        $procesos_temp = [];
+        foreach($procesos as $proceso){
+            $procesos_temp[$proceso->id] = $proceso->nombre;
+        }
+
+        $secuenciasProceso = SecuenciaProceso::where('proceso_id',$filtroProcesoIdSearch)->where('estatus','ACTIVO')->get();
+
+        $secuencias_proceso_temp = [];
+        $configuracion_secuencia_temp = [];
+        foreach($secuenciasProceso as $secuencia){
+            $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+            $configuracion_secuencia_temp[$secuencia->id] = json_decode($secuencia->configuracion, true);
+        }
+
+        $creadores = Admin::all();
+
+        $creadores_temp = [];
+        foreach($creadores as $creador){
+            $creadores_temp[$creador->id] = $creador->name;
+        }
+
+        $usuario_actual_id = Auth::id();
+
+        $secuencia_proceso_id = 0;
+
+        foreach($tramites as $tramite){
+            $secuencia_proceso_id = $tramite->secuencia_proceso_id;
+            $tramite->proceso_nombre = array_key_exists($tramite->proceso_id, $procesos_temp) ? $procesos_temp[$tramite->proceso_id] : "";
+            $tramite->secuencia_nombre = array_key_exists($tramite->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$tramite->secuencia_proceso_id] : "";
+            $tramite->funcionario_actual_nombre = array_key_exists($tramite->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$tramite->funcionario_actual_id] : "";
+            $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
+            $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
+            $tramite->esEditorRegistro = $usuario_actual_id == $tramite->funcionario_actual_id ? true : false;
+            /*$tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
+            $tramite->requiere_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_memorando'] : "";
+            $tramite->requiere_fecha_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_fecha_memorando'] : "";
+            $tramite->requiere_adjuntar_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_adjuntar_memorando'] : "";*/
+        }
+
+        $secuencia = SecuenciaProceso::find($secuencia_proceso_id);        
+
+        $data['tramites'] = $tramites;
+        $data['secuencia'] = $secuencia;
+  
+        return response()->json($data);
+    }
+
+    public function procesarTramites(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.edit']);
+
+        try {
+            $proceso_id = $request->proceso_id;
+            $tramites_ids = json_decode($request->tramites_ids, true);
+            $obj_campos_llenado_masivo = json_decode($request->obj_campos_llenado_masivo, true);
+            $tramites_asignados_a_funcionarios = json_decode($request->tramites_asignados_a_funcionarios, true);
+
+            $tramites = Remesa::whereIn('id',$tramites_ids)->get();
+
+            $numeroTramites = $tramites->count();
+            $secuencia_proceso_id = $tramites[0]['secuencia_proceso_id'];
+            $secuencia_proceso = SecuenciaProceso::findOrFail($secuencia_proceso_id);
+            $configuracion_secuencia = json_decode($secuencia_proceso->configuracion, true);
+
+            $contadorTramite = 0;
+            $cont = 0;
+            $tramitesPorUsuario = [];
+
+            foreach($tramites as $tramite){
+                $datos = json_decode($tramite->datos, true);
+
+                foreach($obj_campos_llenado_masivo as $obj_campo){
+                    $datos['data'][$obj_campo['seccion_campo']][$obj_campo['variable']] = $obj_campo['valor'];
+                }
+                
+                $tramite->datos = json_encode($datos);
+
+                if($configuracion_secuencia['requiere_evaluacion'] == false){
+                    $siguiente_secuencia_proceso = SecuenciaProceso::findOrFail($configuracion_secuencia['camino_sin_evaluacion']);
+                    $configuracion_siguiente_secuencia = json_decode($siguiente_secuencia_proceso->configuracion, true);
+                    $tramite->secuencia_proceso_id = $configuracion_secuencia['camino_sin_evaluacion'];
+
+                    if($configuracion_siguiente_secuencia['distribuir_manualmente_tramites'] == true){
+                        //distribucion manual de tramites
+                        $rolId = $siguiente_secuencia_proceso->rol_id;
+                        $usersId = Role::getUsersByRol($rolId);
+                        if($contadorTramite == 0){
+                            foreach($usersId as $userId){
+                                $tramitesPorUsuario[$userId] = [];
+                            }
+                        }
+
+                        $tramite_id = $tramite->id;
+                        $filtered_array = array_filter($tramites_asignados_a_funcionarios, function ($obj) use ($tramite_id) {
+                            return $obj['tramite_id'] == $tramite_id;
+                        });
+                        
+                        $found_object = reset($filtered_array); 
+
+                        if ($found_object) {
+                            $tramite->funcionario_actual_id = $found_object['funcionario_id'];
+                            $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
+                            array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
+                        } 
+
+                    }else if($configuracion_siguiente_secuencia['distribuir_automaticamente_tramites'] == true){
+                        //distribucion automatica de tramites
+                        $rolId = $siguiente_secuencia_proceso->rol_id;
+                        $usersId = Role::getUsersByRol($rolId);
+                        if($contadorTramite == 0){
+                            foreach($usersId as $userId){
+                                $tramitesPorUsuario[$userId] = [];
+                            }
+                        }
+                        $numeroUsuariosConRol = $usersId->count();
+                        $numeroTramitesPorUsuario = ceil($numeroTramites/$numeroUsuariosConRol);
+                        
+                        if($contadorTramite == $numeroTramitesPorUsuario){
+                            $cont += 1;
+                        }
+
+                        $tramite->funcionario_actual_id = $usersId[$cont];
+                        $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
+
+                        array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
+                        
+                    }else{
+                        $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                        $tramite->estatus = 'EN PROCESO DAP';
+
+                        if($contadorTramite == 0){
+                            $tramitesPorUsuario[$tramite->funcionario_actual_id] = [];
+                        }
+                        array_push($tramitesPorUsuario[$tramite->funcionario_actual_id], $tramite->id);
+                    }
+                    
+                }else{
+                    $camposPorProceso = CamposPorProceso::find(intval($configuracion_secuencia['variable_evaluacion']));
+                    $datos = json_decode($tramite->datos, true);
+                    $valorSeleccionado = $datos['data'][$camposPorProceso->seccion_campo][$camposPorProceso->variable];
+                    $filtered_array = array_filter($configuracion_secuencia['caminos_evaluacion'], function ($obj) use ($valorSeleccionado) {
+                        return $obj['catalogo_id'] == $valorSeleccionado;
+                    });
+                    
+                    $found_object = reset($filtered_array); 
+
+                    if ($found_object) {
+                        $secuenciaId = intval($found_object['secuencia_id']);
+                        $tramite->secuencia_proceso_id = $secuenciaId;
+
+                        $siguiente_secuencia_proceso = SecuenciaProceso::findOrFail($secuenciaId);
+                        $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                        $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
+                    }
+                }
+
+                $tramite->save();
+                $contadorTramite += 1;
+
+                $trazabilidad_tramite = new TrazabilidadTramite();
+                $trazabilidad_tramite->tramite_id = $tramite->id;
+                $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
+                $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
+                $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
+                $trazabilidad_tramite->datos = $tramite->datos;
+                $trazabilidad_tramite->estatus = $tramite->estatus;
+                $trazabilidad_tramite->creado_por = $tramite->creado_por;
+                $trazabilidad_tramite->tipo = 'CAMBIO SECCION';
+                $trazabilidad_tramite->save();
+
+            }
+
+            foreach($tramitesPorUsuario as $tramitePorUsuario){
+                $numTramites = count($tramitePorUsuario);
+                //$this->enviarCorreo($secuencia_proceso_id, $tramitePorUsuario[0], strval($numTramites));
+            }
+
+            return response()->json(['tramites' => $tramites,'message' => 'Tramites procesados exitosamente!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Algo salió mal, por favor intente nuevamenteee.'.env('MAIL_HOST').'--'.env('MAIL_PORT'). '------'.$e], 500);
+        } catch (Throwable $e) {
+            return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
+        }
+
+    }
+
+    public function reasignarTramites(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.reassign']);
+        
+        $proceso_id = $request->proceso_id;
+        $tramites_ids = json_decode($request->tramites_ids, true);
+        $funcionario_a_reasignar = $request->funcionario_a_reasignar;
+        $comentario_reasignacion = $request->comentario_reasignacion;
+
+        $tramites = Remesa::whereIn('id',$tramites_ids)->get();
+
+        foreach($tramites as $tramite){
+            $tramite->funcionario_actual_id = $funcionario_a_reasignar;
+            $tramite->save();
+
+            $trazabilidad_tramite = new TrazabilidadTramite();
+            $trazabilidad_tramite->tramite_id = $tramite->id;
+            $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
+            $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
+            $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
+            $trazabilidad_tramite->datos = $tramite->datos;
+            $trazabilidad_tramite->estatus = $tramite->estatus;
+            $trazabilidad_tramite->creado_por = $tramite->creado_por;
+            $trazabilidad_tramite->comentario_reasignacion = $comentario_reasignacion;
+            $trazabilidad_tramite->save();
+        }
+
+        session()->flash('success', __('Tramites reasignados exitosamente! '));
+        return response()->json(['tramites' => $tramites,'message' => 'Tramites reasignados exitosamente!'], 200);
+
+    }
+
+    public function enviarCorreo($secuencia_proceso_id, $tramite_id, $num_tramites)
+    {
+        try {
+            $secuencia_proceso = SecuenciaProceso::findOrFail($secuencia_proceso_id);
+            $tramite = Remesa::find($tramite_id);
+            $proceso = Proceso::find($tramite->proceso_id);
+            $configuracion_correo = json_decode($secuencia_proceso->configuracion_correo,true);
+
+            $funcionario_actual = Admin::find($tramite->funcionario_actual_id)->name;
+            $numero_tramites = $num_tramites;
+            $tiempo_procesamiento = strval($secuencia_proceso->tiempo_procesamiento);
+
+            $subject = $configuracion_correo['subject'] . ' ' . $proceso->nombre;
+            $content = $configuracion_correo['contenido_html'];
+
+
+            $content = str_replace("[funcionario_actual]", $funcionario_actual, $content);
+            $content = str_replace("[numero_tramites]", strval($numero_tramites), $content);
+            $content = str_replace("[tiempo_procesamiento]", $tiempo_procesamiento, $content);
+            Mail::to('augusto.yepez@sppat.gob.ec')->queue(new Notification($subject,$content));
+            //Mail::to($funcionario_actual->email)->queue(new Notification($subject,$content));
+            //Mail::to('augusto.yepez@sppat.gob.ec')->send(new Notification($subject,$content));
+        } catch (\Exception $e) {
+            //return response()->json(['error' => 'Algo salió mal, por favor intente nuevamenteee.'.env('MAIL_HOST').'--'.env('MAIL_PORT'). '------'.$e], 500);
+        } catch (Throwable $e) {
+            //return response()->json(['error' => 'Algo salió mal, por favor intente nuevamente.'], 500);
+        }
+    }
+
+    public function getTramitesByFilters(Request $request): JsonResponse
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.view']);
+
+        $tramites = Remesa::where('id',">",0);
+
+        $filtroProcesoSearch = $request->proceso_search;
+        $filtroEstatus = json_decode($request->estatus_search, true);
+        $filtroFuncionarioSearch = json_decode($request->funcionario_search, true);
+        $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
+        
+        if(isset($filtroProcesoSearch) && !empty($filtroProcesoSearch)){
+            $tramites = $tramites->where('proceso_id', $filtroProcesoSearch);
+        }
+        if(isset($filtroEstatus) && !empty($filtroEstatus)){
+            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+        }
+        if(isset($filtroFuncionarioSearch) && !empty($filtroFuncionarioSearch)){
+            $tramites = $tramites->whereIn('funcionario_actual_id', $filtroFuncionarioSearch);
+        }
+        if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
+            $tramites = $tramites->whereIn('creado_por', $filtroCreadoPorSearch);
+        }
+        
+        $tramites = $tramites->orderBy('id', 'asc')->get();
+
+        $procesos = Proceso::where('estatus','ACTIVO')->get();
+
+        $procesos_temp = [];
+        foreach($procesos as $proceso){
+            $procesos_temp[$proceso->id] = $proceso->nombre;
+        }
+
+        $secuenciasProceso = SecuenciaProceso::where('proceso_id',$filtroProcesoSearch)->where('estatus','ACTIVO')->get();
+
+        $secuencias_proceso_temp = [];
+        foreach($secuenciasProceso as $secuencia){
+            $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+        }
+
+        $creadores = Admin::all();
+
+        $creadores_temp = [];
+        foreach($creadores as $creador){
+            $creadores_temp[$creador->id] = $creador->name;
+        }
+
+        $usuario_actual_id = Auth::id();
+
+        foreach($tramites as $tramite){
+            $tramite->proceso_nombre = array_key_exists($tramite->proceso_id, $procesos_temp) ? $procesos_temp[$tramite->proceso_id] : "";
+            $tramite->secuencia_nombre = array_key_exists($tramite->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$tramite->secuencia_proceso_id] : "";
+            $tramite->funcionario_actual_nombre = array_key_exists($tramite->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$tramite->funcionario_actual_id] : "";
+            $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
+            $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
+        }
+
+        $data['tramites'] = $tramites;
+        $data['creadores'] = $creadores;
+  
+        return response()->json($data);
+    }
+
+    public function getListaCamposByTramite(Request $request): JsonResponse
+    {
+        $tramiteId = $request->tramite_id;
+        $tramite = Remesa::findOrFail($tramiteId);
+        $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
+        $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
+        $secuenciasProceso = $secuenciaProceso->get();
+
+        $data['listaCampos'] = $listaCampos;
+
+        $trazabilidad_tramite = TrazabilidadTramite::where('tramite_id', $tramiteId)->whereIn('tipo',['CREACION','CAMBIO SECCION','CONDICINAL','FINALIZACION'])->get(["id","secuencia_proceso_id","funcionario_actual_id","estatus","tipo","created_at"]);
+
+        $files = File::where('tramite_id', $tramiteId)->get(['proceso_id','tramite_id','seccion_campo','variable','name']);
+
+        $secuencias_proceso_temp = [];
+        foreach($secuenciasProceso as $secuencia){
+            $secuencias_proceso_temp[$secuencia->id] = $secuencia->nombre;
+        }
+
+        $funcionarios = Admin::all();
+
+        $funcionarios_temp = [];
+        foreach($funcionarios as $creador){
+            $funcionarios_temp[$creador->id] = $creador->name;
+        }
+
+        foreach($trazabilidad_tramite as $trazabilidad){
+            $trazabilidad->secuencia_proceso_nombre = array_key_exists($trazabilidad->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$trazabilidad->secuencia_proceso_id] : "";
+            $trazabilidad->funcionario_actual_nombre = array_key_exists($trazabilidad->funcionario_actual_id, $funcionarios_temp) ? $funcionarios_temp[$trazabilidad->funcionario_actual_id] : "";
+        }
+
+        $data['trazabilidad'] = $trazabilidad_tramite;
+        $data['files'] = $files;
+
+        return response()->json($data);
+    }
+
+    public function consultarSCI(Request $request): JsonResponse
+    {
+        //$this->checkAuthorization(auth()->user(), ['tramite.create']);
+
+        $url = env('URL_LOGIN_SCI');
+        $username = env('SCI_USERNAME');
+        $password = env('SCI_PASSWORD');
+
+        $urlLogin = $url.'login'; 
+
+        $response = Http::post($urlLogin, [
+            'email' => $username,
+            'password' => $password,
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            $token = $data['data']['token'];
+
+            $urlWS = $url.'getConsultaWsInteroperabilidad';
+            
+            $responseWS = Http::withToken($token)->post($urlWS, [
+                'tipo_consulta_id' => 1,
+                'identificacion' => $request->identificacion,
+            ]);
+
+            if ($responseWS->successful()) {
+                $dataWs = $responseWS->json();
+
+                return response()->json($dataWs);
+            }else {
+                
+                return response()->json($responseWS->body());
+            }
+        } else {
+            
+            return response()->json($response->body());
+        }
+
+        return response()->json($response->body());
+    }
+
+    public function calcularMontoPagoDiscapacidad(Request $request): JsonResponse
+    {
+        $porcentaje_avalado_discapacidad = $request->porcentaje_avalado_discapacidad;
+        $fecha_accidente = Carbon::createFromFormat('Y-m-d', $request->fecha_accidente)->startOfDay();
+        $fecha_inicio_segunda_normativa = Carbon::createFromFormat('Y-m-d', '2025-08-14')->startOfDay();
+        $valor_cobertura = 0;
+        $normativa = '';
+        $rango = '';
+        if ($fecha_accidente->gte($fecha_inicio_segunda_normativa)) {
+            $normativaDis = NormativaDiscapacidad::find(2);
+            $normativa = $normativaDis->nombre;
+            $valor_cobertura = RangoDiscapacidad::where('normativa_id', $normativaDis->id)->where('rango_desde', '<=', intval($porcentaje_avalado_discapacidad))->where('rango_hasta', '>=', intval($porcentaje_avalado_discapacidad))->where('estatus', 'ACTIVO')->get();
+        }else{
+            $normativaDis = NormativaDiscapacidad::find(1);
+            $normativa = $normativaDis->nombre;
+            $valor_cobertura = RangoDiscapacidad::where('normativa_id', $normativaDis->id)->where('rango_desde', '<=', intval($porcentaje_avalado_discapacidad))->where('rango_hasta', '>=', intval($porcentaje_avalado_discapacidad))->where('estatus', 'ACTIVO')->get();
+        }
+
+        $rango = $valor_cobertura[0]['rango_desde'] . '% a ' . $valor_cobertura[0]['rango_hasta'] . '%';
+        $data['normativa'] = $normativa;
+        $data['rango_desde'] = $valor_cobertura[0]['rango_desde'];
+        $data['rango_hasta'] = $valor_cobertura[0]['rango_hasta'];
+        $data['rango'] = $rango;
+        $data['valor_a_pagar'] = $valor_cobertura[0]['valor_cobertura'];
+        
+        return response()->json($data);
+    }
+
+}

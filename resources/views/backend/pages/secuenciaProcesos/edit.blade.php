@@ -280,6 +280,15 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                                 @enderror
                             </div>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="vista_como_remesa">Vista como remesa?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="vista_como_remesa">
+                                    <label class="custom-control-label" for="vista_como_remesa"></label>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="clearfix"></div>
 
@@ -355,9 +364,9 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 
                         <div class="clearfix"></div>
 
-                        <h4 class="header-title">Configuración de campos en vista de trámites</h4>
+                        <h4 class="header-title vista_tramites">Configuración de campos en vista de trámites</h4>
                         
-                        <div class="data-tables">
+                        <div class="data-tables vista_tramites">
                             
                             <table id="configuracion_campos_table" class="table text-center">
                                 <thead class="bg-light text-capitalize">
@@ -378,9 +387,9 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
 
                         <div class="clearfix"></div>
 
-                        <h4 class="header-title">Configuración de campos en vista de remesas</h4>
+                        <h4 class="header-title vista_remesas">Configuración de campos en vista de remesas</h4>
 
-                        <div class="data-tables">
+                        <div class="data-tables vista_remesas">
                             
                             <table id="configuracion_campos_remesa_table" class="table text-center">
                                 <thead class="bg-light text-capitalize">
@@ -848,8 +857,6 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         });
 
         $('#distribuir_manualmente_tramites').change(function() {
-            console.log('distribuir_manualmente_tramites');
-            console.log(this.checked);
             if(this.checked){
                 $('#distribuir_automaticamente_tramites').prop('disabled', true);
                 $('#con_distribucion_automatica').show();
@@ -884,19 +891,25 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             generarConfiguracionObjetoLlenadoMasivo('habilitar_llenado_masivo_variables',this.checked);
         });
 
+        $('#vista_como_remesa').change(function() {
+            if(this.checked){
+                $('.vista_remesas').show();
+                $('.vista_tramites').hide();
+            }else{
+                $('.vista_remesas').hide();
+                $('.vista_tramites').show();
+            }
+            generarConfiguracionObjeto('vista_como_remesa',this.checked);
+        });
+
         $('#requiere_evaluacion').prop('checked', configuraciones.requiere_evaluacion);
         $('#distribuir_manualmente_tramites').prop('checked', configuraciones.distribuir_manualmente_tramites);
         $('#distribuir_automaticamente_tramites').prop('checked', configuraciones.distribuir_automaticamente_tramites);
         $('#habilitar_llenado_masivo_variables').prop('checked', configuraciones.llenado_masivo.habilitar_llenado_masivo_variables);
-
-        $('#requiere_evaluacion').change();
-        $('#distribuir_manualmente_tramites').change();
-        $('#distribuir_automaticamente_tramites').change();
-        $('#habilitar_llenado_masivo_variables').change();
-        $('#configuracion_campos').val(JSON.stringify(listaCampos));
-        $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
+        $('#vista_como_remesa').prop('checked', configuraciones.vista_como_remesa);
 
         tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
+        tableRemesaRef = document.getElementById('configuracion_campos_remesa_table').getElementsByTagName('tbody')[0];
 
         for (let campo of listaCampos) {
             let innerHTML = "";
@@ -924,6 +937,32 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                 innerHTML += "<td><div class='icon-margin' title='Confirugar Campo' onclick='getField(" + campo.id + ")'><i class='fa fa-cog fa-2x'></i></div></td>";
 
                 tableRef.insertRow().innerHTML = innerHTML;
+        }
+
+        for (let campo of listaCamposRemesa) {
+            let innerHTML = "";
+            innerHTML += 
+                "<td>"+ campo.tipo_campo+ "</td>"+
+                "<td>"+ campo.seccion_campo+ "</td>"+
+                "<td>"+ campo.nombre+ "</td>"+
+                "<td>"+ campo.variable+ "</td>";
+                if(campo.requerido == true){
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_requerido' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)' checked></td>";
+                }else{
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_requerido' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)'></td>";
+                }
+                if(campo.editable == true){
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)' checked></td>";
+                }else{
+                    innerHTML +="<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_editable' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)'></td>";
+                }
+                if(campo.visible == true){
+                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)' checked></td>";
+                }else{
+                    innerHTML += "<td><input class='form-check-input' type='checkbox' id='" + campo.id + "_visible' onchange='generarConfiguracionCamposRemesaObjeto(" + campo.id + ",this)'></td>";
+                }
+
+                tableRemesaRef.insertRow().innerHTML = innerHTML;
         }
 
         $("#actualizarConfiguracionDetalladaCampoTexto").click(function() {
@@ -1028,6 +1067,17 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         });
 
         table = $('#configuracion_campos_table').DataTable( {
+            scrollX: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            destroy: true,
+            paging: true,
+            searching: true,
+            autoWidth: true,
+            responsive: false,
+        });
+
+        tableRemesa = $('#configuracion_campos_remesa_table').DataTable( {
             scrollX: true,
             orderCellsTop: true,
             fixedHeader: true,
@@ -1169,11 +1219,22 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         }
 
         updateIframe(0);
+
+        $('#requiere_evaluacion').change();
+        $('#distribuir_manualmente_tramites').change();
+        $('#distribuir_automaticamente_tramites').change();
+        $('#habilitar_llenado_masivo_variables').change();
+        $('#configuracion_campos').val(JSON.stringify(listaCampos));
+        $('#configuracion_campos_remesa').val(JSON.stringify(listaCamposRemesa));
+        $('#configuracion_correo').val(JSON.stringify(objetoCorreo));
+        $('#vista_como_remesa').change();
         
     })
 
     let table = "";
+    let tableRemesa = "";
     let tableRef = "";
+    let tableRemesaRef = "";
     let conf = {};
     let jj = 0;
 
@@ -1190,14 +1251,9 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
     listaCampos = listaCampos.replace(/&quot;/g, '"');
     listaCampos = JSON.parse(listaCampos);
 
-    let camposRemesa = '{{$listaCamposRemesa}}';
-    camposRemesa = camposRemesa.replace(/&quot;/g, '"');
-    camposRemesa = JSON.parse(camposRemesa);
-    for (let campo of camposRemesa) {
-        campo.requerido = false;
-        campo.editable = false;
-        campo.visible = false;
-    }
+    let listaCamposRemesa = '{{$listaCamposRemesa}}';
+    listaCamposRemesa = listaCamposRemesa.replace(/&quot;/g, '"');
+    listaCamposRemesa = JSON.parse(listaCamposRemesa);
 
     let listaActividades = '{{$listaActividades}}';
     listaActividades = listaActividades.replace(/&quot;/g, '"');
@@ -1326,6 +1382,14 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         
     }
 
+    function inicializarConfiguracionCamposRemesaNuevos(campo){
+        campo.requerido = false;
+        campo.editable = false;
+        campo.visible = false;
+
+        return campo;  
+    }
+
     function getField(id){
         campo_id = id;
         let campo = listaCampos.find(campo => campo.id === id);
@@ -1447,6 +1511,19 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
         }
         
         $('#configuracion_campos').val(JSON.stringify(listaCampos));
+    }
+
+    function generarConfiguracionCamposRemesaObjeto(id,obj){
+        let campo = listaCamposRemesa.find(campo => campo.id === id);
+        if(obj.id == id + '_requerido'){
+            campo.requerido = obj.checked;
+        }if(obj.id == id + '_editable'){
+            campo.editable = obj.checked;
+        }if(obj.id == id + '_visible'){
+            campo.visible = obj.checked;
+        }
+        
+        $('#configuracion_campos_remesa').val(JSON.stringify(listaCamposRemesa));
     }
 
     function generarConfiguracionObjetoCorreo(campo,valor){

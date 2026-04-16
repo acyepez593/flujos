@@ -283,6 +283,15 @@ Crear Secuencia Proceso - Admin Panel
                                 @enderror
                             </div>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="vista_como_remesa">Vista como remesa?:</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="vista_como_remesa">
+                                    <label class="custom-control-label" for="vista_como_remesa"></label>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="clearfix"></div>
 
@@ -358,9 +367,9 @@ Crear Secuencia Proceso - Admin Panel
 
                         <div class="clearfix"></div>
 
-                        <h4 class="header-title">Configuración de campos en vista de trámites</h4>
+                        <h4 class="header-title vista_tramites">Configuración de campos en vista de trámites</h4>
                         
-                        <div class="data-tables">
+                        <div class="data-tables vista_tramites">
                             
                             <table id="configuracion_campos_table" class="table text-center">
                                 <thead class="bg-light text-capitalize">
@@ -381,9 +390,9 @@ Crear Secuencia Proceso - Admin Panel
 
                         <div class="clearfix"></div>
 
-                        <h4 class="header-title">Configuración de campos en vista de remesas</h4>
+                        <h4 class="header-title vista_remesas">Configuración de campos en vista de remesas</h4>
 
-                        <div class="data-tables">
+                        <div class="data-tables vista_remesas">
                             
                             <table id="configuracion_campos_remesa_table" class="table text-center">
                                 <thead class="bg-light text-capitalize">
@@ -888,10 +897,16 @@ Crear Secuencia Proceso - Admin Panel
             generarConfiguracionObjetoLlenadoMasivo('habilitar_llenado_masivo_variables',this.checked);
         });
 
-        $('#requiere_evaluacion').change();
-        $('#distribuir_manualmente_tramites').change();
-        $('#distribuir_automaticamente_tramites').change();
-        $('#habilitar_llenado_masivo_variables').change();
+        $('#vista_como_remesa').change(function() {
+            if(this.checked){
+                $('.vista_remesas').show();
+                $('.vista_tramites').hide();
+            }else{
+                $('.vista_remesas').hide();
+                $('.vista_tramites').show();
+            }
+            generarConfiguracionObjeto('vista_como_remesa',this.checked);
+        });
 
         tableRef = document.getElementById('configuracion_campos_table').getElementsByTagName('tbody')[0];
 
@@ -911,7 +926,7 @@ Crear Secuencia Proceso - Admin Panel
         }
 
         tableRefRemesa = document.getElementById('configuracion_campos_remesa_table').getElementsByTagName('tbody')[0];
-        for (let campo of camposRemesa) {
+        for (let campo of listaCamposRemesa) {
             let innerHTML = "";
             innerHTML += 
                 "<td>"+ campo.tipo_campo+ "</td>"+
@@ -1030,7 +1045,7 @@ Crear Secuencia Proceso - Admin Panel
             responsive: false,
         });
 
-        table = $('#configuracion_campos_remesa_table').DataTable( {
+        tableRemesa = $('#configuracion_campos_remesa_table').DataTable( {
             scrollX: true,
             orderCellsTop: true,
             fixedHeader: true,
@@ -1151,9 +1166,16 @@ Crear Secuencia Proceso - Admin Panel
             }
             
         });
+
+        $('#requiere_evaluacion').change();
+        $('#distribuir_manualmente_tramites').change();
+        $('#distribuir_automaticamente_tramites').change();
+        $('#habilitar_llenado_masivo_variables').change();
+        $('#vista_como_remesa').change();
     })
 
     let table = "";
+    let tableRemesa = "";
     let tableRef = "";
     let tableRefRemesa = "";
     let conf = {};
@@ -1170,7 +1192,8 @@ Crear Secuencia Proceso - Admin Panel
         llenado_masivo: {
             habilitar_llenado_masivo_variables: false, 
             variables_llenado_masivo: []
-        }
+        },
+        vista_como_remesa: false,
     }
 
     let objetoCorreo = {
@@ -1281,10 +1304,10 @@ Crear Secuencia Proceso - Admin Panel
         
     }
 
-    let camposRemesa = '{{$listaCampos}}';
-    camposRemesa = camposRemesa.replace(/&quot;/g, '"');
-    camposRemesa = JSON.parse(camposRemesa);
-    for (let campo of camposRemesa) {
+    let listaCamposRemesa = '{{$listaCamposRemesa}}';
+    listaCamposRemesa = listaCamposRemesa.replace(/&quot;/g, '"');
+    listaCamposRemesa = JSON.parse(listaCamposRemesa);
+    for (let campo of listaCamposRemesa) {
         campo.requerido = false;
         campo.editable = false;
         campo.visible = false;
@@ -1404,7 +1427,7 @@ Crear Secuencia Proceso - Admin Panel
     }
 
     function generarConfiguracionCamposRemesaObjeto(id,obj){
-        let campo = camposRemesa.find(campo => campo.id === id);
+        let campo = listaCamposRemesa.find(campo => campo.id === id);
         if(obj.id == id + '_requerido'){
             campo.requerido = obj.checked;
         }if(obj.id == id + '_editable'){
@@ -1413,7 +1436,7 @@ Crear Secuencia Proceso - Admin Panel
             campo.visible = obj.checked;
         }
 
-        $('#configuracion_campos_remesa').val(JSON.stringify(camposRemesa));
+        $('#configuracion_campos_remesa').val(JSON.stringify(listaCamposRemesa));
     }
 
     function generarConfiguracionObjetoCorreo(campo,valor){
