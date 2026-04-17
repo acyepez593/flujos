@@ -299,16 +299,16 @@ class RemesasController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['remesa.edit']);
 
-        $tramite = Remesa::findOrFail($id);
-        $proceso_id = $tramite->proceso_id;
-        $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
+        $remesa = Remesa::findOrFail($id);
+        $proceso_id = $remesa->proceso_id;
+        $secuenciaProceso = SecuenciaProceso::findOrFail($remesa->secuencia_proceso_id);
         $secuenciaProcesoId = $secuenciaProceso->id;
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $configuracionSecuencia = $secuenciaProceso->configuracion;
-        $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
+        $listaCamposRemesa = collect($secuenciaProceso->configuracion_campos_remesa)->sortBy('seccion_campo');
         $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
         $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre","catalogo_id"]);
-        $beneficiarios = Beneficiario::where('tramite_id',$tramite->id)->get();
+        $beneficiarios = Beneficiario::where('tramite_id',$remesa->id)->get();
         $files = File::where('tramite_id', $id)->get(['proceso_id','tramite_id','seccion_campo','variable','name']);
 
         $tiposCatalogosRelacionadosIds = [];
@@ -325,12 +325,12 @@ class RemesasController extends Controller
         $catalogosByCatalogoId = Catalogo::where('estatus','ACTIVO')->whereNotNull('catalogo_id')->get(['id','tipo_catalogo_id','catalogo_id','nombre'])->groupBy('catalogo_id');
 
         return view('backend.pages.tramites.edit', [
-            'tramite' => $tramite,
+            'remesa' => $remesa,
             'beneficiarios' => $beneficiarios,
             'secuenciaProcesoId' => $secuenciaProcesoId,
             'campos' => $campos,
             'configuracionSecuencia' => $configuracionSecuencia,
-            'listaCampos' => $listaCampos[0],
+            'listaCamposRemesa' => $listaCamposRemesa[0],
             'tiposCatalogos' => $tiposCatalogos,
             'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
             'catalogosRelacionadosByTipoCatalogo' => $catalogosRelacionadosByTipoCatalogo,
@@ -342,7 +342,7 @@ class RemesasController extends Controller
 
     public function update(RemesaRequest $request, int $id): RedirectResponse
     {
-        $this->checkAuthorization(auth()->user(), ['tramite.edit']);
+        $this->checkAuthorization(auth()->user(), ['remesa.edit']);
 
         try {
             $creado_por = Auth::id();
@@ -353,7 +353,7 @@ class RemesasController extends Controller
                 $datos = $request->datos;
             }
 
-            $tramite = Remesa::findOrFail($id);
+            $remesa = Remesa::findOrFail($id);
 
             $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
             $datosBen = json_decode($request->datosBen, true);
@@ -427,7 +427,7 @@ class RemesasController extends Controller
                 }
             }
 
-            $secuenciaProceso = SecuenciaProceso::find($tramite->secuencia_proceso_id);
+            $secuenciaProceso = SecuenciaProceso::find($remesa->secuencia_proceso_id);
             $configuracionSecuencia = $secuenciaProceso->configuracion;
             $listaCampos = $secuenciaProceso->configuracion_campos;
 
@@ -458,14 +458,14 @@ class RemesasController extends Controller
                             
                             $file = $request->file($activeFile);
                             $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                            $file->move(public_path('uploads/tramites'), $fileName);
+                            $file->move(public_path('uploads/remesas'), $fileName);
                             $filesBen[] = ['name' => $fileName];
                         }
                 
                         foreach ($filesBen as $fileData) {
                             $file = new File();
                             $file->name = $fileData['name'];
-                            $file->proceso_id = $tramite->proceso_id;
+                            $file->proceso_id = $remesa->proceso_id;
                             $file->tramite_id = $id;
                             $file->beneficiario_id = intval($ben['ben_id']);
                             $file->variable = $campo['variable'];
@@ -479,15 +479,15 @@ class RemesasController extends Controller
                         if ($request->hasFile($activeFile)){
                             $file = $request->file($activeFile);
                             $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                            $file->move(public_path('uploads/tramites'), $fileName);
+                            $file->move(public_path('uploads/remesas'), $fileName);
                             $files[] = ['name' => $fileName];
                         }
                 
                         foreach ($files as $fileData) {
                             $file = new File();
                             $file->name = $fileData['name'];
-                            $file->proceso_id = $tramite->proceso_id;
-                            $file->tramite_id = $id;
+                            $file->proceso_id = $remesa->proceso_id;
+                            $file->remesa_id = $id;
                             $file->variable = $activeFile;
                             $file->seccion_campo = $campo['seccion_campo'];
                             $file->save();
@@ -518,17 +518,17 @@ class RemesasController extends Controller
 
             $modifiedData = json_encode($tramiteDataField);
 
-            $tramite->datos = $modifiedData;
-            $tramite->save();
+            $remesa->datos = $modifiedData;
+            $remesa->save();
 
             $trazabilidad_tramite = new TrazabilidadTramite();
             $trazabilidad_tramite->tramite_id = $id;
-            $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
-            $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
-            $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
+            $trazabilidad_tramite->proceso_id = $remesa->proceso_id;
+            $trazabilidad_tramite->secuencia_proceso_id = $remesa->secuencia_proceso_id;
+            $trazabilidad_tramite->funcionario_actual_id = $remesa->funcionario_actual_id;
             $trazabilidad_tramite->datos = $modifiedData;
-            $trazabilidad_tramite->estatus = $tramite->estatus;
-            $trazabilidad_tramite->creado_por = $tramite->creado_por;
+            $trazabilidad_tramite->estatus = $remesa->estatus;
+            $trazabilidad_tramite->creado_por = $remesa->creado_por;
             $trazabilidad_tramite->tipo = 'MODIFICACION';
             $trazabilidad_tramite->save();
 
@@ -544,7 +544,7 @@ class RemesasController extends Controller
     {
         //$this->checkAuthorization(auth()->user(), ['tramite.download']);
         if(public_path('uploads/tramites/'.$fileName)){
-            $myFile = public_path('uploads/tramites/'.$fileName);
+            $myFile = public_path('uploads/remesas/'.$fileName);
 
             $headers = ['Content-Type: application/pdf'];
     
@@ -567,28 +567,28 @@ class RemesasController extends Controller
         return response()->json(['status' => 500, 'message' => 'Algo salió mal, por favor intente nuevamente.' . $fileName . '--' . isset($fileName) . '----' .!empty($fileName) . '--//--' .$test], 500);
     }
 
-    public function getBandejaTramitesByFilters(Request $request): JsonResponse
+    public function getBandejaRemesasByFilters(Request $request): JsonResponse
     {
-        $this->checkAuthorization(auth()->user(), ['tramite.view']);
+        $this->checkAuthorization(auth()->user(), ['remesa.view']);
 
         $funcionario_actual_id = Auth::id();
-        $tramites = Remesa::where('funcionario_actual_id',$funcionario_actual_id);
+        $remesas = Remesa::where('funcionario_actual_id',$funcionario_actual_id);
 
         $filtroProcesoIdSearch = $request->proceso_id_search;
         $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
         
         if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
-            $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+            $remesas = $remesas->where('proceso_id', $filtroProcesoIdSearch);
         }
         if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
-            $tramites = $tramites->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
+            $remesas = $remesas->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
-            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+            $remesas = $remesas->whereIn('estatus', $filtroEstatus);
         }
         
-        $tramites = $tramites->orderBy('id', 'asc')->get();
+        $remesas = $remesas->orderBy('id', 'asc')->get();
 
         $procesos = Proceso::where('estatus','ACTIVO')->get();
 
@@ -617,17 +617,17 @@ class RemesasController extends Controller
 
         $secuencia_proceso_id = 0;
 
-        foreach($tramites as $tramite){
-            $secuencia_proceso_id = $tramite->secuencia_proceso_id;
-            $tramite->proceso_nombre = array_key_exists($tramite->proceso_id, $procesos_temp) ? $procesos_temp[$tramite->proceso_id] : "";
-            $tramite->secuencia_nombre = array_key_exists($tramite->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$tramite->secuencia_proceso_id] : "";
-            $tramite->funcionario_actual_nombre = array_key_exists($tramite->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$tramite->funcionario_actual_id] : "";
-            $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
-            $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
-            $tramite->esEditorRegistro = $usuario_actual_id == $tramite->funcionario_actual_id ? true : false;
+        foreach($remesas as $remesa){
+            $secuencia_proceso_id = $remesa->secuencia_proceso_id;
+            $remesa->proceso_nombre = array_key_exists($remesa->proceso_id, $procesos_temp) ? $procesos_temp[$remesa->proceso_id] : "";
+            $remesa->secuencia_nombre = array_key_exists($remesa->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$remesa->secuencia_proceso_id] : "";
+            $remesa->funcionario_actual_nombre = array_key_exists($remesa->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$remesa->funcionario_actual_id] : "";
+            $remesa->creado_por_nombre = array_key_exists($remesa->creado_por, $creadores_temp) ? $creadores_temp[$remesa->creado_por] : "";
+            $remesa->esCreadorRegistro = $usuario_actual_id == $remesa->creado_por ? true : false;
+            $remesa->esEditorRegistro = $usuario_actual_id == $remesa->funcionario_actual_id ? true : false;
             //$tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
             //Se debe validar si todos los campos requeridos de la secuencia estan completos
-            $tramite->habilidato_para_continuar = true;
+            $remesa->habilidato_para_continuar = true;
         }
 
         
@@ -650,7 +650,7 @@ class RemesasController extends Controller
         $camposPorProceso = CamposPorProceso::where('proceso_id', $filtroProcesoIdSearch)->get();
         $listaCampos = collect($secuencia->configuracion_campos)->sortBy('seccion_campo');
 
-        $data['tramites'] = $tramites;
+        $data['remesas'] = $remesas;
         $data['secuencia'] = $secuencia;
         $data['camposPorProceso'] = $camposPorProceso;
         $data['listaCampos'] = $listaCampos;
@@ -662,10 +662,10 @@ class RemesasController extends Controller
 
     public function getTramitesParaReasignarByFilters(Request $request): JsonResponse
     {
-        $this->checkAuthorization(auth()->user(), ['tramite.reassign']);
+        $this->checkAuthorization(auth()->user(), ['remesa.reassign']);
 
         $funcionario_actual_id = Auth::id();
-        $tramites = Remesa::where('estatus','<>','PAGADO');
+        $remesas = Remesa::where('estatus','<>','PAGADO');
 
         $filtroProcesoIdSearch = $request->proceso_id_search;
         $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
@@ -673,19 +673,19 @@ class RemesasController extends Controller
         $filtroFuncionarioIdSearch = $request->funcionario_search;
         
         if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
-            $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+            $remesas = $remesas->where('proceso_id', $filtroProcesoIdSearch);
         }
         if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
-            $tramites = $tramites->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
+            $remesas = $remesas->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
         }
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
-            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+            $remesas = $remesas->whereIn('estatus', $filtroEstatus);
         }
         if(isset($filtroFuncionarioIdSearch) && !empty($filtroFuncionarioIdSearch)){
-            $tramites = $tramites->where('funcionario_actual_id', $filtroFuncionarioIdSearch);
+            $remesas = $remesas->where('funcionario_actual_id', $filtroFuncionarioIdSearch);
         }
         
-        $tramites = $tramites->orderBy('id', 'asc')->get();
+        $remesas = $remesas->orderBy('id', 'asc')->get();
 
         $procesos = Proceso::where('estatus','ACTIVO')->get();
 
@@ -714,14 +714,14 @@ class RemesasController extends Controller
 
         $secuencia_proceso_id = 0;
 
-        foreach($tramites as $tramite){
-            $secuencia_proceso_id = $tramite->secuencia_proceso_id;
-            $tramite->proceso_nombre = array_key_exists($tramite->proceso_id, $procesos_temp) ? $procesos_temp[$tramite->proceso_id] : "";
-            $tramite->secuencia_nombre = array_key_exists($tramite->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$tramite->secuencia_proceso_id] : "";
-            $tramite->funcionario_actual_nombre = array_key_exists($tramite->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$tramite->funcionario_actual_id] : "";
-            $tramite->creado_por_nombre = array_key_exists($tramite->creado_por, $creadores_temp) ? $creadores_temp[$tramite->creado_por] : "";
-            $tramite->esCreadorRegistro = $usuario_actual_id == $tramite->creado_por ? true : false;
-            $tramite->esEditorRegistro = $usuario_actual_id == $tramite->funcionario_actual_id ? true : false;
+        foreach($remesas as $remesa){
+            $secuencia_proceso_id = $remesa->secuencia_proceso_id;
+            $remesa->proceso_nombre = array_key_exists($remesa->proceso_id, $procesos_temp) ? $procesos_temp[$remesa->proceso_id] : "";
+            $remesa->secuencia_nombre = array_key_exists($remesa->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$remesa->secuencia_proceso_id] : "";
+            $remesa->funcionario_actual_nombre = array_key_exists($remesa->funcionario_actual_id, $creadores_temp) ? $creadores_temp[$remesa->funcionario_actual_id] : "";
+            $remesa->creado_por_nombre = array_key_exists($remesa->creado_por, $creadores_temp) ? $creadores_temp[$remesa->creado_por] : "";
+            $remesa->esCreadorRegistro = $usuario_actual_id == $remesa->creado_por ? true : false;
+            $remesa->esEditorRegistro = $usuario_actual_id == $remesa->funcionario_actual_id ? true : false;
             /*$tramite->habilidato_para_continuar = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_evaluacion'] : "";
             $tramite->requiere_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_memorando'] : "";
             $tramite->requiere_fecha_memorando = array_key_exists($tramite->secuencia_proceso_id, $configuracion_secuencia_temp) ? !$configuracion_secuencia_temp[$tramite->secuencia_proceso_id]['requiere_fecha_memorando'] : "";

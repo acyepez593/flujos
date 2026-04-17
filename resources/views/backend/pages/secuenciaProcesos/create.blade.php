@@ -1172,6 +1172,9 @@ Crear Secuencia Proceso - Admin Panel
         $('#distribuir_automaticamente_tramites').change();
         $('#habilitar_llenado_masivo_variables').change();
         $('#vista_como_remesa').change();
+
+        $('#configuracion_campos').val(JSON.stringify(listaCampos));
+        $('#configuracion_campos_remesa').val(JSON.stringify(listaCamposRemesa));
     })
 
     let table = "";

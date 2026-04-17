@@ -159,7 +159,7 @@
                                             </div>
                                         </div>
 
-                                        <button type="button" id="buscarTramites" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
+                                        <button type="button" id="buscarRemesas" class="btn btn-primary mt-4 pr-4 pl-4">Buscar</button>
                                     </form>
                                 </div>
                             </div>
@@ -177,8 +177,8 @@
                                 <div class="card-body">
                                     <h4 class="header-title float-left">{{ __('Remesas') }}</h4>
                                     <p class="float-right mb-2" style="padding: 5px;">
-                                        @if (auth()->user()->can('tramite.edit'))
-                                            <button id="procesarTramite" class="btn btn-success" type="button">Procesar trámites</button>
+                                        @if (auth()->user()->can('remesa.edit'))
+                                            <button id="procesarRemesa" class="btn btn-success" type="button">Procesar remesas</button>
                                         @endif
                                     </p>
                                     <div class="clearfix"></div>
@@ -206,7 +206,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Detalle Trámite</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Detalle Remesa</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     </button>
@@ -222,7 +222,7 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane container active" id="datos">
-                            <div id="detalleTramite"></div>
+                            <div id="detalleRemesa"></div>
                         </div>
                         <div class="tab-pane container fade" id="trazabilidad">
                             <div id="detalleTrazabilidad"></div>
@@ -235,12 +235,12 @@
                 </div>
             </div>
         </div>
-        <!-- Modal Asignar Trámites -->
-         <div class="modal fade" id="modalAsignarTramites" tabindex="-1" role="dialog" aria-hidden="true">
+        <!-- Modal Asignar Remesas -->
+         <div class="modal fade" id="modalAsignarRemesas" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Asignar trámites</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Asignar remesas</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     </button>
@@ -261,12 +261,12 @@
                 </div>
             </div>
         </div>
-        <!-- Modal Submit Trámites -->
-        <div class="modal fade" id="modalSubmitTramite" tabindex="-1" role="dialog" aria-hidden="true">
+        <!-- Modal Submit Remesas -->
+        <div class="modal fade" id="modalSubmitRemesa" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Procesar trámites</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Procesar remesas</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     </button>
@@ -276,25 +276,6 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                     <button type="button" id="procesar" class="btn btn-warning" >Procesar</button>
-                </div>
-                </div>
-            </div>
-        </div>
-        <!-- Modal Mostrar numero tramite -->
-        <div class="modal fade" id="modalNumeroTramite" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Número de Trámite</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p style="font-size: 25px;"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 </div>
                 </div>
             </div>
@@ -320,18 +301,18 @@
         let table = "";
         let tableRef = "";
         let tableHeaderRef = "";
-        let tramites = [];
+        let remesas = [];
         let secuencia = [];
         let configuracion_secuencia = [];
-        let distribuir_manualmente_tramites = false;
+        let distribuir_manualmente_remesas = false;
         let usuarios_distribucion_manual = [];
         let rutaDownloadFiles = "{{url('/files')}}"+"/";
         let objCamposLlenadoMasivo = [];
-        let tramitesAsignadosAFuncionarios = [];
+        let remesasAsignadosAFuncionarios = [];
 
         $(document).ready(function() {
 
-            $( "#buscarTramites" ).on( "click", function() {
+            $( "#buscarRemesas" ).on( "click", function() {
                 $("#overlay").fadeIn(300);
                 $('#dataTable').empty();
 
@@ -353,8 +334,6 @@
 
                 $('#secuencia_proceso_id_search').selectpicker('destroy');
                 $("#secuencia_proceso_id_search").html('');
-
-                $('#crearTramite').attr('href', "{{ url('admin') }}/tramites/"+selectedValue+"/create");
 
                 $.ajax({
                     url: "{{url('/getSecuenciaProcesosByProceso')}}",
@@ -383,8 +362,8 @@
                 });
             });
 
-            $("#procesarTramite").on( "click", function() {
-                $("#modalSubmitTramite .modal-body").html('');
+            $("#procesarRemesa").on( "click", function() {
+                $("#modalSubmitRemesa .modal-body").html('');
                 objCamposLlenadoMasivo = [];
                 if(configuracion_secuencia.llenado_masivo.habilitar_llenado_masivo_variables){
                     let variables_llenado_masivo = configuracion_secuencia.llenado_masivo.variables_llenado_masivo;
@@ -415,7 +394,7 @@
                         contador++;
                     }
                     
-                    $("#modalSubmitTramite .modal-body").append(html_components);
+                    $("#modalSubmitRemesa .modal-body").append(html_components);
                     
                     $('.datepicker').datepicker({
                         autoclose: true,
@@ -423,23 +402,23 @@
                     });
                     $('.selectpicker').selectpicker('refresh');
                     
-                    $('#modalSubmitTramite').modal('show');
+                    $('#modalSubmitRemesa').modal('show');
                 }else{
-                    $('#modalSubmitTramite').modal('show');
+                    $('#modalSubmitRemesa').modal('show');
                 }
                 
             });
 
-            $("#asignarTramites").on( "click", function() {
-                $('#modalAsignarTramites').modal('show');
+            $("#asignarRemesas").on( "click", function() {
+                $('#modalAsignarRemesas').modal('show');
             });
 
-            $("#asignarT").on( "click", function() {
+            $("#asignarR").on( "click", function() {
                 let indexes = [];
                 
                 $.each(selected_table_items, function (key, value) {
-                    let objTramitePorFuncionario = {
-                        tramite_id: '',
+                    let objRemesaPorFuncionario = {
+                        remesa_id: '',
                         funcionario_id: ''
                     };
 
@@ -452,20 +431,20 @@
                     table.row(indexes).data(rowData);
                     table.row(indexes).invalidate().draw();
 
-                    let tramiteBuscado = tramitesAsignadosAFuncionarios.find(tau => tau.tramite_id === parseInt(value, 10));
-                    console.log('tramiteBuscado');
-                    console.log(tramiteBuscado);
-                    if(tramiteBuscado != undefined){
-                        tramiteBuscado.tramite_id = parseInt(value, 10);
-                        tramiteBuscado.funcionario_id = parseInt($('#funcionario_id_asignar').val(), 10);
+                    let remesaBuscado = remesasAsignadosAFuncionarios.find(rau => rau.remesa_id === parseInt(value, 10));
+                    console.log('remesaBuscado');
+                    console.log(remesaBuscado);
+                    if(remesaBuscado != undefined){
+                        remesaBuscado.remesa_id = parseInt(value, 10);
+                        remesaBuscado.funcionario_id = parseInt($('#funcionario_id_asignar').val(), 10);
                     }else{
-                        objTramitePorFuncionario.tramite_id = parseInt(value, 10);
-                        objTramitePorFuncionario.funcionario_id = parseInt($('#funcionario_id_asignar').val(), 10);
-                        tramitesAsignadosAFuncionarios.push(objTramitePorFuncionario);
+                        objRemesaPorFuncionario.remesa_id = parseInt(value, 10);
+                        objRemesaPorFuncionario.funcionario_id = parseInt($('#funcionario_id_asignar').val(), 10);
+                        remesasAsignadosAFuncionarios.push(objRemesaPorFuncionario);
                     }
                 });
                 
-                $('#modalAsignarTramites').modal('hide');
+                $('#modalAsignarRemesas').modal('hide');
             });
 
             $("#procesar").on( "click", function() {
@@ -475,18 +454,18 @@
                 $("#overlay").fadeIn(300);
 
                 $.ajax({
-                    url: "{{ url('admin') }}/tramites/procesarTramites",
+                    url: "{{ url('admin') }}/remesas/procesarRemesas",
                     method: "POST",
                     data: {
                         proceso_id: proceso_id,
-                        tramites_ids: JSON.stringify(selected_table_items),
+                        remesas_ids: JSON.stringify(selected_table_items),
                         obj_campos_llenado_masivo: obj_campos_llenado_masivo,
-                        tramites_asignados_a_funcionarios: JSON.stringify(tramitesAsignadosAFuncionarios),
+                        remesas_asignados_a_funcionarios: JSON.stringify(remesasAsignadosAFuncionarios),
                         _token: '{{csrf_token()}}'
                     },
                     dataType: 'json',
                     success: function (response) {
-                        $('#modalSubmitTramite').modal('hide');
+                        $('#modalSubmitRemesa').modal('hide');
                         $('#dataTable').empty();
 
                         var tabla = $('#dataTable');
@@ -499,29 +478,24 @@
                     },
                     error: function(jqXHR, textoEstado, errorEncontrado) {
                         $("#overlay").fadeOut(300);
-                        $('#modalSubmitTramite').modal('hide');
+                        $('#modalSubmitRemesa').modal('hide');
                         console.error('Error en la solicitud, por favor vuelva a intentar.');
                     }
                 });
     
                 
             });
-
-            if(numero_tramite != ""){
-                $("#modalNumeroTramite .modal-body p").append('El número de tramite es: <b>' + numero_tramite + '</b>');
-                $('#modalNumeroTramite').modal('show');
-            }
             
             $('#proceso_id_search').trigger("change");
-            $("#procesarTramite").prop("disabled", true);
-            $("#asignarTramites").prop("disabled", true);
-            $('#asignarTramites').hide();
+            $("#procesarRemesa").prop("disabled", true);
+            $("#asignarRemesas").prop("disabled", true);
+            $('#asignarRemesas').hide();
 
         });
 
         function loadDataTable(){
             $.ajax({
-                url: "{{url('/getBandejaTramitesByFilters')}}",
+                url: "{{url('/getBandejaRemesasByFilters')}}",
                 method: "POST",
                 data: {
                     proceso_id_search: $('#proceso_id_search').val(),
@@ -533,21 +507,21 @@
                 },
                 dataType: 'json',
                 success: function (response) {
-                    $("#procesarTramite").prop("disabled", true);
+                    $("#procesarRemesa").prop("disabled", true);
                     $("#overlay").fadeOut(300);
 
                     $("#collapseTwo").collapse('show');
                     
-                    tramites = response.tramites;
+                    remesas = response.remesas;
                     secuencia = response.secuencia;
                     campos_por_proceso = response.camposPorProceso;
-                    distribuir_manualmente_tramites = response.distribuir_manualmente_tramites;
+                    distribuir_manualmente_remesas = response.distribuir_manualmente_remesas;
                     usuarios_distribucion_manual = response.usuarios_distribucion_manual;
                     configuracion_secuencia = JSON.parse(secuencia.configuracion);
                     listaCampos = JSON.parse(response.listaCampos);
                     camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
 
-                    if(distribuir_manualmente_tramites){
+                    if(distribuir_manualmente_remesas){
                         $('#funcionario_id_asignar').html('<option value="">Seleccione el funcionario a asignar:</option>');
                         $.each(usuarios_distribucion_manual, function (key, value) {
                             $("#funcionario_id_asignar").append('<option value="' + value
@@ -561,7 +535,7 @@
                     let htmlTable = 
                         "<th>#</th>"+
                         "<th>Seleccionar</th>";
-                        if(distribuir_manualmente_tramites){
+                        if(distribuir_manualmente_remesas){
                             htmlTable += "<th>Funcionario a asignar</th>";
                         }
                         htmlTable += "<th>Proceso</th>"+
@@ -577,42 +551,42 @@
                     tableRef = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
 
                     let contador = 1;
-                    for (let tramite of tramites) {
+                    for (let remesa of remesas) {
                         
                         let rutaView ="";
-                        let rutaEdit = "{{url('admin')}}"+"/tramites/"+tramite.id+"/edit";
-                        let rutaDelete = "{{url('admin')}}"+"/tramites/"+tramite.id;
+                        let rutaEdit = "{{url('admin')}}"+"/remesas/"+remesa.id+"/edit";
+                        let rutaDelete = "{{url('admin')}}"+"/remesas/"+remesa.id;
                         let innerHTML = "";
                         let htmlView = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
                         let htmlCheck = "";
                         
-                        htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
-                        htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
-                        htmlDelete += @if (auth()->user()->can('tramite.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tramite.id+')">Borrar</a> <form id="delete-form-'+tramite.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
-                        htmlCheck += @if (auth()->user()->can('tramite.edit')) '<input type="checkbox" id="'+ tramite.id +'" name="select" class="checkSingle" onclick="toggle('+tramite.id+');">' @else '' @endif;
+                        htmlView +=@if (auth()->user()->can('remesa.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ remesa.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
+                        htmlEdit +=@if (auth()->user()->can('remesa.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
+                        htmlDelete += @if (auth()->user()->can('remesa.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+remesa.id+')">Borrar</a> <form id="delete-form-'+remesa.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
+                        htmlCheck += @if (auth()->user()->can('remesa.edit')) '<input type="checkbox" id="'+ remesa.id +'" name="select" class="checkSingle" onclick="toggle('+remesa.id+');">' @else '' @endif;
 
                         innerHTML += 
-                            "<td>"+ tramite.id + "</td>";
-                            if(tramite.habilidato_para_continuar){
+                            "<td>"+ remesa.id + "</td>";
+                            if(remesa.habilidato_para_continuar){
                                 innerHTML += "<td>"+ htmlCheck+ "</td>";
                             }else{
                                 innerHTML += "<td></td>";
                             }
 
-                            if(distribuir_manualmente_tramites){
+                            if(distribuir_manualmente_remesas){
                                 innerHTML += "<td></td>";
                             }
 
                             innerHTML +=
-                            "<td>"+ tramite.proceso_nombre+ "</td>"+
-                            "<td>"+ tramite.secuencia_nombre+ "</td>"+
-                            "<td>"+ tramite.funcionario_actual_nombre+ "</td>"+
-                            "<td>"+ tramite.estatus+ "</td>"+
-                            "<td>"+ tramite.creado_por_nombre+ "</td>"+
-                            "<td>"+ moment(tramite.created_at).format("YYYY-MM-DD HH:mm") + "</td>";
-                            if(tramite.esEditorRegistro){
+                            "<td>"+ remesa.proceso_nombre+ "</td>"+
+                            "<td>"+ remesa.secuencia_nombre+ "</td>"+
+                            "<td>"+ remesa.funcionario_actual_nombre+ "</td>"+
+                            "<td>"+ remesa.estatus+ "</td>"+
+                            "<td>"+ remesa.creado_por_nombre+ "</td>"+
+                            "<td>"+ moment(remesa.created_at).format("YYYY-MM-DD HH:mm") + "</td>";
+                            if(remesa.esEditorRegistro){
                                 innerHTML +="<td>" + htmlView + htmlEdit + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
@@ -651,12 +625,12 @@
                         responsive: false,
                     });
 
-                    if(distribuir_manualmente_tramites){
-                        $('#asignarTramites').show();
+                    if(distribuir_manualmente_remesas){
+                        $('#asignarRemesas').show();
                     }else{
-                        $('#asignarTramites').hide();
+                        $('#asignarRemesas').hide();
                     }
-                    setModalSubmitTramites(JSON.parse(secuencia.configuracion));
+                    setModalSubmitRemesas(JSON.parse(secuencia.configuracion));
                     
                 },
                 error: function(jqXHR, textoEstado, errorEncontrado) {
@@ -666,7 +640,7 @@
             });
         }
 
-        function setModalSubmitTramites(configuracion){
+        function setModalSubmitRemesas(configuracion){
             let innerHtml = '';
 
             if(configuracion.requiere_memorando ||  configuracion.requiere_adjuntar_memorando){
@@ -694,7 +668,7 @@
                 }*/
                 innerHtml += '</div>';
             }
-            $("#modalSubmitTramite .modal-body").append(innerHtml);
+            $("#modalSubmitRemesa .modal-body").append(innerHtml);
 
             $('.datepicker').datepicker({
                 autoclose: true,
@@ -710,38 +684,37 @@
         catalogos = catalogos.replace(/&quot;/g, '"');
         catalogos = JSON.parse(catalogos);
 
-        let tramite = [];
+        let remesa = [];
         let datos = [];
         let trazabilidad = [];
         let files = [];
-        let numero_tramite = '{{ isset($_GET["numeroTramite"]) ? $_GET["numeroTramite"] : "" }}';
 
         let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
         let campos_por_proceso = [];
 
-        function mostrarDetalle(tramite_id){
+        function mostrarDetalle(remesa_id){
 
             $("#overlay").fadeIn(300);
-            $("#detalleTramite").empty();
+            $("#detalleRemesa").empty();
             $("#detalleTrazabilidad").empty();
             html_components = '';
             $.ajax({
-                url: "{{url('/getListaCamposByTramite')}}",
+                url: "{{url('/getListaCamposByRemesa')}}",
                 method: "POST",
                 data: {
-                    tramite_id: tramite_id,
+                    remesa_id: remesa_id,
                     _token: '{{csrf_token()}}'
                 },
                 dataType: 'json',
                 success: function (response) {
 
                     files = response.files;
-                    let tramite = tramites.find(tramite => tramite.id === tramite_id);
-                    let proseso_id = tramite.proceso_id;
-                    datos = JSON.parse(tramite.datos);
+                    let remesa = remesas.find(remesa => remesa.id === remesa_id);
+                    let proseso_id = remesa.proceso_id;
+                    datos = JSON.parse(remesa.datos);
                     
-                    listaCampos = JSON.parse(response.listaCampos);
-                    camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
+                    listaCamposRemesa = JSON.parse(response.listaCamposRemesa);
+                    camposPorSeccion = Object.groupBy(listaCamposRemesa, (campo) => campo.seccion_campo);
 
                     trazabilidad = response.trazabilidad;
                     construirTrazabilidad(trazabilidad);
@@ -793,7 +766,7 @@
                         }
                     }
                     html_components += '</div>'
-                    $("#detalleTramite").append(html_components);
+                    $("#detalleRemesa").append(html_components);
                     $(".selectpicker").selectpicker('refresh');
                     $("#overlay").fadeOut(300);
                     $("#modalVerDetalle").modal('show');
@@ -1233,11 +1206,11 @@
                 selected_table_items.push(checkboxes[i].id);
             }
             if(selected_table_items.length == 0){
-                $("#procesarTramite").prop("disabled", true);
-                $("#asignarTramites").prop("disabled", true);
+                $("#procesarRemesa").prop("disabled", true);
+                $("#asignarRemesas").prop("disabled", true);
             }else{
-                $("#procesarTramite").prop("disabled", false);
-                $("#asignarTramites").prop("disabled", false);
+                $("#procesarRemesa").prop("disabled", false);
+                $("#asignarRemesas").prop("disabled", false);
             }
         }
         
