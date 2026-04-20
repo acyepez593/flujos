@@ -29,7 +29,9 @@ class AdminRequest extends FormRequest
             'name' => 'required|max:50',
             'email' => 'required|max:100|email|unique:admins,email,' . $adminId,
             'username' => 'required|max:100|unique:admins,username,' . $adminId,
-            //'initials' => 'required|max:6|unique:admins,initials,' . $adminId,
+            'cargo_id' => 'required',
+            'abreviacion_titulo_id' => 'required',
+            'agencia_id' => 'required',
             'password' => $adminId ? 'nullable|min:6|confirmed' : 'required|min:6|confirmed',
         ];
     }
