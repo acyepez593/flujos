@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminRequest;
 use App\Models\Admin;
+use App\Models\Catalogo;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,24 @@ class AdminsController extends Controller
     public function index(): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['admin.view']);
+
+        $cargos = Catalogo::where('tipo_catalogo_id', 30)->get(['id','tipo_catalogo_id','nombre']);
+        $cargosTemp = [];
+        foreach($cargos as $cargo){
+            $cargosTemp[$cargo->id] = $cargo->nombre;
+        }
+
+        $abreviacionesTitulo = Catalogo::where('tipo_catalogo_id', 31)->get(['id','tipo_catalogo_id','nombre']);
+        $abreviacionesTituloTemp = [];
+        foreach($abreviacionesTitulo as $abreviacionTitulo){
+            $abreviacionesTituloTemp[$abreviacionTitulo->id] = $abreviacionTitulo->nombre;
+        }
+
+        $agencias = Catalogo::where('tipo_catalogo_id', 3)->get(['id','tipo_catalogo_id','nombre']);
+        $agenciasTemp = [];
+        foreach($agencias as $agencia){
+            $agenciasTemp[$agencia->id] = $agencia->nombre;
+        }
 
         return view('backend.pages.admins.index', [
             'admins' => Admin::all(),
