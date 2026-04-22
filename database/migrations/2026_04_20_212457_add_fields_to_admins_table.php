@@ -18,6 +18,7 @@ return new class extends Migration
             $table->index('abreviacion_titulo_id');
             $table->unsignedBigInteger('agencia_id')->after('abreviacion_titulo_id');
             $table->index('agencia_id');
+            $table->enum('estatus', ['ACTIVO', 'INACTIVO'])->default('ACTIVO')->after('agencia_id');
         });
     }
 
@@ -30,6 +31,7 @@ return new class extends Migration
             $table->dropColumn('cargo_id');
             $table->dropColumn('abreviacion_titulo_id');
             $table->dropColumn('agencia_id');
+            $table->dropColumn('estatus');
         });
     }
 };

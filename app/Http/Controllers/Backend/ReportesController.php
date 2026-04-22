@@ -176,13 +176,13 @@ class ReportesController extends Controller
             $tramites = $tramites->where('proceso_id', intval($filtroProcesoIdSearch));
         }
 
-        if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
+        /*if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
             $tramites = $tramites->whereIn('secuencia_proceso_id', $filtroSecuenciaProcesoIdSearch);
         }
 
         if(isset($filtroFuncionarioActualIdSearch) && !empty($filtroFuncionarioActualIdSearch)){
             $tramites = $tramites->whereIn('funcionario_actual_id', $filtroFuncionarioActualIdSearch);
-        }
+        }*/
 
         if(isset($filtroEstatusSearch) && !empty($filtroEstatusSearch)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatusSearch);

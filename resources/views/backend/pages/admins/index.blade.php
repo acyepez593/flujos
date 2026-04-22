@@ -53,12 +53,13 @@
                         <table id="dataTable" class="text-center">
                             <thead class="bg-light text-capitalize">
                                 <tr>
-                                    <th width="5%">{{ __('#') }}</th>
-                                    <th width="20%">{{ __('Nombre') }}</th>
-                                    <th width="10%">{{ __('Email') }}</th>
-                                    <th width="10%">{{ __('Iniciales') }}</th>
-                                    <th width="40%">{{ __('Roles') }}</th>
-                                    <th width="15%">{{ __('Acción') }}</th>
+                                    <th>{{ __('#') }}</th>
+                                    <th>{{ __('Nombre') }}</th>
+                                    <th>{{ __('Email') }}</th>
+                                    <th>{{ __('Cargo') }}</th>
+                                    <th>{{ __('Estatus') }}</th>
+                                    <th>{{ __('Roles') }}</th>
+                                    <th>{{ __('Acción') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -67,7 +68,8 @@
                                     <td>{{ $loop->index+1 }}</td>
                                     <td>{{ $admin->name }}</td>
                                     <td>{{ $admin->email }}</td>
-                                    <td>{{ $admin->initials }}</td>
+                                    <td>{{ $admin->cargo_id }}</td>
+                                    <td>{{ $admin->estatus }}</td>
                                     <td>
                                         @foreach ($admin->roles as $role)
                                             <span class="badge badge-info mr-1">

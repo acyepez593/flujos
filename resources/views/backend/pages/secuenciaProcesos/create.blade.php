@@ -825,6 +825,71 @@ Crear Secuencia Proceso - Admin Panel
                             </div>
                         </div>
                     </div>
+                    <!-- Modal Actualizar campo tipo area de texto -->
+                    <div class="modal fade" id="modalActualizarCampoTipoAreaTexto" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Area de Texto</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_label">Label</label>
+                                        <input type="text" class="form-control" id="textarea_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_value">Value</label>
+                                        <input type="text" class="form-control" id="textarea_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="textarea_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="textarea_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_class">Class</label>
+                                        <input type="text" class="form-control" id="textarea_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_name">Name</label>
+                                        <input type="text" class="form-control" id="textarea_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_min_legth">Min Length</label>
+                                        <input type="number" minlength="1" class="form-control" id="textarea_field_min_legth" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_max_legth">Max Length</label>
+                                        <input type="number" minlength="1" class="form-control" id="textarea_field_max_legth" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_rows">Label</label>
+                                        <input type="text" class="form-control" id="textarea_field_rows" value="" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoAreaTexto" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1032,6 +1097,18 @@ Crear Secuencia Proceso - Admin Panel
             campo.configuracion = conf;
             conf = {};
             $('#modalActualizarCampoTipoCheckbox').modal('hide');
+        });
+
+        $("#actualizarConfiguracionDetalladaCampoAreaTexto").click(function() {
+            $("#modalActualizarCampoTipoAreaTexto").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#modalActualizarCampoTipoAreaTexto').modal('hide');
         });
 
         table = $('#configuracion_campos_table').DataTable( {
@@ -1303,6 +1380,20 @@ Crear Secuencia Proceso - Admin Panel
                     checkbox_field_name: campo.variable
                 };
             break;
+            case "textarea":
+                campo.configuracion = {
+                    textarea_field_id: campo.id,
+                    textarea_field_label: campo.nombre,
+                    textarea_field_value: "",
+                    textarea_field_helper_text: "",
+                    textarea_field_placeholder: "",
+                    textarea_field_class: "form-control",
+                    textarea_field_name: campo.variable,
+                    textarea_field_min_legth: "",
+                    textarea_field_max_legth: "",
+                    textarea_field_rows: '3'
+                };
+            break;
         }
         
     }
@@ -1390,6 +1481,14 @@ Crear Secuencia Proceso - Admin Panel
                     $('#'+element.id).val(campo.configuracion[element.id]);
                 });
                 $('#modalActualizarCampoTipoCheckbox').modal('show');
+                break;
+            case "textarea":
+                $("#modalActualizarCampoTipoAreaTexto").find("input").each(function(index, element) {
+                    //Revisar funcionamiento
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoAreaTexto').modal('show');
                 break;
         }
     }

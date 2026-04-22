@@ -108,7 +108,7 @@
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="funcionario_actual_id_search">Seleccione un Funcionario:</label>
                                                 <select id="funcionario_actual_id_search" name="funcionario_actual_id_search" class="form-control selectpicker" data-live-search="true">
-                                                    <option value="">Seleccione un Proceso</option>    
+                                                    <option value="">Seleccione un Funcionario</option>    
                                                     @foreach ($funcionarios as $key => $value)
                                                         <option value="{{ $value->id }}">{{ $value->name }}</option>
                                                     @endforeach

@@ -51,11 +51,11 @@ Admin Create - Admin Panel
                         @csrf
                         <div class="form-row">
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="name">Nombre del Usuario</label>
+                                <label for="name">Nombre</label>
                                 <input type="text" class="form-control" id="name" name="name" onkeyup="this.value = this.value.toUpperCase();" placeholder="Ingresar el nombre" required autofocus value="{{ old('name') }}">
                             </div>
                             <div class="form-group col-md-6 col-sm-12">
-                                <label for="email">Email del Usuario</label>
+                                <label for="email">Email</label>
                                 <input type="text" class="form-control" id="email" name="email" placeholder="Ingresar el email" required value="{{ old('email') }}">
                             </div>
                         </div>
@@ -86,12 +86,57 @@ Admin Create - Admin Panel
                             </div>
                         </div>
 
-                        <!--<div class="form-row">
-                            <div class="form-group col-md-6 col-sm-6">
-                                <label for="username">Iniciales del Usuario</label>
-                                <input type="text" class="form-control" id="initials" name="initials" onkeyup="this.value = this.value.toUpperCase();" placeholder="Ingrese las iniciales de usuario" required value="{{ old('initials') }}">
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="cargo_id">Seleccione el Cargo:</label>
+                                <select id="cargo_id" name="cargo_id" class="form-control selectpicker" data-live-search="true" required>
+                                    <option value="">Seleccione el Cargo</option>
+                                    @foreach ($cargos as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('cargo_id')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
                             </div>
-                        </div>-->
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="abreviacion_titulo_id">Seleccione la Abreviación del Título:</label>
+                                <select id="abreviacion_titulo_id" name="abreviacion_titulo_id" class="form-control selectpicker" data-live-search="true" required>
+                                    <option value="">Seleccione la Abreviación del Título</option>
+                                    @foreach ($abreviacionesTitulo as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('abreviacion_titulo_id')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group col-md-6 col-sm-12">
+                                <label for="agencia_id">Seleccione una Agencia:</label>
+                                <select id="agencia_id" name="agencia_id" class="form-control selectpicker" data-live-search="true" required>
+                                    <option value="">Seleccione una Agencia</option>
+                                    @foreach ($agencias as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                                @error('agencia_id')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                           <div class="form-group col-md-6 col-sm-12">
+                                <label for="estatus">Seleccione un Estatus:</label>
+                                <select id="estatus" name="estatus" class="form-control selectpicker @error('estatus') is-invalid @enderror" data-live-search="true" required>
+                                    <option value="ACTIVO">ACTIVO</option>
+                                    <option value="INACTIVO">INACTIVO</option>
+                                </select>
+                                @error('estatus')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
                         
                         <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         <a href="{{ route('admin.admins.index') }}" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>

@@ -39,6 +39,9 @@ class AdminsController extends Controller
 
         return view('backend.pages.admins.index', [
             'admins' => Admin::all(),
+            'cargos' => $cargosTemp,
+            'abreviacionesTitulo' => $abreviacionesTituloTemp,
+            'agencias' => $agenciasTemp
         ]);
     }
 
@@ -46,8 +49,29 @@ class AdminsController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['admin.create']);
 
+        $cargos = Catalogo::where('tipo_catalogo_id', 30)->get(['id','tipo_catalogo_id','nombre']);
+        $cargosTemp = [];
+        foreach($cargos as $cargo){
+            $cargosTemp[$cargo->id] = $cargo->nombre;
+        }
+
+        $abreviacionesTitulo = Catalogo::where('tipo_catalogo_id', 31)->get(['id','tipo_catalogo_id','nombre']);
+        $abreviacionesTituloTemp = [];
+        foreach($abreviacionesTitulo as $abreviacionTitulo){
+            $abreviacionesTituloTemp[$abreviacionTitulo->id] = $abreviacionTitulo->nombre;
+        }
+
+        $agencias = Catalogo::where('tipo_catalogo_id', 3)->get(['id','tipo_catalogo_id','nombre']);
+        $agenciasTemp = [];
+        foreach($agencias as $agencia){
+            $agenciasTemp[$agencia->id] = $agencia->nombre;
+        }
+
         return view('backend.pages.admins.create', [
             'roles' => Role::all(),
+            'cargos' => $cargosTemp,
+            'abreviacionesTitulo' => $abreviacionesTituloTemp,
+            'agencias' => $agenciasTemp
         ]);
     }
 
@@ -62,6 +86,7 @@ class AdminsController extends Controller
         $admin->cargo_id = $request->cargo_id;
         $admin->abreviacion_titulo_id = $request->abreviacion_titulo_id;
         $admin->agencia_id = $request->agencia_id;
+        $admin->estatus = $request->estatus;
         $admin->password = Hash::make($request->password);
         $admin->save();
 
@@ -77,10 +102,31 @@ class AdminsController extends Controller
     {
         $this->checkAuthorization(auth()->user(), ['admin.edit']);
 
+        $cargos = Catalogo::where('tipo_catalogo_id', 30)->get(['id','tipo_catalogo_id','nombre']);
+        $cargosTemp = [];
+        foreach($cargos as $cargo){
+            $cargosTemp[$cargo->id] = $cargo->nombre;
+        }
+
+        $abreviacionesTitulo = Catalogo::where('tipo_catalogo_id', 31)->get(['id','tipo_catalogo_id','nombre']);
+        $abreviacionesTituloTemp = [];
+        foreach($abreviacionesTitulo as $abreviacionTitulo){
+            $abreviacionesTituloTemp[$abreviacionTitulo->id] = $abreviacionTitulo->nombre;
+        }
+
+        $agencias = Catalogo::where('tipo_catalogo_id', 3)->get(['id','tipo_catalogo_id','nombre']);
+        $agenciasTemp = [];
+        foreach($agencias as $agencia){
+            $agenciasTemp[$agencia->id] = $agencia->nombre;
+        }
+
         $admin = Admin::findOrFail($id);
         return view('backend.pages.admins.edit', [
             'admin' => $admin,
             'roles' => Role::all(),
+            'cargos' => $cargosTemp,
+            'abreviacionesTitulo' => $abreviacionesTituloTemp,
+            'agencias' => $agenciasTemp
         ]);
     }
 
@@ -94,6 +140,7 @@ class AdminsController extends Controller
         $admin->cargo_id = $request->cargo_id;
         $admin->abreviacion_titulo_id = $request->abreviacion_titulo_id;
         $admin->agencia_id = $request->agencia_id;
+        $admin->estatus = $request->estatus;
         $admin->username = $request->username;
         if ($request->password) {
             $admin->password = Hash::make($request->password);

@@ -822,6 +822,65 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                             </div>
                         </div>
                     </div>
+                    <!-- Modal Actualizar campo tipo area de texto -->
+                    <div class="modal fade" id="modalActualizarCampoTipoAreaTexto" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Actualizar Campo de Tipo Area Texto</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_label">Label</label>
+                                        <input type="text" class="form-control" id="textarea_field_label" value="" readonly>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_value">Value</label>
+                                        <input type="text" class="form-control" id="textarea_field_value" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_helper_text">Helper</label>
+                                        <input type="text" class="form-control" id="textarea_field_helper_text" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_placeholder">Placeholder</label>
+                                        <input type="text" class="form-control" id="textarea_field_placeholder" value="">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_class">Class</label>
+                                        <input type="text" class="form-control" id="textarea_field_class" value="form-control">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_name">Name</label>
+                                        <input type="text" class="form-control" id="textarea_field_name" value="" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_min_legth">Min Length</label>
+                                        <input type="number" minlength="1" class="form-control" id="textarea_field_min_legth" value="">
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12">
+                                        <label for="textarea_field_max_legth">Max Length</label>
+                                        <input type="number" minlength="1" class="form-control" id="textarea_field_max_legth" value="">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="button" id="actualizarConfiguracionDetalladaCampoAreaTexto" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
