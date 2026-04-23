@@ -153,7 +153,7 @@ class AdminsController extends Controller
         }
 
         session()->flash('success', 'El usuario ha sido actualizado!.');
-        return back();
+        return redirect()->route('admin.admins.index');
     }
 
     public function destroy(int $id): RedirectResponse
