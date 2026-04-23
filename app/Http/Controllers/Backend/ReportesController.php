@@ -391,6 +391,7 @@ class ReportesController extends Controller
                     $secciones [] = $obj['nombre_seccion'];
                 }
             }
+            array_push($headers, "Funcionario Asignado", "Fecha de Asignación");
         }
 
 
@@ -404,9 +405,9 @@ class ReportesController extends Controller
             $trazabilidadTramites = $trazabilidadTramites->whereIn('secuencia_proceso_id', $filtroSecuenciaProcesoIdSearch);
         }*/
 
-        /*if(isset($filtroFuncionarioActualIdSearch) && !empty($filtroFuncionarioActualIdSearch)){
-            $trazabilidadTramites = $trazabilidadTramites->where('funcionario_actual_id', $filtroFuncionarioActualIdSearch);
-        }*/
+        if(isset($filtroFuncionarioActualIdSearch) && !empty($filtroFuncionarioActualIdSearch)){
+            $trazabilidadTramites = $trazabilidadTramites->where('funcionario_actual_id', intval($filtroFuncionarioActualIdSearch));
+        }
 
         if(isset($filtroFechaCreacionDesdeSearch) && !empty($filtroFechaCreacionDesdeSearch)){
             $fecha_desde = Carbon::createFromFormat('Y-m-d', $filtroFechaCreacionDesdeSearch)->startOfDay();
@@ -424,7 +425,7 @@ class ReportesController extends Controller
         foreach ($trazabilidadTramites as $trazabilidadTramite) {
             $tramitesIdsFiltrados[] = $trazabilidadTramite->tramite_id;
             $trazabilidadTramitesObj[$trazabilidadTramite->tramite_id] = [];
-            $trazabilidadTramitesObj[$trazabilidadTramite->tramite_id]['fecha_asignacion'] = $trazabilidadTramite->created_at;
+            $trazabilidadTramitesObj[$trazabilidadTramite->tramite_id]['fecha_asignacion'] = Carbon::createFromFormat('Y-m-d H:i:s', $trazabilidadTramite->created_at)->format('Y-m-d');
             $trazabilidadTramitesObj[$trazabilidadTramite->tramite_id]['funcionario_asignado_id'] = $trazabilidadTramite->funcionario_actual_id;
         }
 
@@ -487,7 +488,7 @@ class ReportesController extends Controller
 
         $responsables = Admin::get(['name', 'id'])->pluck('name','id');
 
-        $fileName = 'FormatoReporte.xlsx';
+        $fileName = 'FormatoReporteAsignaciones.xlsx';
 
         if(public_path('uploads/'.$fileName)){
             $inputFileName = public_path('reporte/'.$fileName);
@@ -578,7 +579,10 @@ class ReportesController extends Controller
                         $columnaInicioPivot += 1;
                     }
                 }
-                $active_sheet->setCellValue('S'.$filaInicioPivot, json_encode($trazabilidadTramitesObj));
+                
+                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $responsables[$trazabilidadTramitesObj[$beneficiario->tramite_id]['funcionario_asignado_id']]);
+                $columnaInicioPivot += 1;
+                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, $trazabilidadTramitesObj[$beneficiario->tramite_id]['fecha_asignacion']);
                 
                 $filaInicioPivot += 1;
             }

@@ -107,7 +107,7 @@
                                         <div class="form-row">
                                             <div class="form-group col-md-6 col-sm-12">
                                                 <label for="funcionario_actual_id_search">Seleccione un Funcionario:</label>
-                                                <select id="funcionario_actual_id_search" name="funcionario_actual_id_search" class="form-control selectpicker" data-live-search="true" required>
+                                                <select id="funcionario_actual_id_search" name="funcionario_actual_id_search" class="form-control selectpicker" data-live-search="true">
                                                     <option value="">Seleccione un Funcionario</option>    
                                                     @foreach ($funcionarios as $key => $value)
                                                         <option value="{{ $value->id }}">{{ $value->name }}</option>
@@ -367,7 +367,7 @@
                         data: {
                             proceso_id_search: $('#proceso_id_search').val(),
                             secuencia_proceso_id_search: JSON.stringify($('#secuencia_proceso_id_search').val()),
-                            funcionario_actual_id_search: JSON.stringify($('#funcionario_actual_id_search').val()),
+                            funcionario_actual_id_search: $('#funcionario_actual_id_search').val(),
                             estatus_id_search: JSON.stringify($('#estatus_id_search').val()),
                             fecha_creacion_tramite_desde_search: $('#fecha_creacion_tramite_desde_search').val(),
                             fecha_creacion_tramite_hasta_search: $('#fecha_creacion_tramite_hasta_search').val(),
