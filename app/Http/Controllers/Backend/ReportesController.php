@@ -36,6 +36,7 @@ use App\Models\TipoDocumento;
 use App\Models\TipoIngreso;
 use App\Models\TipoTramite;
 use App\Models\Tramite;
+use App\Models\TrazabilidadTramite;
 use Carbon\Carbon;
 use ErrorException;
 use Illuminate\Contracts\Support\Renderable;
@@ -176,13 +177,13 @@ class ReportesController extends Controller
             $tramites = $tramites->where('proceso_id', intval($filtroProcesoIdSearch));
         }
 
-        /*if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
+        if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
             $tramites = $tramites->whereIn('secuencia_proceso_id', $filtroSecuenciaProcesoIdSearch);
         }
 
         if(isset($filtroFuncionarioActualIdSearch) && !empty($filtroFuncionarioActualIdSearch)){
             $tramites = $tramites->whereIn('funcionario_actual_id', $filtroFuncionarioActualIdSearch);
-        }*/
+        }
 
         if(isset($filtroEstatusSearch) && !empty($filtroEstatusSearch)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatusSearch);
@@ -320,6 +321,265 @@ class ReportesController extends Controller
                         $columnaInicioPivot += 1;
                     }
                 }
+                $filaInicioPivot += 1;
+            }
+            
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $filename = "reporte.xlsx";
+            $writer->save(storage_path('app/'. $filename));
+            $data['status'] = 200;
+            $data['message'] = "OK";
+            
+            return response()->download(storage_path('app/'.$filename));
+            
+        }else{
+            return false;
+        }
+    }
+
+    public function getAsignaciones(): Renderable
+    {
+        $this->checkAuthorization(auth()->user(), ['reporte.view']);
+
+        $procesos = Proceso::get(["nombre","id"]);
+        $funcionarios = Admin::get(["name", "id"]);
+
+        return view('backend.pages.reportes.asignaciones', [
+            'procesos' => $procesos,
+            'funcionarios' => $funcionarios
+        ]);
+    }
+
+    public function generarReporteAsignacionesByTipoReporte(Request $request)
+    {
+        $this->checkAuthorization(auth()->user(), ['reporteTramites.download']);
+
+        ini_set('memory_limit', '-1'); // anula el limite 
+
+        $filtroProcesoIdSearch = $request->proceso_id_search;
+        //$filtroSecuenciaProcesoIdSearch = json_decode($request->secuencia_proceso_id_search, true);
+        $filtroFuncionarioActualIdSearch = $request->funcionario_actual_id_search;
+        //$filtroEstatusSearch = json_decode($request->estatus_id_search, true);
+        $filtroFechaCreacionDesdeSearch = $request->fecha_creacion_tramite_desde_search;
+        $filtroFechaCreacionHastaSearch = $request->fecha_creacion_tramite_hasta_search;
+        $filtrosSearch = json_decode($request->filtros_search, true);
+        $filtroTipoReporteIdSearch = $request->tipo_reporte_search;
+
+        if(isset($filtroTipoReporteIdSearch) && !empty($filtroTipoReporteIdSearch)){
+            $camposPorProcesos = collect(CamposPorProceso::where('proceso_id',intval($filtroProcesoIdSearch))->get(['tipo_campo','nombre','variable','seccion_campo']));
+            $configuracionCamposReporte = ConfiguracionCamposReporte::where('id', $filtroTipoReporteIdSearch)->where('habilitar', true)->first();
+            $campos = json_decode($configuracionCamposReporte->campos, true);
+            $listadoCampos = [];
+            $headers = [];
+            $tiposCampos = [];
+            $secciones = [];
+
+            usort($campos, function($a, $b) {
+                return $a['orden'] > $b['orden'];
+            });
+
+            array_push($headers, "Número Trámite", "Creado Por", "Fecha de Creación");
+            foreach($campos as $obj){
+                if($obj['habilitado'] == true || $obj['habilitado'] == 1){
+                    $nombreSeccion = $obj['nombre_seccion'];
+                    if($filtroProcesoIdSearch == 3 && $nombreSeccion == 'BENEFICIARIOS'){
+                        $nombreSeccion = 'BENEFICIARIO AUTORIZADO';
+                    }
+                    $listadoCampos[] = $obj['campo'];
+                    $headers[] = $obj['nombre_campo'] . PHP_EOL . '(' . $nombreSeccion . ')';
+                    $tiposCampos[] = $camposPorProcesos->where('seccion_campo',$obj['nombre_seccion'])->where('variable',$obj['campo'])->first()['tipo_campo'];
+                    $secciones [] = $obj['nombre_seccion'];
+                }
+            }
+        }
+
+
+        $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 7);
+
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $trazabilidadTramites = $trazabilidadTramites->where('proceso_id', intval($filtroProcesoIdSearch));
+        }
+
+        /*if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
+            $trazabilidadTramites = $trazabilidadTramites->whereIn('secuencia_proceso_id', $filtroSecuenciaProcesoIdSearch);
+        }*/
+
+        /*if(isset($filtroFuncionarioActualIdSearch) && !empty($filtroFuncionarioActualIdSearch)){
+            $trazabilidadTramites = $trazabilidadTramites->where('funcionario_actual_id', $filtroFuncionarioActualIdSearch);
+        }*/
+
+        if(isset($filtroFechaCreacionDesdeSearch) && !empty($filtroFechaCreacionDesdeSearch)){
+            $fecha_desde = Carbon::createFromFormat('Y-m-d', $filtroFechaCreacionDesdeSearch)->startOfDay();
+            $trazabilidadTramites = $trazabilidadTramites->where('created_at', '>=', $fecha_desde);
+        }
+
+        if(isset($filtroFechaCreacionHastaSearch) && !empty($filtroFechaCreacionHastaSearch)){
+            $fecha_hasta = Carbon::createFromFormat('Y-m-d', $filtroFechaCreacionHastaSearch)->endOfDay();
+            $trazabilidadTramites = $trazabilidadTramites->where('created_at', '<=', $fecha_hasta);
+        }
+        $trazabilidadTramites = $trazabilidadTramites->orderBy('id', 'asc')->get();
+
+        $tramitesIdsFiltrados = [];
+        $trazabilidadTramitesObj = [];
+        foreach ($trazabilidadTramites as $trazabilidadTramite) {
+            $tramitesIdsFiltrados[] = $trazabilidadTramite->tramite_id;
+            $trazabilidadTramitesObj[$trazabilidadTramite->tramite_id] = [];
+            $trazabilidadTramitesObj[$trazabilidadTramite->tramite_id]['fecha_asignacion'] = $trazabilidadTramite->created_at;
+            $trazabilidadTramitesObj[$trazabilidadTramite->tramite_id]['funcionario_asignado_id'] = $trazabilidadTramite->funcionario_actual_id;
+        }
+
+        $tramites = Tramite::whereIn('id',$tramitesIdsFiltrados);
+
+        if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
+            $tramites = $tramites->where('proceso_id', intval($filtroProcesoIdSearch));
+        }
+
+        if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
+            $tramites = $tramites->whereIn('secuencia_proceso_id', $filtroSecuenciaProcesoIdSearch);
+        }
+
+        /*if(isset($filtroFuncionarioActualIdSearch) && !empty($filtroFuncionarioActualIdSearch)){
+            $tramites = $tramites->whereIn('funcionario_actual_id', $filtroFuncionarioActualIdSearch);
+        }*/
+
+        if(isset($filtroEstatusSearch) && !empty($filtroEstatusSearch)){
+            $tramites = $tramites->whereIn('estatus', $filtroEstatusSearch);
+        }
+
+        /*if(isset($filtroFechaCreacionDesdeSearch) && !empty($filtroFechaCreacionDesdeSearch)){
+            $fecha_desde = Carbon::createFromFormat('Y-m-d', $filtroFechaCreacionDesdeSearch)->startOfDay();
+            $tramites = $tramites->where('created_at', '>=', $fecha_desde);
+        }
+
+        if(isset($filtroFechaCreacionHastaSearch) && !empty($filtroFechaCreacionHastaSearch)){
+            $fecha_hasta = Carbon::createFromFormat('Y-m-d', $filtroFechaCreacionHastaSearch)->endOfDay();
+            $tramites = $tramites->where('created_at', '<=', $fecha_hasta);
+        }*/
+
+        if(isset($filtrosSearch) && !empty($filtrosSearch)){
+            foreach($filtrosSearch as $filtro){
+                if($filtro['valor_filtro'] != ""){
+                    $tramites = $tramites->whereJSONContains('datos->data->'. $filtro['nombre_seccion'] .'->' . $filtro['campo'],$filtro['valor_filtro']);
+                }
+            }
+        }
+        
+        $tramites = $tramites->orderBy('id', 'asc')->get();
+
+        $identificadorProteccion = '';
+        if($filtroProcesoIdSearch == 3){
+            $identificadorProteccion = 'PRO-DIS-';
+        }
+        $tramitesIds = [];
+        $tramitesObj = [];
+        foreach ($tramites as $tramite) {
+            $tramitesIds[] = $tramite->id;
+            $tramitesObj[$tramite->id] = $tramite;
+        }
+
+        $beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds)->get();
+        
+        $catalogos = Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id']);
+        $catalogosTemp = [];
+        foreach($catalogos as $catalogo){
+            $catalogosTemp[$catalogo->id] = $catalogo->nombre;
+        }
+
+        $responsables = Admin::get(['name', 'id'])->pluck('name','id');
+
+        $fileName = 'FormatoReporte.xlsx';
+
+        if(public_path('uploads/'.$fileName)){
+            $inputFileName = public_path('reporte/'.$fileName);
+            $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($inputFileName);
+            $reader = IOFactory::createReader($inputFileType);
+            $spreadsheet = $reader->load($inputFileName);
+
+            $active_sheet = $spreadsheet->getActiveSheet();
+
+            $celdaInicio = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ','BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ'];
+            $columnaInicio = 2;
+            $filaInicioPivot = 2;
+            $columnaInicioPivot = 2;
+
+            foreach ($headers as $index => $header) {
+                $active_sheet->setCellValue($celdaInicio[$index].'1', $header);
+                $active_sheet->getColumnDimension($celdaInicio[$index])->setAutoSize(true);
+            }
+            $sourceStyle = $active_sheet->getStyle('A1')->exportArray();
+            $active_sheet->getStyle('A1'.':'.$celdaInicio[count($headers)-1].'1')->applyFromArray($sourceStyle);
+
+            foreach ($beneficiarios as $beneficiario) {
+                $creadoPor = $tramitesObj[$beneficiario->tramite_id]['creado_por'];
+                $beneficiario['tramite'] = $tramitesObj[$beneficiario->tramite_id];
+                $camposTramite = json_decode($beneficiario['tramite']['datos'], true);
+                $columnaInicioPivot = 0;
+
+                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario['tramite_id']) || empty($beneficiario['tramite_id']) ? "" : $identificadorProteccion . $beneficiario['tramite_id']);
+                $columnaInicioPivot += 1;
+                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($creadoPor) || empty($creadoPor) ? "" : $responsables[$creadoPor]);
+                $columnaInicioPivot += 1;
+                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($beneficiario['created_at']) || empty($beneficiario['created_at']) ? "" : Carbon::createFromFormat('Y-m-d H:i:s', $beneficiario['created_at'], 'UTC')->setTimezone('America/Los_Angeles')->format('Y-m-d H:i:s'));
+                $columnaInicioPivot += 1;
+
+                foreach($listadoCampos as $index => $campo){
+                    if($secciones[$index] == 'BENEFICIARIOS'){
+                        $datosBeneficiario = json_decode($beneficiario['datos'], true);
+                        if(isset($tiposCampos[$index])){
+                            switch ($tiposCampos[$index]) {
+                                case 'text':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'date':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'number':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'email':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'file':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
+                                case 'select':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $catalogosTemp[$datosBeneficiario[$campo]]);
+                                    break;
+                                case 'checkbox':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) ? "" : (($datosBeneficiario[$campo] == 'true' || $datosBeneficiario[$campo] == true) ? "SI" : "NO"));
+                                    break;
+                            }
+                            $columnaInicioPivot += 1;
+                        }
+                    }else{
+                        switch ($tiposCampos[$index]) {
+                            case 'text':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'date':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'number':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'email':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'file':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
+                                break;
+                            case 'select':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $catalogosTemp[$camposTramite['data'][$secciones[$index]][$campo]]);
+                                break;
+                            case 'checkbox':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) ? "xxxx rrr" : (($camposTramite['data'][$secciones[$index]][$campo] == 'true' || $camposTramite['data'][$secciones[$index]][$campo] == true) ? "SI" : "NO"));
+                                break;
+                        }
+                        $columnaInicioPivot += 1;
+                    }
+                }
+                $active_sheet->setCellValue('S'.$filaInicioPivot, json_encode($trazabilidadTramitesObj));
+                
                 $filaInicioPivot += 1;
             }
             

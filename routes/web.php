@@ -81,6 +81,7 @@ Route::post('/consultarSCI',[TramitesController::class, 'consultarSCI'])->middle
 Route::post('/getTiposReporteByProcesoId',[ReportesController::class, 'getTiposReporteByProcesoId'])->middleware('auth:admin');
 Route::post('/getCamposByTipoReporte',[ReportesController::class, 'getCamposByTipoReporte'])->middleware('auth:admin');
 Route::post('/generarReporteByTipoReporte',[ReportesController::class, 'generarReporteByTipoReporte'])->middleware('auth:admin');
+Route::post('/generarReporteAsignacionesByTipoReporte',[ReportesController::class, 'generarReporteAsignacionesByTipoReporte'])->middleware('auth:admin');
 
 Route::get('/consultaCiudadanaTramites', [ConsultaCiudadanaTramitesController::class, 'index'])->name('consultaCiudadanaTramites.index');
 Route::post('/consultaTramiteSppat',[ConsultaCiudadanaTramitesController::class, 'getTrazabilidadByTramite']);
@@ -140,6 +141,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::post('/remesas/{proceso_id}/create', [RemesasController::class, 'store'])->name('remesas.store');
     Route::get('/remesas/{id}/edit', [RemesasController::class, 'edit'])->name('remesas.edit');
     Route::put('/remesas/{id}/edit', [RemesasController::class, 'update'])->name('remesas.update');
+
+    Route::get('/reportes/asignaciones', [ReportesController::class, 'getAsignaciones'])->name('reportes.asignaciones');
 
     Route::resource('tipoCatalogos', TipoCatalogosController::class);
     Route::resource('catalogos', CatalogosController::class);

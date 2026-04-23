@@ -219,6 +219,9 @@
                             @if ($usr->can('reporteTramites.view'))
                                 <li class="{{ Route::is('admin.tramites.reporte')  ? 'active' : '' }}"><a href="{{ route('admin.reportes.create') }}">Generar Reporte</a></li>
                             @endif
+                            @if ($usr->can('reporteTramites.view'))
+                                <li class="{{ Route::is('admin.tramites.reporte')  ? 'active' : '' }}"><a href="{{ route('admin.reportes.asignaciones') }}">Generar Reporte Asignaciones</a></li>
+                            @endif
                         </ul>
                     </li>
                     @endif
