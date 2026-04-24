@@ -655,7 +655,7 @@ Crear Trámite - Admin Panel
                     
                     if(campo.visible){
                         html_components += '<div class="form-group col-md-6 col-sm-12">';
-                        html_components += '<label for="' + campo.configuracion.text_field_name + '">' + campo.nombre + '</label>'+
+                        html_components += '<label for="' + campo.configuracion.textarea_field_name + '">' + campo.nombre + '</label>'+
                                             '<div class="input-group mb-3">';
 
                         if(campo.editable && campo.requerido){
@@ -833,6 +833,7 @@ Crear Trámite - Admin Panel
     }
 
     function inicializarObjeto(camposPorSeccion){
+        debugger;
         for (let seccion in camposPorSeccion) {
             if(seccion == 'BENEFICIARIOS'){
                 objeto.data[seccion] = [];
@@ -922,6 +923,12 @@ Crear Trámite - Admin Panel
                 }
             });
         }
+
+        $('#' + seccion).find("textarea").each(function() {
+            if($(this).attr('name') != undefined){
+                objeto.data[seccion][$(this).attr('name')] = $(this).val();
+            }
+        });
 
         $('#datos').val(JSON.stringify(objeto));
         $('#datosBen').val(JSON.stringify(objBen));

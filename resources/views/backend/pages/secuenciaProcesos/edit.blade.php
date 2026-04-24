@@ -1125,6 +1125,19 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
             $('#modalActualizarCampoTipoCheckbox').modal('hide');
         });
 
+        $("#actualizarConfiguracionDetalladaCampoAreaTexto").click(function() {
+            $("#modalActualizarCampoTipoAreaTexto").find("input").each(function(index, element) {
+                var valorInput = $(this).val();
+                conf[element.id] = valorInput;
+            });
+            
+            let campo = listaCampos.find(campo => campo.id === campo_id);
+            campo.configuracion = conf;
+            conf = {};
+            $('#configuracion_campos').val(JSON.stringify(listaCampos));
+            $('#modalActualizarCampoTipoAreaTexto').modal('hide');
+        });
+
         table = $('#configuracion_campos_table').DataTable( {
             scrollX: true,
             orderCellsTop: true,
@@ -1516,6 +1529,13 @@ Editar Secuencia Proceso - Panel Secuencia Proceso
                 });
                 $('#modalActualizarCampoTipoCheckbox').modal('show');
                 
+                break;
+            case "textarea":
+                $("#modalActualizarCampoTipoAreaTexto").find("input").each(function(index, element) {
+                    let campo = listaCampos.find(campo => campo.id === id);
+                    $('#'+element.id).val(campo.configuracion[element.id]);
+                });
+                $('#modalActualizarCampoTipoAreaTexto').modal('show');
                 break;
         }
     }

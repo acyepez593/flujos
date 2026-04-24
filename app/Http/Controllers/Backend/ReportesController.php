@@ -291,6 +291,9 @@ class ReportesController extends Controller
                                 case 'checkbox':
                                     $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) ? "" : (($datosBeneficiario[$campo] == 'true' || $datosBeneficiario[$campo] == true) ? "SI" : "NO"));
                                     break;
+                                case 'textarea':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
                             }
                             $columnaInicioPivot += 1;
                         }
@@ -316,6 +319,9 @@ class ReportesController extends Controller
                                 break;
                             case 'checkbox':
                                 $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) ? "xxxx rrr" : (($camposTramite['data'][$secciones[$index]][$campo] == 'true' || $camposTramite['data'][$secciones[$index]][$campo] == true) ? "SI" : "NO"));
+                                break;
+                            case 'textarea':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
                                 break;
                         }
                         $columnaInicioPivot += 1;
@@ -549,6 +555,9 @@ class ReportesController extends Controller
                                 case 'checkbox':
                                     $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) ? "" : (($datosBeneficiario[$campo] == 'true' || $datosBeneficiario[$campo] == true) ? "SI" : "NO"));
                                     break;
+                                case 'textarea':
+                                    $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($datosBeneficiario[$campo]) || empty($datosBeneficiario[$campo]) ? "" : $datosBeneficiario[$campo]);
+                                    break;
                             }
                             $columnaInicioPivot += 1;
                         }
@@ -574,6 +583,9 @@ class ReportesController extends Controller
                                 break;
                             case 'checkbox':
                                 $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) ? "xxxx rrr" : (($camposTramite['data'][$secciones[$index]][$campo] == 'true' || $camposTramite['data'][$secciones[$index]][$campo] == true) ? "SI" : "NO"));
+                                break;
+                            case 'textarea':
+                                $active_sheet->setCellValue($celdaInicio[$columnaInicioPivot].$filaInicioPivot, !isset($camposTramite['data'][$secciones[$index]][$campo]) || empty($camposTramite['data'][$secciones[$index]][$campo]) ? "" : $camposTramite['data'][$secciones[$index]][$campo]);
                                 break;
                         }
                         $columnaInicioPivot += 1;

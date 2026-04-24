@@ -267,6 +267,19 @@ Editar Trámite - Admin Panel
             calcularMontoPagoDiscapacidad($('#SINIESTRO' + ' input[name="fecha_accidente"]').val(), $('#MEDICA' + ' input[name="porcentaje_avalado_discapacidad"]').val());
         }
 
+        $('input[name="porcentaje_pagar"]').on("change", function() {
+            if(proceso_id == 1 || proceso_id == 2){
+                let id_ben = $(this).parents('.card').attr('id');
+                
+                if(proceso_id == 1){
+                    calcularMontoPagoFallecimientoFunerario(id_ben, $(this).val(), 5000);
+                }else if(proceso_id == 2){
+                    calcularMontoPagoFallecimientoFunerario(id_ben, $(this).val(), 400);
+                }
+                
+            }
+        });
+
         $('select[name="beneficiario_autorizado_id"]').on("change", function() {
             if($(this).val() == 374){
                 $('#BENEFICIARIOS').show();
@@ -750,6 +763,36 @@ Editar Trámite - Admin Panel
                 }
 
                 break;
+            case "textarea":
+                
+                if(campo.visible){
+                    html_components += '<div class="form-group col-md-6 col-sm-12">';
+                    html_components += '<label for="' + campo.configuracion.textarea_field_name + '">' + campo.nombre + '</label>'+
+                                        '<div class="input-group mb-3">';
+
+                    if(campo.editable && campo.requerido){
+                        html_components += '<textarea class="' + campo.configuracion.textarea_field_class + '" minlength="' + campo.configuracion.textarea_field_min_legth + '" maxlength="' + campo.configuracion.textarea_field_max_legth + '" placeholder="' + campo.configuracion.textarea_field_placeholder + '" title="' + campo.configuracion.textarea_field_helper_text + '" name="' + campo.configuracion.textarea_field_name + '" value="' + valor_campo + '" rows="' + campo.configuracion.textarea_field_rows + '" required>' + valor_campo + '</textarea>';
+                    }else if(campo.editable && !campo.requerido){
+                        html_components += '<textarea class="' + campo.configuracion.textarea_field_class + '" minlength="' + campo.configuracion.textarea_field_min_legth + '" maxlength="' + campo.configuracion.textarea_field_max_legth + '" placeholder="' + campo.configuracion.textarea_field_placeholder + '" title="' + campo.configuracion.textarea_field_helper_text + '" name="' + campo.configuracion.textarea_field_name + '" value="' + valor_campo + '" rows="' + campo.configuracion.textarea_field_rows + '">' + valor_campo + '</textarea>';
+                    }else if(!campo.editable && campo.requerido){
+                        html_components += '<textarea style="pointer-events: none;" class="' + campo.configuracion.textarea_field_class + '" minlength="' + campo.configuracion.textarea_field_min_legth + '" maxlength="' + campo.configuracion.textarea_field_max_legth + '" placeholder="' + campo.configuracion.textarea_field_placeholder + '" title="' + campo.configuracion.textarea_field_helper_text + '" name="' + campo.configuracion.textarea_field_name + '" value="' + valor_campo + '" rows="' + campo.configuracion.textarea_field_rows + '" required readonly>' + valor_campo + '</textarea>';
+                    }else if(!campo.editable && !campo.requerido){
+                        html_components += '<textarea style="pointer-events: none;" class="' + campo.configuracion.textarea_field_class + '" minlength="' + campo.configuracion.textarea_field_min_legth + '" maxlength="' + campo.configuracion.textarea_field_max_legth + '" placeholder="' + campo.configuracion.textarea_field_placeholder + '" title="' + campo.configuracion.textarea_field_helper_text + '" name="' + campo.configuracion.textarea_field_name + '" value="' + valor_campo + '" rows="' + campo.configuracion.textarea_field_rows + '" readonly>' + valor_campo + '</textarea>';
+                    }
+                    
+                    if(long == count){
+                        html_components += '</div></div></div></div>';
+                    }else{
+                        if(count % 2 === 0){
+                            html_components += '</div></div></div><div class="form-row">';
+                        }else{
+                            html_components += '</div></div>';
+                        }
+                    }
+                    count ++;
+                }
+
+                break;
         }
         return html_components;
     }
@@ -839,6 +882,19 @@ Editar Trámite - Admin Panel
 
         });
         $('.selectpicker').selectpicker('refresh');
+
+        $('#' + id_ben +' input[name="porcentaje_pagar"]').on("change", function() {
+            if(proceso_id == 1 || proceso_id == 2){
+                let id_ben = $(this).parents('.card').attr('id');
+                
+                if(proceso_id == 1){
+                    calcularMontoPagoFallecimientoFunerario(id_ben, $(this).val(), 5000);
+                }else if(proceso_id == 2){
+                    calcularMontoPagoFallecimientoFunerario(id_ben, $(this).val(), 400);
+                }
+                
+            }
+        });
     }
 
     function eliminarBeneficiario(input){
@@ -954,6 +1010,12 @@ Editar Trámite - Admin Panel
                 
             }
         });
+    }
+
+    function calcularMontoPagoFallecimientoFunerario(id_ben, porcentaje, valor_maximo_proteccion){
+        let valor_a_pagar = (valor_maximo_proteccion * porcentaje)/100;
+        valor_a_pagar = Math.floor(valor_a_pagar * 100) / 100;
+        $('#' + id_ben + ' input[name="valor_pagar"]').val(valor_a_pagar);
     }
 
     function inicializarObjeto(camposPorSeccion){
@@ -1077,6 +1139,12 @@ Editar Trámite - Admin Panel
                 }
             });
         }
+
+        $('#' + seccion).find("textarea").each(function() {
+                if($(this).attr('name') != undefined){
+                    objeto.data[seccion][$(this).attr('name')] = $(this).val();
+                }
+            });
 
         $('#datos').val(JSON.stringify(objeto));
         $('#datosBen').val(JSON.stringify(objBen));

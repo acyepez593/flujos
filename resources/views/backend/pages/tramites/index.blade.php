@@ -744,6 +744,28 @@
                     }
 
                     break;
+                case "textarea":
+                    
+                    if(campo.visible){
+                        html_components += '<div class="form-group col-md-6 col-sm-12">';
+                        html_components += '<label for="' + campo.configuracion.textarea_field_name + '">' + campo.nombre + '</label>'+
+                                            '<div class="input-group mb-3">';
+
+                        html_components += '<textarea class="' + campo.configuracion.textarea_field_class + '" minlength="' + campo.configuracion.textarea_field_min_legth + '" maxlength="' + campo.configuracion.textarea_field_max_legth + '" placeholder="' + campo.configuracion.textarea_field_placeholder + '" title="' + campo.configuracion.textarea_field_helper_text + '" name="' + campo.configuracion.textarea_field_name + '" value="' + valor_campo + '" rows="' + campo.configuracion.textarea_field_rows + '" readonly>' + valor_campo + '</textarea>';
+                        
+                        if(long == count){
+                            html_components += '</div></div></div></div>';
+                        }else{
+                            if(count % 2 === 0){
+                                html_components += '</div></div></div><div class="form-row">';
+                            }else{
+                                html_components += '</div></div>';
+                            }
+                        }
+                        count ++;
+                    }
+
+                    break;
             }
             return html_components;
         }
