@@ -957,8 +957,8 @@ class TramitesController extends Controller
 
         $filtroProcesoSearch = $request->proceso_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
-        $filtroFuncionarioSearch = json_decode($request->funcionario_search, true);
-        $filtroCreadoPorSearch = json_decode($request->creado_por_search, true);
+        $filtroFuncionarioSearch = $request->funcionario_search;
+        $filtroCreadoPorSearch = $request->creado_por_search;
         
         if(isset($filtroProcesoSearch) && !empty($filtroProcesoSearch)){
             $tramites = $tramites->where('proceso_id', $filtroProcesoSearch);
@@ -966,11 +966,11 @@ class TramitesController extends Controller
         if(isset($filtroEstatus) && !empty($filtroEstatus)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatus);
         }
-        if(isset($filtroFuncionarioSearch) && !empty($filtroFuncionarioSearch)){
-            $tramites = $tramites->whereIn('funcionario_actual_id', $filtroFuncionarioSearch);
+        if(isset($filtroFuncionarioSearch) && !empty($filtroFuncionarioSearch) && $filtroFuncionarioSearch != ''){
+            //$tramites = $tramites->where('funcionario_actual_id', intval($filtroFuncionarioSearch));
         }
-        if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)){
-            $tramites = $tramites->whereIn('creado_por', $filtroCreadoPorSearch);
+        if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)  && $filtroCreadoPorSearch != ''){
+            //$tramites = $tramites->where('creado_por', intval($filtroCreadoPorSearch));
         }
         
         $tramites = $tramites->orderBy('id', 'asc')->get();
