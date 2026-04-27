@@ -202,7 +202,9 @@ class ReportesController extends Controller
         if(isset($filtrosSearch) && !empty($filtrosSearch)){
             foreach($filtrosSearch as $filtro){
                 if($filtro['valor_filtro'] != ""){
-                    $tramites = $tramites->whereJSONContains('datos->data->'. $filtro['nombre_seccion'] .'->' . $filtro['campo'],$filtro['valor_filtro']);
+                    if($filtro['nombre_seccion'] != 'BENEFICIARIOS'){
+                        $tramites = $tramites->whereJSONContains('datos->data->'. $filtro['nombre_seccion'] .'->' . $filtro['campo'],$filtro['valor_filtro']);
+                    }
                 }
             }
         }
@@ -220,7 +222,19 @@ class ReportesController extends Controller
             $tramitesObj[$tramite->id] = $tramite;
         }
 
-        $beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds)->get();
+        //$beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds)->get();
+
+        $beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds);
+
+        if(isset($filtrosSearch) && !empty($filtrosSearch)){
+            foreach($filtrosSearch as $filtro){
+                if($filtro['valor_filtro'] != ""){
+                    $beneficiarios = $beneficiarios->whereJSONContains('datos->'. $filtro['campo'],$filtro['valor_filtro']);
+                }
+            }
+        }
+
+        $beneficiarios = $beneficiarios->orderBy('tramite_id', 'asc')->get();
         
         $catalogos = Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id']);
         $catalogosTemp = [];
@@ -401,7 +415,12 @@ class ReportesController extends Controller
         }
 
 
-        $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 7);
+        if(intval($filtroProcesoIdSearch) == 1){
+            $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 14);
+        }else if(intval($filtroProcesoIdSearch) == 3){
+            $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 7);
+        }
+        
 
         if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
             $trazabilidadTramites = $trazabilidadTramites->where('proceso_id', intval($filtroProcesoIdSearch));
@@ -466,7 +485,9 @@ class ReportesController extends Controller
         if(isset($filtrosSearch) && !empty($filtrosSearch)){
             foreach($filtrosSearch as $filtro){
                 if($filtro['valor_filtro'] != ""){
-                    $tramites = $tramites->whereJSONContains('datos->data->'. $filtro['nombre_seccion'] .'->' . $filtro['campo'],$filtro['valor_filtro']);
+                    if($filtro['nombre_seccion'] != 'BENEFICIARIOS'){
+                        $tramites = $tramites->whereJSONContains('datos->data->'. $filtro['nombre_seccion'] .'->' . $filtro['campo'],$filtro['valor_filtro']);
+                    }
                 }
             }
         }
@@ -484,7 +505,19 @@ class ReportesController extends Controller
             $tramitesObj[$tramite->id] = $tramite;
         }
 
-        $beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds)->get();
+        //$beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds)->get();
+
+        $beneficiarios = Beneficiario::whereIn('tramite_id',$tramitesIds);
+
+        if(isset($filtrosSearch) && !empty($filtrosSearch)){
+            foreach($filtrosSearch as $filtro){
+                if($filtro['valor_filtro'] != ""){
+                    $beneficiarios = $beneficiarios->whereJSONContains('datos->'. $filtro['campo'],$filtro['valor_filtro']);
+                }
+            }
+        }
+
+        $beneficiarios = $beneficiarios->orderBy('tramite_id', 'asc')->get();
         
         $catalogos = Catalogo::get(['id','tipo_catalogo_id','nombre','catalogo_id']);
         $catalogosTemp = [];

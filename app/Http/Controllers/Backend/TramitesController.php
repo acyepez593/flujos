@@ -388,7 +388,7 @@ class TramitesController extends Controller
 
             //$key = array_search(2, $indexEquivalente);
 
-            /*session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.' .json_encode($indexBenefIdsNuevos) . '--//--' . json_encode($indexIdsNuevos). '--////--' . json_encode($indexEquivalente). '--//--//--' . $indexEquivalente['2']. '--//-//-//--' . $indexEquivalente['3']);
+            /*session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente. indexBenefIdsNuevos: ' .json_encode($indexBenefIdsNuevos) . '--indexIdsNuevos:--' . json_encode($indexIdsNuevos). '--indexEquivalente:--' . json_encode($indexEquivalente). '--datosBen:--' . json_encode($datosBen));
             return redirect()->route('admin.tramites.inbox');*/
 
             foreach($beneficiarios as $index => $ben){
@@ -409,9 +409,11 @@ class TramitesController extends Controller
                     array_push($benIds, $beneficiario->id);
                     array_push($benIdsNuevos, $beneficiario->id);
     
-                    if (!empty($indexIdsNuevos)) {
-                        $datosBen[$indexIdsNuevos[$index]]['ben_id'] = $beneficiario->id;
-                    }
+                    //if (!empty($indexIdsNuevos)) {
+                        //$datosBen[$indexIdsNuevos[$index]]['ben_id'] = $beneficiario->id;
+                        $datosBen[$index]['ben_id'] = $beneficiario->id;
+                        $beneficiariosIdsNuevos[] = $beneficiario->id;
+                    //}
                 }
             }
             
@@ -453,24 +455,26 @@ class TramitesController extends Controller
                     foreach($datosBen as $index => $ben){
                         $filesBen = [];
                         
-                        $activeFile = $ben['variable'];
-                        if ($request->hasFile($activeFile)){
-                            
-                            $file = $request->file($activeFile);
-                            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                            $file->move(public_path('uploads/tramites'), $fileName);
-                            $filesBen[] = ['name' => $fileName];
-                        }
-                
-                        foreach ($filesBen as $fileData) {
-                            $file = new File();
-                            $file->name = $fileData['name'];
-                            $file->proceso_id = $tramite->proceso_id;
-                            $file->tramite_id = $id;
-                            $file->beneficiario_id = intval($ben['ben_id']);
-                            $file->variable = $campo['variable'];
-                            $file->seccion_campo = $campo['seccion_campo'];
-                            $file->save();
+                        if(isset($ben['variable'])){
+                            $activeFile = $ben['variable'];
+                            if ($request->hasFile($activeFile)){
+                                
+                                $file = $request->file($activeFile);
+                                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                                $file->move(public_path('uploads/tramites'), $fileName);
+                                $filesBen[] = ['name' => $fileName];
+                            }
+                    
+                            foreach ($filesBen as $fileData) {
+                                $file = new File();
+                                $file->name = $fileData['name'];
+                                $file->proceso_id = $tramite->proceso_id;
+                                $file->tramite_id = $id;
+                                $file->beneficiario_id = intval($ben['ben_id']);
+                                $file->variable = $campo['variable'];
+                                $file->seccion_campo = $campo['seccion_campo'];
+                                $file->save();
+                            }
                         }
                     }
                 }else{
@@ -642,7 +646,10 @@ class TramitesController extends Controller
                 if($configucacionSiguienteSecuencia['distribuir_manualmente_tramites']){
                     $distribuir_manualmente_tramites = true;
                     $rolId = $siguienteSecuencia->rol_id;
-                    $usersId = Role::getUsersByRol($rolId);
+                    /*$usersId = Role::getUsersByRol($rolId);
+                    $usuarios_distribucion_manual = Admin::whereIn('id', $usersId)->get(["id","name"]);*/
+                    $role = Role::findById($rolId);
+                    $usersId = Admin::role($role->name)->get()->pluck('id');
                     $usuarios_distribucion_manual = Admin::whereIn('id', $usersId)->get(["id","name"]);
                 }
             }
@@ -774,7 +781,10 @@ class TramitesController extends Controller
                     if($configuracion_siguiente_secuencia['distribuir_manualmente_tramites'] == true){
                         //distribucion manual de tramites
                         $rolId = $siguiente_secuencia_proceso->rol_id;
-                        $usersId = Role::getUsersByRol($rolId);
+                        //$usersId = Role::getUsersByRol($rolId);
+                        $role = Role::findById($rolId);
+                        $usersId = Admin::role($role->name)->get()->pluck('id');
+                        
                         if($contadorTramite == 0){
                             foreach($usersId as $userId){
                                 $tramitesPorUsuario[$userId] = [];
@@ -797,7 +807,10 @@ class TramitesController extends Controller
                     }else if($configuracion_siguiente_secuencia['distribuir_automaticamente_tramites'] == true){
                         //distribucion automatica de tramites
                         $rolId = $siguiente_secuencia_proceso->rol_id;
-                        $usersId = Role::getUsersByRol($rolId);
+                        //$usersId = Role::getUsersByRol($rolId);
+                        $role = Role::findById($rolId);
+                        $usersId = Admin::role($role->name)->get()->pluck('id');
+
                         if($contadorTramite == 0){
                             foreach($usersId as $userId){
                                 $tramitesPorUsuario[$userId] = [];

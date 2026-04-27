@@ -400,9 +400,15 @@ Editar Trámite - Admin Panel
                         html_components += '</div>'+
                         '<div class="card-body">';
 
-                        html_components += '<div class="form-row">';
+                        if(count == 1){
+                            html_components += '<div class="form-row">';
+                        }
 
                         html_components += construirCampos(count,long,seccion,index);
+
+                        if(count == 1){
+                            html_components += '</div>';
+                        }
 
                         if((index+1) == datos.data[seccion].length){
                             html_components += '</div></div></div>';
@@ -432,7 +438,9 @@ Editar Trámite - Admin Panel
                 if(beneficiario_id !== null && datos.data[seccion][beneficiario_id] != undefined){
                     valor_campo = datos.data[seccion][beneficiario_id][campo.variable];
                 }
+
                 html_components += getCampos(count,long,seccion,campo,valor_campo,beneficiario_id);
+
             }else{
                 html_components += getCampos(count,long,seccion,campo,datos.data[campo.seccion_campo][campo.variable]);
             }
@@ -832,6 +840,7 @@ Editar Trámite - Admin Panel
     }
 
     function agregarBeneficiario(input){
+        debugger;
         countBeneficiario += 1;
         let seccion = 'BENEFICIARIOS';
         count = 1;
@@ -1081,52 +1090,67 @@ Editar Trámite - Admin Panel
                 let ben_id = $(this).parents('.card').attr('ben_id');
                 console.log('ben_id:');
                 console.log(ben_id);
-                let separador = id.split('_');
-                let objTempBen = {};
-                
-                if (!posBen.includes(id)) {
-                    posBen.push(id);
-                }
-                let index = posBen.indexOf(id);
 
-                if(objeto.data[seccion][index] !== undefined){
-                    if(benIds[index] !== undefined){
-                        objeto.data[seccion][index]['id'] = ben_id;
-                        //objeto.data[seccion][index][$(this).attr('name')] = datos['data'][seccion][index][$(this).attr('name')];
-                    }
+                if(id !== undefined){
+                    let separador = id.split('_');
+                
+                
+                    let objTempBen = {};
                     
-                    if($(this).attr('name') != undefined){
-                        let position = $(this).attr('name').indexOf('file');
-                        let variable = $(this).attr('name');
-                        if (position !== -1 && variable.includes('_file')) {
-                            let lastTwo = $(this).attr('name').slice(-2);
-                            let truncatedString = variable.slice(0, -2);
-                            variable = truncatedString;
+                    if (!posBen.includes(id)) {
+                        posBen.push(id);
+                    }
+                    let index = posBen.indexOf(id);
+
+                    if(objeto.data[seccion][index] !== undefined){
+                        if(benIds[index] !== undefined){
+                            objeto.data[seccion][index]['id'] = ben_id;
+                            //objeto.data[seccion][index][$(this).attr('name')] = datos['data'][seccion][index][$(this).attr('name')];
                         }
                         
-                        if(objeto.data[seccion][index][variable] !== undefined){
-                            objeto.data[seccion][index][variable] = $(this).val();
-                            if(camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo == 'file'){
-                                objTempBen.seccion_campo = seccion;
-                                objTempBen.variable = $(this).attr('name');
-                                objTempBen.tipo_campo = camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo;
-                                objTempBen.id_ben = id;
-                                objTempBen.file_name = $(this).val();
-                                objTempBen.ben_id = ben_id;
-                                objBen.push(objTempBen);
+                        if($(this).attr('name') != undefined){
+                            let position = $(this).attr('name').indexOf('file');
+                            let variable = $(this).attr('name');
+                            if (position !== -1 && variable.includes('_file')) {
+                                let lastTwo = $(this).attr('name').slice(-2);
+                                let truncatedString = variable.slice(0, -2);
+                                variable = truncatedString;
+                            }
+                            debugger;
+                            if(objeto.data[seccion][index][variable] !== undefined){
+                                objeto.data[seccion][index][variable] = $(this).val();
+                                if(camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo == 'file'){
+                                    objTempBen.seccion_campo = seccion;
+                                    objTempBen.variable = $(this).attr('name');
+                                    objTempBen.tipo_campo = camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo;
+                                    objTempBen.id_ben = id;
+                                    objTempBen.file_name = $(this).val();
+                                    objTempBen.ben_id = ben_id;
+                                    objBen.push(objTempBen);
+                                }
                             }
                         }
-                    }
-                }else{
-                    if($(this).attr('name') != undefined){
-                        let cloneObj = { ...objBeneficiarios };
-                        objeto.data[seccion].push(cloneObj);
-                        objeto.data[seccion][index][$(this).attr('name')] = $(this).val();
+                    }else{
+                        if($(this).attr('name') != undefined){
+                            let cloneObj = { ...objBeneficiarios };
+                            objeto.data[seccion].push(cloneObj);
+                            objeto.data[seccion][index][$(this).attr('name')] = $(this).val();
+                        }
                     }
                 }
                 
             });
             console.log(posBen);
+
+            $('#' + seccion).find("textarea").each(function() {
+                if($(this).attr('name') != undefined){
+                    let id = $(this).parents('.card').attr('id');
+                    if(id !== undefined){
+                        let index = posBen.indexOf(id);
+                        objeto.data[seccion][index][$(this).attr('name')] = $(this).val();
+                    }
+                }
+            });
 
         }else{
             $('#' + seccion).find("input, select").each(function() {
@@ -1138,13 +1162,13 @@ Editar Trámite - Admin Panel
                     }
                 }
             });
-        }
 
-        $('#' + seccion).find("textarea").each(function() {
+            $('#' + seccion).find("textarea").each(function() {
                 if($(this).attr('name') != undefined){
                     objeto.data[seccion][$(this).attr('name')] = $(this).val();
                 }
             });
+        }
 
         $('#datos').val(JSON.stringify(objeto));
         $('#datosBen').val(JSON.stringify(objBen));
