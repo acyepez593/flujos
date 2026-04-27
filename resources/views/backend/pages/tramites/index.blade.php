@@ -135,7 +135,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-6 col-sm-12">
+                                            <!--<div class="form-group col-md-6 col-sm-12">
                                                 <label for="estatus_search">Buscar por Estatus:</label>
                                                 <select id="estatus_search" name="estatus_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="INGRESADO">INGRESADO</option>
@@ -145,6 +145,10 @@
                                                     <option value="EN PROCESO FINANCIERO">EN PROCESO FINANCIERO</option>
                                                     <option value="PAGADO">PAGADO</option>
                                                 </select>
+                                            </div>-->
+                                            <div class="form-group col-md-6 col-sm-12">
+                                                <label for="identificador_proteccion_search">Buscar Identificador de Protección</label>
+                                                <input type="number" class="form-control" id="identificador_proteccion_search" name="identificador_proteccion_search" min="1">
                                             </div>
                                         </div>
                                         <div class="form-row">
@@ -294,6 +298,7 @@
                 method: "POST",
                 data: {
                     proceso_search: $('#proceso_search').val(),
+                    identificador_proteccion_search: $('#identificador_proteccion_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
                     funcionario_search: $('#funcionario_search').val(),
                     creado_por_search: $('#creado_por_search').val(),
@@ -332,13 +337,23 @@
                         let htmlView = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
+                        let identificadorProteccion = "";
+
+                        if(tramite.proceso_id == 1){
+                            identificadorProteccion += 'PRO-FAL-';
+                        }else if(tramite.proceso_id == 2){
+                            identificadorProteccion += 'PRO-FUN-';
+                        }else if(tramite.proceso_id == 3){
+                            identificadorProteccion += 'PRO-DIS-';
+                        }
+                        identificadorProteccion += tramite.id;
                         
                         htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                         htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
                         htmlDelete += @if (auth()->user()->can('tramite.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tramite.id+')">Borrar</a> <form id="delete-form-'+tramite.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
 
                         innerHTML += 
-                            "<td>"+ contador+ "</td>"+
+                            "<td>"+ identificadorProteccion+ "</td>"+
                             "<td>"+ tramite.proceso_nombre+ "</td>"+
                             "<td>"+ tramite.secuencia_nombre+ "</td>"+
                             "<td>"+ tramite.funcionario_actual_nombre+ "</td>"+

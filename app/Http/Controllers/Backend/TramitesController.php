@@ -579,11 +579,15 @@ class TramitesController extends Controller
         $tramites = Tramite::where('funcionario_actual_id',$funcionario_actual_id);
 
         $filtroProcesoIdSearch = $request->proceso_id_search;
+        $filtroIdentificadorProteccionSearch = $request->identificador_proteccion_search;
         $filtroSecuenciaIdProcesoSearch = $request->secuencia_proceso_id_search;
         $filtroEstatus = json_decode($request->estatus_search, true);
         
         if(isset($filtroProcesoIdSearch) && !empty($filtroProcesoIdSearch)){
             $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
+        }
+        if(isset($filtroIdentificadorProteccionSearch) && !empty($filtroIdentificadorProteccionSearch)){
+            $tramites = $tramites->where('id', $filtroIdentificadorProteccionSearch);
         }
         if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
             $tramites = $tramites->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
@@ -956,16 +960,20 @@ class TramitesController extends Controller
         $tramites = Tramite::where('id',">",0);
 
         $filtroProcesoSearch = $request->proceso_search;
-        $filtroEstatus = json_decode($request->estatus_search, true);
+        //$filtroEstatus = json_decode($request->estatus_search, true);
         $filtroFuncionarioSearch = $request->funcionario_search;
         $filtroCreadoPorSearch = $request->creado_por_search;
+        $filtroIdentificadorProteccionSearch = $request->identificador_proteccion_search;
         
         if(isset($filtroProcesoSearch) && !empty($filtroProcesoSearch)){
             $tramites = $tramites->where('proceso_id', $filtroProcesoSearch);
         }
-        if(isset($filtroEstatus) && !empty($filtroEstatus)){
-            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+        if(isset($filtroIdentificadorProteccionSearch) && !empty($filtroIdentificadorProteccionSearch)){
+            $tramites = $tramites->where('id', $filtroIdentificadorProteccionSearch);
         }
+        /*if(isset($filtroEstatus) && !empty($filtroEstatus)){
+            $tramites = $tramites->whereIn('estatus', $filtroEstatus);
+        }*/
         if(isset($filtroFuncionarioSearch) && !empty($filtroFuncionarioSearch) && $filtroFuncionarioSearch != ''){
             $tramites = $tramites->where('funcionario_actual_id', intval($filtroFuncionarioSearch));
         }

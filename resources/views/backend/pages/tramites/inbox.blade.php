@@ -134,6 +134,12 @@
                                                 </select>
                                             </div>
                                             <div class="form-group col-md-6 col-sm-12">
+                                                <label for="identificador_proteccion_search">Buscar Identificador de Protección</label>
+                                                <input type="number" class="form-control" id="identificador_proteccion_search" name="identificador_proteccion_search" min="1">
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6 col-sm-12">
                                                 <label for="secuencia_proceso_id_search">Buscar por Actividad Actual:</label>
                                                 <select id="secuencia_proceso_id_search" name="secuencia_proceso_id_search" class="form-control selectpicker" data-live-search="true">
                                                 </select>
@@ -527,6 +533,7 @@
                 method: "POST",
                 data: {
                     proceso_id_search: $('#proceso_id_search').val(),
+                    identificador_proteccion_search: $('#identificador_proteccion_search').val(),
                     secuencia_proceso_id_search: $('#secuencia_proceso_id_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
                     funcionario_search: JSON.stringify($('#funcionario_search').val()),
@@ -589,6 +596,16 @@
                         let htmlEdit = "";
                         let htmlDelete = "";
                         let htmlCheck = "";
+                        let identificadorProteccion = "";
+
+                        if(tramite.proceso_id == 1){
+                            identificadorProteccion += 'PRO-FAL-';
+                        }else if(tramite.proceso_id == 2){
+                            identificadorProteccion += 'PRO-FUN-';
+                        }else if(tramite.proceso_id == 3){
+                            identificadorProteccion += 'PRO-DIS-';
+                        }
+                        identificadorProteccion += tramite.id;
                         
                         htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                         htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
@@ -596,7 +613,7 @@
                         htmlCheck += @if (auth()->user()->can('tramite.edit')) '<input type="checkbox" id="'+ tramite.id +'" name="select" class="checkSingle" onclick="toggle('+tramite.id+');">' @else '' @endif;
 
                         innerHTML += 
-                            "<td>"+ tramite.id + "</td>";
+                            "<td>"+ identificadorProteccion + "</td>";
                             if(tramite.habilidato_para_continuar){
                                 innerHTML += "<td>"+ htmlCheck+ "</td>";
                             }else{
