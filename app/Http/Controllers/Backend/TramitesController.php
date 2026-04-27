@@ -967,10 +967,10 @@ class TramitesController extends Controller
             $tramites = $tramites->whereIn('estatus', $filtroEstatus);
         }
         if(isset($filtroFuncionarioSearch) && !empty($filtroFuncionarioSearch) && $filtroFuncionarioSearch != ''){
-            //$tramites = $tramites->where('funcionario_actual_id', intval($filtroFuncionarioSearch));
+            $tramites = $tramites->where('funcionario_actual_id', intval($filtroFuncionarioSearch));
         }
         if(isset($filtroCreadoPorSearch) && !empty($filtroCreadoPorSearch)  && $filtroCreadoPorSearch != ''){
-            //$tramites = $tramites->where('creado_por', intval($filtroCreadoPorSearch));
+            $tramites = $tramites->where('creado_por', intval($filtroCreadoPorSearch));
         }
         
         $tramites = $tramites->orderBy('id', 'asc')->get();

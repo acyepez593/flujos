@@ -212,7 +212,11 @@ class ReportesController extends Controller
         $tramites = $tramites->orderBy('id', 'asc')->get();
 
         $identificadorProteccion = '';
-        if($filtroProcesoIdSearch == 3){
+        if($filtroProcesoIdSearch == 1){
+            $identificadorProteccion = 'PRO-FAL-';
+        } else if($filtroProcesoIdSearch == 2){
+            $identificadorProteccion = 'PRO-FUN-';
+        } else if($filtroProcesoIdSearch == 3){
             $identificadorProteccion = 'PRO-DIS-';
         }
         $tramitesIds = [];
@@ -229,7 +233,9 @@ class ReportesController extends Controller
         if(isset($filtrosSearch) && !empty($filtrosSearch)){
             foreach($filtrosSearch as $filtro){
                 if($filtro['valor_filtro'] != ""){
-                    $beneficiarios = $beneficiarios->whereJSONContains('datos->'. $filtro['campo'],$filtro['valor_filtro']);
+                    if($filtro['nombre_seccion'] == 'BENEFICIARIOS'){
+                        $beneficiarios = $beneficiarios->whereJSONContains('datos->'. $filtro['campo'],$filtro['valor_filtro']);
+                    }
                 }
             }
         }
@@ -417,6 +423,8 @@ class ReportesController extends Controller
 
         if(intval($filtroProcesoIdSearch) == 1){
             $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 14);
+        }else if(intval($filtroProcesoIdSearch) == 2){
+            $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 20);
         }else if(intval($filtroProcesoIdSearch) == 3){
             $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 7);
         }
@@ -495,7 +503,11 @@ class ReportesController extends Controller
         $tramites = $tramites->orderBy('id', 'asc')->get();
 
         $identificadorProteccion = '';
-        if($filtroProcesoIdSearch == 3){
+        if($filtroProcesoIdSearch == 1){
+            $identificadorProteccion = 'PRO-FAL-';
+        } else if($filtroProcesoIdSearch == 2){
+            $identificadorProteccion = 'PRO-FUN-';
+        } else if($filtroProcesoIdSearch == 3){
             $identificadorProteccion = 'PRO-DIS-';
         }
         $tramitesIds = [];
@@ -512,7 +524,9 @@ class ReportesController extends Controller
         if(isset($filtrosSearch) && !empty($filtrosSearch)){
             foreach($filtrosSearch as $filtro){
                 if($filtro['valor_filtro'] != ""){
-                    $beneficiarios = $beneficiarios->whereJSONContains('datos->'. $filtro['campo'],$filtro['valor_filtro']);
+                    if($filtro['nombre_seccion'] == 'BENEFICIARIOS'){
+                        $beneficiarios = $beneficiarios->whereJSONContains('datos->'. $filtro['campo'],$filtro['valor_filtro']);
+                    }
                 }
             }
         }

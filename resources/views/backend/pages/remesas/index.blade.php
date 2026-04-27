@@ -295,8 +295,8 @@
                 data: {
                     proceso_search: $('#proceso_search').val(),
                     estatus_search: JSON.stringify($('#estatus_search').val()),
-                    funcionario_search: JSON.stringify($('#funcionario_search').val()),
-                    creado_por_search: JSON.stringify($('#creado_por_search').val()),
+                    funcionario_search: $('#funcionario_search').val(),
+                    creado_por_search: $('#creado_por_search').val(),
                     _token: '{{csrf_token()}}'
                 },
                 dataType: 'json',
