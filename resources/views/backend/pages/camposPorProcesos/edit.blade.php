@@ -92,6 +92,7 @@ Editar Campos por Sección - Panel Campos por Sección
                                 <label for="seccion_campo">Seleccione la Sección del campo:</label>
                                 <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
                                     <option value="RECEPCION" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'RECEPCION' ? 'selected' : '' }}>RECEPCION</option>
+                                    <option value="GESTION DOCUMENTAL" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'GESTION DOCUMENTAL' ? 'selected' : '' }}>GESTION DOCUMENTAL</option>
                                     <option value="SINIESTRO" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'SINIESTRO' ? 'selected' : '' }}>SINIESTRO</option>
                                     <option value="VICTIMA" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'VICTIMA' ? 'selected' : '' }}>VICTIMA</option>
                                     <option value="VEHICULO" {{ old('seccion_campo', $camposPorProceso->seccion_campo) == 'VEHICULO' ? 'selected' : '' }}>VEHICULO</option>

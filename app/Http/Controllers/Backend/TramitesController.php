@@ -89,10 +89,14 @@ class TramitesController extends Controller
         ]);
     }
 
-    public function create(int $proceso_id): Renderable
+    public function create(Request $request, int $proceso_id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['tramite.create']);
 
+        $tramite_id = 0;
+        if(!empty($request->query('tramite_id'))){
+            $tramite_id = intval($request->query('tramite_id'));
+        }
         $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
         $secuenciaProcesoId = $secuenciaProceso->id;
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
@@ -114,6 +118,11 @@ class TramitesController extends Controller
 
         $catalogosByCatalogoId = Catalogo::where('estatus','ACTIVO')->whereNotNull('catalogo_id')->get(['id','tipo_catalogo_id','catalogo_id','nombre'])->groupBy('catalogo_id');
 
+        $tramite = '{}';
+        if($tramite_id != 0){
+            $tramite = Tramite::find($tramite_id)->datos;
+        }
+
         return view('backend.pages.tramites.create', [
             'secuenciaProcesoId' => $secuenciaProcesoId,
             'campos' => $campos,
@@ -123,7 +132,9 @@ class TramitesController extends Controller
             'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
             'catalogosRelacionadosByTipoCatalogo' => $catalogosRelacionadosByTipoCatalogo,
             'catalogosByCatalogoId' => $catalogosByCatalogoId,
-            'proceso_id' => $proceso_id
+            'proceso_id' => $proceso_id,
+            'tramite' => $tramite,
+            'tramite_id' => $tramite_id
         ]);
     }
 
@@ -292,7 +303,16 @@ class TramitesController extends Controller
         }
 
         session()->flash('success', __('Trámite ha sido creado satisfactoriamente. El número de trámite es: ' . $numeroTramite));
-        return redirect()->route('admin.tramites.inbox',['numeroTramite' => $numeroTramite]); 
+        if(!empty($request->crearFun)){
+            if($request->crearFun == 'SI'){
+                return redirect()->route('admin.tramites.create',['proceso_id' => 2, 'tramite_id' => $tramite->id]);
+            }else{
+                return redirect()->route('admin.tramites.inbox',['numeroTramite' => $numeroTramite]);
+            }
+        }else{
+            return redirect()->route('admin.tramites.inbox',['numeroTramite' => $numeroTramite]);
+        }
+
     }
 
     public function edit(int $id): Renderable

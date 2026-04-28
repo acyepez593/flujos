@@ -1085,7 +1085,7 @@ Editar Trámite - Admin Panel
             let pos = 0;
             let posBen = [];
 
-            $('#' + seccion).find("input, select").each(function() {
+            $('[id="' + seccion + '"]').find("input, select").each(function() {
                 let id = $(this).parents('.card').attr('id');
                 let ben_id = $(this).parents('.card').attr('ben_id');
                 console.log('ben_id:');
@@ -1116,7 +1116,7 @@ Editar Trámite - Admin Panel
                                 let truncatedString = variable.slice(0, -2);
                                 variable = truncatedString;
                             }
-                            debugger;
+
                             if(objeto.data[seccion][index][variable] !== undefined){
                                 objeto.data[seccion][index][variable] = $(this).val();
                                 if(camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo == 'file'){
@@ -1140,9 +1140,8 @@ Editar Trámite - Admin Panel
                 }
                 
             });
-            console.log(posBen);
 
-            $('#' + seccion).find("textarea").each(function() {
+            $('[id="' + seccion + '"]').find("textarea").each(function() {
                 if($(this).attr('name') != undefined){
                     let id = $(this).parents('.card').attr('id');
                     if(id !== undefined){
@@ -1153,7 +1152,7 @@ Editar Trámite - Admin Panel
             });
 
         }else{
-            $('#' + seccion).find("input, select").each(function() {
+            $('[id="' + seccion + '"]').find("input, select").each(function() {
                 if($(this).attr('name') != undefined){
                     if($(this).attr('type') == 'checkbox'){
                         objeto.data[seccion][$(this).attr('name')] = this.checked;
@@ -1163,7 +1162,7 @@ Editar Trámite - Admin Panel
                 }
             });
 
-            $('#' + seccion).find("textarea").each(function() {
+            $('[id="' + seccion + '"]').find("textarea").each(function() {
                 if($(this).attr('name') != undefined){
                     objeto.data[seccion][$(this).attr('name')] = $(this).val();
                 }

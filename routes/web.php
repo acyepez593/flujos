@@ -94,6 +94,13 @@ Route::post('/getRangoDiscapacidadesByFilters',[RangoDiscapacidadesController::c
 
 Route::post('/calcularMontoPagoDiscapacidad',[TramitesController::class, 'calcularMontoPagoDiscapacidad'])->middleware('auth:admin');
 
+
+
+Route::get('/test', function () {
+    dump(route('admin.tramites.create',['proceso_id' => 2, 'tramite_id' => 2]));
+    die();
+})->name('test');
+
 /**
  * Admin routes
  */

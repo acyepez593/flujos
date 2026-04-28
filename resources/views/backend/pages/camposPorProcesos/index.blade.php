@@ -117,6 +117,7 @@
                                                 <label for="seccion_campo_search">Buscar por Sección del Campo:</label>
                                                 <select id="seccion_campo_search" name="seccion_campo_search" class="form-control selectpicker" data-live-search="true" multiple>
                                                     <option value="RECEPCION">RECEPCION</option>
+                                                    <option value="GESTION DOCUMENTAL">GESTION DOCUMENTAL</option>
                                                     <option value="SINIESTRO">SINIESTRO</option>
                                                     <option value="VICTIMA">VICTIMA</option>
                                                     <option value="VEHICULO">VEHICULO</option>

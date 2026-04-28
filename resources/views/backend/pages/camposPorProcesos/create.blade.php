@@ -93,6 +93,7 @@ Crear Campo por Proceso - Admin Panel
                                 <label for="seccion_campo">Seleccione la Sección del campo:</label>
                                 <select id="seccion_campo" name="seccion_campo" class="form-control selectpicker @error('seccion_campo') is-invalid @enderror" data-live-search="true" required>
                                     <option value="RECEPCION">RECEPCION</option>
+                                    <option value="GESTION DOCUMENTAL">GESTION DOCUMENTAL</option>
                                     <option value="SINIESTRO">SINIESTRO</option>
                                     <option value="VICTIMA">VICTIMA</option>
                                     <option value="VEHICULO">VEHICULO</option>

@@ -249,6 +249,8 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
                     $("#overlay").fadeOut(300);
 
                     obj_campos = response.objCampos;
+                    console.log('obj_campos');
+                    console.log(obj_campos);
 
                     $('#dataTable').empty();
 
@@ -291,13 +293,18 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
             }else{
                 checked = '';
             }
+            
+            let nombre_seccion = obj["nombre_seccion"];
+            if(nombre_seccion == 'GESTION DOCUMENTAL'){
+                nombre_seccion = "GESTION-DOCUMENTAL";
+            }
 
             innerHTML += 
-                '<td><input class="form-check-input me-1" onchange=cambiarObjeto("' + obj["nombre_seccion"] + '","' + obj["campo"] + '","habilitado",this.checked) type="checkbox" ' + checked + '></td>'+
+                '<td><input class="form-check-input me-1" onchange=cambiarObjeto("' + nombre_seccion + '","' + obj["campo"] + '","habilitado",this.checked) type="checkbox" ' + checked + '></td>'+
                 '<td>' + obj["nombre_proceso"] + '</td>'+
                 '<td>' + obj["nombre_seccion"] + '</td>'+
                 '<td>' + obj["nombre_campo"] + '</td>'+
-                '<td><input class="form-control input-sm" onchange=cambiarObjeto("' + obj["nombre_seccion"] + '","' + obj["campo"] + '","orden",this.value) type="text" value="' + obj["orden"] + '"></td>';
+                '<td><input class="form-control input-sm" onchange=cambiarObjeto("' + nombre_seccion + '","' + obj["campo"] + '","orden",this.value) type="text" value="' + obj["orden"] + '"></td>';
 
                 tableRef.insertRow().innerHTML = innerHTML;
                 contador += 1;
@@ -317,6 +324,9 @@ Editar Configuración Reporte - Panel Editar Configuración Reporte
     }
 
     function cambiarObjeto(nombre_seccion,campo,atributo,valor){
+        if(nombre_seccion == 'GESTION-DOCUMENTAL'){
+            nombre_seccion = "GESTION DOCUMENTAL";
+        }
         let obj_finded = obj_campos.find(obj => obj.campo === campo && obj.nombre_seccion === nombre_seccion);
         obj_finded[atributo] = valor;
         $('#campos').val(JSON.stringify(obj_campos));
