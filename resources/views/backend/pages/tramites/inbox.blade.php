@@ -452,7 +452,16 @@
                     };
 
                     indexes = table.rows(function (idx, data, node) {
-                        return table.cell(idx, 0).data() === value ? true : false;
+                        let proceso_id = $('#proceso_id_search').val();
+                        let id = '';
+                        if(proceso_id == 1){
+                            id = table.cell(idx, 0).data().replace("PRO-FAL-", "");
+                        }else if(proceso_id == 2){
+                            id = table.cell(idx, 0).data().replace("PRO-FUN-", "");
+                        }else if(proceso_id == 3){
+                            id = table.cell(idx, 0).data().replace("PRO-DIS-", "");
+                        }
+                        return id === value ? true : false;
                     }).indexes();
 
                     let rowData = table.row(indexes).data();

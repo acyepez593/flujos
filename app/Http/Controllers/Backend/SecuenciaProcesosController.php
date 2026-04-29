@@ -302,7 +302,8 @@ class SecuenciaProcesosController extends Controller
 
     public function getSecuenciaProcesosByProceso(Request $request): JsonResponse
     {
-        $this->checkAuthorization(auth()->user(), ['proceso.view']);
+        //$this->checkAuthorization(auth()->user(), ['proceso.view']);
+        $this->checkAuthorization(auth()->user(), ['tramite.edit']);
 
         $proceso_id = $request->proceso_id;
         $secuenciaProcesos = SecuenciaProceso::where('estatus','ACTIVO');

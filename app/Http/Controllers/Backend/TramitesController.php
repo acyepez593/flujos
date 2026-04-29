@@ -877,7 +877,10 @@ class TramitesController extends Controller
                         $tramite->secuencia_proceso_id = $secuenciaId;
 
                         $siguiente_secuencia_proceso = SecuenciaProceso::findOrFail($secuenciaId);
-                        $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                        if (isset($siguiente_secuencia_proceso->actor_id)) {
+                            $tramite->funcionario_actual_id = $siguiente_secuencia_proceso->actor_id;
+                        }
+                        
                         $tramite->estatus = 'EN ANALISIS DE PROCEDENCIA';
                     }
                 }
