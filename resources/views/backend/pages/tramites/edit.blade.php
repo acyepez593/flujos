@@ -600,7 +600,13 @@ Editar Trámite - Admin Panel
                         let id = file.name.slice(0, -4);
                         html_components += '<div class="form-group col-md-6 col-sm-12">';
                         html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
-                        html_components += '<div id="'+id+'"><i onclick="event.preventDefault(); deleteFile(\''+seccion+'\',\''+campo.configuracion.file_field_name+'\',\''+id+'\')" class="fa fa-trash fa-2x" title="Borrar" style="margin-left: 5px; margin-right:5px; cursor: pointer;"></i><a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></div>';
+
+                        html_components += '<div id="'+id+'">';
+                        if(campo.editable){
+                            html_components += '<i onclick="event.preventDefault(); deleteFile(\''+seccion+'\',\''+campo.configuracion.file_field_name+'\',\''+id+'\')" class="fa fa-trash fa-2x" title="Borrar" style="margin-left: 5px; margin-right:5px; cursor: pointer;"></i>';
+                        }
+                        html_components += '<a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a>';
+                        html_components += '</div>';
                     }else{
                         html_components += '<div class="form-group col-md-6 col-sm-12">';
                         html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
