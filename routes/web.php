@@ -138,6 +138,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::post('/tramites/{proceso_id}/create', [TramitesController::class, 'store'])->name('tramites.store');
     Route::get('/tramites/{id}/edit', [TramitesController::class, 'edit'])->name('tramites.edit');
     Route::put('/tramites/{id}/edit', [TramitesController::class, 'update'])->name('tramites.update');
+    Route::get('/tramites/{tramite_id}/createAdditional', [TramitesController::class, 'createAdditional'])->name('tramites.createAdditional');
+    Route::post('/tramites/{tramite_id}/createAdditional', [TramitesController::class, 'storeAdditional'])->name('tramites.storeAdditional');
+    Route::get('/tramites/{id}/editAdditional', [TramitesController::class, 'editAdditional'])->name('tramites.editAdditional');
+    Route::put('/tramites/{id}/editAdditional', [TramitesController::class, 'updateAdditional'])->name('tramites.updateAdditional');
 
     Route::get('/remesas', [RemesasController::class, 'index'])->name('remesas.index');
     Route::get('/remesas/inbox', [RemesasController::class, 'inbox'])->name('remesas.inbox');

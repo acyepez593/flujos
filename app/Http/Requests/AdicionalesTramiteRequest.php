@@ -24,9 +24,6 @@ class AdicionalesTramiteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tramite_id' => 'required',
-            'proceso_id' => 'required',
-            'creado_por' => 'required',
             'datos' => 'required',
         ];
     }
@@ -39,9 +36,6 @@ class AdicionalesTramiteRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'tramite_id.required' => 'El campo :attribute es requerido',
-            'proceso_id.required' => 'El campo :attribute es requerido',
-            'creado_por.required' => 'El campo :attribute es requerido',
             'datos.required' => 'El campo :attribute es requerido',
         ];
     }

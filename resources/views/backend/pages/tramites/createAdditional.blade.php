@@ -2,7 +2,7 @@
 @extends('backend.layouts.master')
 
 @section('title')
-Crear Trámite - Admin Panel
+Agregar Documentación al Trámite - Admin Panel
 @endsection
 
 @section('styles')
@@ -106,11 +106,11 @@ Crear Trámite - Admin Panel
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">Crear Trámite</h4>
+                <h4 class="page-title pull-left">Agregar Documentación al Trámite</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                     <li><a href="{{ route('admin.procesos.index') }}">Todas mis Trámites</a></li>
-                    <li><span>Crear Trámite</span></li>
+                    <li><span>Agregar Documentación al Trámite</span></li>
                 </ul>
             </div>
         </div>
@@ -127,21 +127,20 @@ Crear Trámite - Admin Panel
         <div class="col-12 mt-5">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Crear Nuevo Trámite</h4>
+                    <h4 class="header-title">Agregar Documentación al Trámite</h4>
                     @include('backend.layouts.partials.messages')
                     
-                    <form id="form" action="{{ url('admin') }}/tramites/{{$proceso_id}}/create" method="POST" enctype="multipart/form-data">
+                    <form id="form" action="{{ url('admin') }}/tramites/{{$tramite_id}}/createAdditional" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div id="creacionTramite"></div>
+                        <div id="creacionDocumentacionAdicionalAlTramite"></div>
                         
                         <input type="hidden" id="secuencia_proceso_id" name="secuencia_proceso_id">
                         <input type="hidden" id="datos" name="datos">
-                        <input type="hidden" id="datosBen" name="datosBen">
                         <input type="hidden" id="crearFun" name="crearFun" value="NO">
                         <button type="button" id="guardar" class="btn btn-primary mt-4 pr-4 pl-4">Guardar</button>
                         
                         @if ($proceso_id == 1)
-                        <button type="button" id="guardarYCrearFunerario" class="btn btn-warning mt-4 pr-4 pl-4" title="Guarda el Fallecimiento y crea el funerario con los mismos datos del formulario">Guardar y Crear Funerario</button>
+                        <button type="button" id="guardarYCrearAdicionalAlFunerario" class="btn btn-warning mt-4 pr-4 pl-4" title="Guarda el addicional del Fallecimiento y crea el addicional del funerario con los mismos datos del formulario">Guardar Adicional y Crear Funerario</button>
                         @endif
                         
                         <a href="{{ url('admin') }}/procesos" class="btn btn-secondary mt-4 pr-4 pl-4">Cancelar</a>
@@ -189,11 +188,11 @@ Crear Trámite - Admin Panel
         /*let selectorPadre = '';
         let selectorHijo = '';*/
 
-        //creacion_tramite
-        if(tramite_id != 0){
-            renderFormBasadoEnFallecimientoPorSecuenciaProceso();
+        //Renderiza el tramite adicioanl
+        if(tramite_fun_id != 0){
+            renderFormAdicionalBasadoEnFallecimiento();
         }else{
-            renderFormPorSecuenciaProceso();
+            renderFormAdicional();
         }
         
 
@@ -222,12 +221,7 @@ Crear Trámite - Admin Panel
                 let id = dataCatalogo[0].tipo_catalogo_id;
                 let variable = camposPorSeccion[seccion].find(campo => campo.configuracion.select_field_tipo_catalogo == id).variable;
 
-                if(seccion == 'BENEFICIARIOS'){
-                    let id_ben = $(this).parents('.card').attr('id');
-                    selectorHijo = '#' + id_ben + ' select[name="'+ variable +'"]';
-                }else{
-                    selectorHijo = 'select[name="'+ variable +'"]';
-                }
+                selectorHijo = 'select[name="'+ variable +'"]';
                 
                 $(selectorHijo).selectpicker('destroy');
                 $(selectorHijo).html('');
@@ -271,7 +265,7 @@ Crear Trámite - Admin Panel
             
         });
 
-        $('#guardarYCrearFunerario').click(function(){
+        $('#guardarYCrearAdicionalAlFunerario').click(function(){
             $('#crearFun').val('SI');
             //validar
 
@@ -296,7 +290,6 @@ Crear Trámite - Admin Panel
         data: {}
     }
     let camposPorSeccion = [];
-    let objBeneficiarios = [];
 
     let tiposCatalogos = '{{$tiposCatalogos}}';
     tiposCatalogos = tiposCatalogos.replace(/&quot;/g, '"');
@@ -306,10 +299,10 @@ Crear Trámite - Admin Panel
     catalogos = catalogos.replace(/&quot;/g, '"');
     catalogos = JSON.parse(catalogos);
 
-    let tramite_id = '{{$tramite_id}}';
-    console.log('tramite_id');
-    console.log(tramite_id);
-    let datos = '{{$tramite}}';
+    let tramite_fun_id = '{{$tramite_fun_id}}';
+    console.log('tramite_fun_id');
+    console.log(tramite_fun_id);
+    let datos = '{{$tramiteFun}}';
     
     datos = datos.replace(/&quot;/g, '"');
     datos = datos.replace(/\\/g , '\\\\');
@@ -333,16 +326,12 @@ Crear Trámite - Admin Panel
     catalogosByCatalogoId = catalogosByCatalogoId.replace(/&quot;/g, '"');
     catalogosByCatalogoId = JSON.parse(catalogosByCatalogoId);
 
-    let countBeneficiario = 1;
-    let id_beneficiario = 0;
-    let objBen = [];
-
-    function renderFormPorSecuenciaProceso(){
+    function renderFormAdicional(){
         let html_components = "";
         let listaCampos = '{{$listaCampos}}';
         listaCampos = listaCampos.replace(/&quot;/g, '"');
         listaCampos = JSON.parse(listaCampos);
-
+debugger;
         camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
         console.log(camposPorSeccion);
 
@@ -354,9 +343,6 @@ Crear Trámite - Admin Panel
             let count = 1;
             let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
             let nombre_seccion = seccion;
-            if(seccion == 'BENEFICIARIOS'){
-                nombre_seccion = 'SOLICITANTE';
-            }
             
             if(long > 0){
                 html_components += '<div class="card">'+
@@ -367,32 +353,19 @@ Crear Trámite - Admin Panel
                 '</div>'+
                 '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
                 '<div class="card-body">';
-                if(seccion == 'BENEFICIARIOS'){
-                    html_components += '<div id="beneficiario_' + countBeneficiario + '" class="card">'+
-                    '<div class="card-header">'+
-                    '';
-                    if(proceso_id != 3){
-                        html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';
-                    }
-                    html_components += '</div>'+
-                    '<div class="card-body">';
-                }
+                
                 html_components += '<div class="form-row">';
 
-                html_components += contruirCampos(count,long,seccion, countBeneficiario);
+                html_components += contruirCampos(count,long,seccion);
 
                 html_components += '</div>';
-                if(seccion == 'BENEFICIARIOS'){
-                    html_components += '</div>'+
-                    '</div>';
-                }
             }
         }
         html_components += '</div>'
-        $("#creacionTramite").append(html_components);
+        $("#creacionDocumentacionAdicionalAlTramite").append(html_components);
     }
 
-    function renderFormBasadoEnFallecimientoPorSecuenciaProceso(){
+    function renderFormAdicionalBasadoEnFallecimiento(){
         let html_components = "";
         let listaCampos = '{{$listaCampos}}';
         listaCampos = listaCampos.replace(/&quot;/g, '"');
@@ -408,10 +381,6 @@ Crear Trámite - Admin Panel
             count = 1;
             let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
             let nombre_seccion = seccion;
-            
-            if(proceso_id == 3 && seccion == 'BENEFICIARIOS'){
-                nombre_seccion = 'BENEFICIARIO AUTORIZADO';
-            }
 
             if(long > 0){
                 html_components += '<div class="card">'+
@@ -423,59 +392,20 @@ Crear Trámite - Admin Panel
                 '<div id="' + seccion + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">'+
                 '<div class="card-body">';
 
-                if(seccion == 'BENEFICIARIOS'){
-                    for (let [index, beneficiario] of datos.data[seccion].entries()) {
-                        console.log('beneficiario:');
-                        console.log(beneficiario);
-                        let ben_id = '';
-                        if(beneficiario.id != ''){
-                            ben_id = beneficiario.id;
-                        }
-                        
-                        html_components += '<div id="beneficiario_' + (index + 1) + '" class="card" ben_id="' + ben_id + '">'+
-                        '<div class="card-header">'+
-                        '';
-                        if(proceso_id != 3){
-                            if(index == 0){
-                                html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';
-                            }else{
-                                html_components += '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Eliminar" href="javascript:void(0);" onclick="event.preventDefault(); eliminarBeneficiario(this)"><i class="fa fa-trash fa-2x"></i></a>'+
-                                '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>';
-                            }
-                        }
-                        
-                        html_components += '</div>'+
-                        '<div class="card-body">';
+                html_components += '<div class="form-row">';
 
-                        if(count == 1){
-                            html_components += '<div class="form-row">';
-                        }
-
-                        html_components += construirCampos(count,long,seccion,index);
-
-                        if(count == 1){
-                            html_components += '</div>';
-                        }
-
-                        if((index+1) == datos.data[seccion].length){
-                            html_components += '</div></div></div>';
-                        }
-                    }
-                }else{
-                    html_components += '<div class="form-row">';
-
-                    html_components += construirCampos(count,long,seccion);
+                html_components += construirCampos(count,long,seccion);
+            
+                html_components += '</div>';
                 
-                    html_components += '</div>';
-                }
             }
         }
         html_components += '</div>'
-        $("#creacionTramite").append(html_components);
+        $("#creacionDocumentacionAdicionalAlTramite").append(html_components);
         $(".selectpicker").selectpicker('refresh');
     }
 
-    function contruirCampos(count,long,seccion, countBen){
+    function contruirCampos(count,long,seccion){
         let html_components = '';
         for (let campo of camposPorSeccion[seccion]) {
             switch (campo.tipo_campo) {
@@ -622,31 +552,14 @@ Crear Trámite - Admin Panel
                         html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
 
                         if(campo.editable && campo.requerido){
-                            if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
-                            }else{
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
-                            }
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
                         }else if(campo.editable && !campo.requerido){
-                            if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
-                            }else{
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
-                            }
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
                         }else if(!campo.editable && campo.requerido){
-                            if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
-                            }else{
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
-                            }
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
                         }else if(!campo.editable && !campo.requerido){
-                            if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
-                            }else{
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
-                            }
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
                         }
-                        //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" style="display:none;">';
 
                         if(long == count){
                             html_components += '</div></div></div></div>';
@@ -807,22 +720,14 @@ Crear Trámite - Admin Panel
         return html_components;
     }
 
-    function construirCampos(count,long,seccion,beneficiario_id=null){
+    function construirCampos(count,long,seccion){
         let html_components = '';
         
         for (let campo of camposPorSeccion[seccion]) {
             let valor = '';
-            if(seccion == 'BENEFICIARIOS'){
-                let valor_campo = '';
-                if(beneficiario_id !== null && datos.data[seccion][beneficiario_id] != undefined){
-                    valor_campo = datos.data[seccion][beneficiario_id][campo.variable];
-                }
 
-                html_components += getCampos(count,long,seccion,campo,valor_campo,beneficiario_id);
-
-            }else{
-                html_components += getCampos(count,long,seccion,campo,datos.data[campo.seccion_campo][campo.variable]);
-            }
+            html_components += getCampos(count,long,seccion,campo,datos.data[campo.seccion_campo][campo.variable]);
+            
             if(campo.visible){
                 count ++;
             }
@@ -830,7 +735,7 @@ Crear Trámite - Admin Panel
         return html_components;
     }
 
-    function getCampos(count,long,seccion,campo,valor_campo,countBen=null){
+    function getCampos(count,long,seccion,campo,valor_campo){
         let html_components = '';
         if (valor_campo === undefined) {
             valor_campo = '';
@@ -988,37 +893,13 @@ Crear Trámite - Admin Panel
                         html_components += '<label for="' + campo.configuracion.file_field_name + '">' + campo.nombre + '</label>';
                         
                         if(campo.editable && campo.requerido){
-                            //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required>';
-
-                            if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
-                            }else{
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
-                            }
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required>';
                         }else if(campo.editable && !campo.requerido){
-                            //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf">';
-
-                            if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
-                            }else{
-                                html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
-                            }
+                            html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf">';
                         }else if(!campo.editable && campo.requerido){
-                            //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" required readonly>';
-
-                            if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
-                            }else{
-                                html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
-                            }
+                            html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" required readonly>';
                         }else if(!campo.editable && !campo.requerido){
-                            //html_components += '<input type="file" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + valor_campo + '" accept=".pdf" readonly>';
-
-                            if(seccion == 'BENEFICIARIOS'){
-                                html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '_' + countBen + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
-                            }else{
-                                html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
-                            }
+                            html_components += '<input type="file" style="pointer-events: none;" class="' + campo.configuracion.file_field_class + '" placeholder="' + campo.configuracion.file_field_placeholder + '" title="' + campo.configuracion.file_field_helper_text + '" name="' + campo.configuracion.file_field_name + '" value="' + campo.configuracion.file_field_value + '" accept=".pdf" readonly>';
                         }
                     }
 
@@ -1187,71 +1068,9 @@ Crear Trámite - Admin Panel
         return html_components;
     }
 
-    function agregarBeneficiario(input){
-        countBeneficiario += 1;
-        let seccion = 'BENEFICIARIOS';
-        let count = 1;
-        let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
-        let id_ben = 'beneficiario_' + countBeneficiario;
-        let html_components = '<div id="' + id_ben + '" class="card">';
-        html_components += '<div class="card-header">'+
-        'Beneficiario'+
-        '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Eliminar" href="javascript:void(0);" onclick="event.preventDefault(); eliminarBeneficiario(this)"><i class="fa fa-trash fa-2x"></i></a>'+
-        '<a style="float: right; padding-left:5px; padding-right:5px;" class="icon-margin" title="Agregar" href="javascript:void(0);" onclick="event.preventDefault(); agregarBeneficiario(this)"><i class="fa fa-plus fa-2x"></i></a>'+
-        '</div>'+
-        '<div class="card-body">'+
-        '<div class="form-row">';
-
-        html_components += contruirCampos(count,long,seccion, countBeneficiario);
-
-        html_components += '</div></div></div>';
-
-        $("#BENEFICIARIOS .card-body:first").append(html_components);
-
-        $('#' + id_ben +' select.catalogo_padre').on("change", function() {
-            let dataCatalogo = catalogosByCatalogoId[$(this).val()];
-            let seccion = $(this).parents('.collapse').attr('id');
-
-            if(dataCatalogo != undefined){
-                let id = dataCatalogo[0].tipo_catalogo_id;
-                let variable = camposPorSeccion[seccion].find(campo => campo.configuracion.select_field_tipo_catalogo == id).variable;
-
-                if(seccion == 'BENEFICIARIOS'){
-                    let id_ben = $(this).parents('.card').attr('id');
-                    selectorHijo = '#' + id_ben + ' select[name="'+ variable +'"]';
-                }else{
-                    selectorHijo = 'select[name="'+ variable +'"]';
-                }
-                
-                $(selectorHijo).selectpicker('destroy');
-                $(selectorHijo).html('');
-                $(selectorHijo).append('<option value="">Seleccione el Catálogo Relacionado</option>');
-                $.each(dataCatalogo, function (key, value) {
-                    $(selectorHijo).append('<option value="' + value.id + '">' + value.nombre + '</option>');
-                });
-                $(selectorHijo).selectpicker();
-                $('.selectpicker').selectpicker('refresh');
-            }else{
-                $(selectorHijo).selectpicker('destroy');
-                $(selectorHijo).html('');
-            }
-
-        });
-        $('.selectpicker').selectpicker('refresh');
-    }
-
-    function eliminarBeneficiario(input){
-        let id = input.parentElement.parentElement.id;
-        let separador = id.split('_');
-        if(separador[1] != '1'){
-            $('#'+id).remove();   
-        }
-    }
-
     function consultarSCI(seccion_campo, input){
         
         let seccion = seccion_campo.id;
-        id_beneficiario = input.parentElement.parentElement.parentElement.parentElement.parentElement.id;
         let numero_documento = input.value;
         let respuestaWS = [];
 
@@ -1276,48 +1095,27 @@ Crear Trámite - Admin Panel
                     fecha_nacimiento = moment(fecha_nacimiento,'DD/MM/YYYY').format("YYYY-MM-DD");
                     let edad = calcularEdad(fecha_nacimiento);
 
-                    if(seccion == 'BENEFICIARIOS'){
-                        $('#' + id_beneficiario + ' input[name="nombre_completo"]').val(nombre_completo);
-                        if(sexo == 'HOMBRE'){
-                            genero = 'MASCULINO';
-                        }else if(sexo == 'MUJER'){
-                            genero = 'FEMENINO';
-                        }
-
-                        $('#' + id_beneficiario + ' select[name="genero_id"] option').filter(function() {
-                            return $(this).text() === genero;
-                        }).prop('selected', true);
-                        $('#' + id_beneficiario + ' select[name="genero_id"]').trigger("change");
-
-                        $('#' + id_beneficiario + ' select[name="estado_civil_id"] option').filter(function() {
-                            return $(this).text().includes(estado_civil);
-                        }).prop('selected', true);
-                        $('#' + id_beneficiario + ' select[name="estado_civil_id"]').trigger("change");
-
-                        $('#' + id_beneficiario + ' input[name="fecha_nacimiento"]').datepicker("setDate",fecha_nacimiento);
-                        $('#' + id_beneficiario + ' input[name="edad"]').val(edad);
-                    }else{
-                        $('#' + seccion + ' input[name="nombre_completo"]').val(nombre_completo);
-                        if(sexo == 'HOMBRE'){
-                            genero = 'MASCULINO';
-                        }else if(sexo == 'MUJER'){
-                            genero = 'FEMENINO';
-                        }
-
-                        $('#' + seccion + ' select[name="genero_id"] option').filter(function() {
-                            return $(this).text() === genero;
-                        }).prop('selected', true);
-                        $('#' + seccion + ' select[name="genero_id"]').trigger("change");
-
-                        $('#' + seccion + ' select[name="estado_civil_id"] option').filter(function() {
-                            return $(this).text().includes(estado_civil);
-                        }).prop('selected', true);
-                        $('#' + seccion + ' select[name="estado_civil_id"]').trigger("change");
-
-                        $('#' + seccion + ' input[name="fecha_nacimiento"]').datepicker("setDate",fecha_nacimiento);
-
-                        $('#' + seccion + ' input[name="edad"]').val(edad);
+                    $('#' + seccion + ' input[name="nombre_completo"]').val(nombre_completo);
+                    if(sexo == 'HOMBRE'){
+                        genero = 'MASCULINO';
+                    }else if(sexo == 'MUJER'){
+                        genero = 'FEMENINO';
                     }
+
+                    $('#' + seccion + ' select[name="genero_id"] option').filter(function() {
+                        return $(this).text() === genero;
+                    }).prop('selected', true);
+                    $('#' + seccion + ' select[name="genero_id"]').trigger("change");
+
+                    $('#' + seccion + ' select[name="estado_civil_id"] option').filter(function() {
+                        return $(this).text().includes(estado_civil);
+                    }).prop('selected', true);
+                    $('#' + seccion + ' select[name="estado_civil_id"]').trigger("change");
+
+                    $('#' + seccion + ' input[name="fecha_nacimiento"]').datepicker("setDate",fecha_nacimiento);
+
+                    $('#' + seccion + ' input[name="edad"]').val(edad);
+                    
                 }
             });
         }
@@ -1334,94 +1132,27 @@ Crear Trámite - Admin Panel
 
     function inicializarObjeto(camposPorSeccion){
         for (let seccion in camposPorSeccion) {
-            if(seccion == 'BENEFICIARIOS'){
-                objeto.data[seccion] = [];
-                let obj = {};
-                obj['id'] = "";
-                for (let campo of camposPorSeccion[seccion]) {
-                    obj[campo.variable] = "";
-                    if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){
-                        catalogosRelacionadosVariables.push(campo.variable);
-                    }
-                }
-                objeto.data[seccion].push(obj);
-                objBeneficiarios = obj;
-            }else{
-                objeto.data[seccion] = {};
-                for (let campo of camposPorSeccion[seccion]) {
-                    objeto.data[seccion][campo.variable] = "";
-                    if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){
-                        catalogosRelacionadosVariables.push(campo.variable);
-                    }
+            objeto.data[seccion] = {};
+            for (let campo of camposPorSeccion[seccion]) {
+                objeto.data[seccion][campo.variable] = "";
+                if(catalogosRelacionadosIds.includes(campo.configuracion.select_field_tipo_catalogo)){
+                    catalogosRelacionadosVariables.push(campo.variable);
                 }
             }
+            
         }
     }
 
     function generarDataObjeto(seccion){
-        if(seccion == 'BENEFICIARIOS'){
-            objBen = [];
-            objeto.data[seccion] = [];
-            let clone = { ...objBeneficiarios };
-            objeto.data[seccion].push(clone);
-
-            let pos = 0;
-            let posBen = [];
-
-            $('[id="' + seccion + '"]').find("input, select").each(function() {
-                let id = $(this).parents('.card').attr('id');
-                let separador = id.split('_');
-                let objTempBen = {};
-                
-                if (!posBen.includes(id)) {
-                    posBen.push(id);
-                }
-                let index = posBen.indexOf(id);
-
-                if(objeto.data[seccion][index] !== undefined){
-                    if($(this).attr('name') != undefined){
-                        let position = $(this).attr('name').indexOf('file');
-                        let variable = $(this).attr('name');
-                        if (position !== -1) {
-                            let lastTwo = $(this).attr('name').slice(-2);
-                            let truncatedString = variable.slice(0, -2);
-                            variable = truncatedString;
-                        }
-                        
-                        if(objeto.data[seccion][index][variable] !== undefined){
-                            objeto.data[seccion][index][variable] = $(this).val();
-                            if(camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo == 'file'){
-                                objTempBen.seccion_campo = seccion;
-                                objTempBen.variable = $(this).attr('name');
-                                objTempBen.tipo_campo = camposPorSeccion[seccion].filter(campo => campo.variable === variable)[0].tipo_campo;
-                                objTempBen.id_ben = id;
-                                objTempBen.file_name = $(this).val();
-                                objBen.push(objTempBen);
-                            }
-                        }
-                    }
+        $('[id="' + seccion + '"]').find("input, select").each(function() {
+            if($(this).attr('name') != undefined){
+                if($(this).attr('type') == 'checkbox'){
+                    objeto.data[seccion][$(this).attr('name')] = this.checked;
                 }else{
-                    if($(this).attr('name') != undefined){
-                        let cloneObj = { ...objBeneficiarios };
-                        objeto.data[seccion].push(cloneObj);
-                        objeto.data[seccion][index][$(this).attr('name')] = $(this).val();
-                    }
+                    objeto.data[seccion][$(this).attr('name')] = $(this).val();
                 }
-                
-            });
-            console.log(posBen);
-
-        }else{
-            $('[id="' + seccion + '"]').find("input, select").each(function() {
-                if($(this).attr('name') != undefined){
-                    if($(this).attr('type') == 'checkbox'){
-                        objeto.data[seccion][$(this).attr('name')] = this.checked;
-                    }else{
-                        objeto.data[seccion][$(this).attr('name')] = $(this).val();
-                    }
-                }
-            });
-        }
+            }
+        });
 
         $('[id="' + seccion + '"]').find("textarea").each(function() {
             if($(this).attr('name') != undefined){
@@ -1430,7 +1161,6 @@ Crear Trámite - Admin Panel
         });
 
         $('#datos').val(JSON.stringify(objeto));
-        $('#datosBen').val(JSON.stringify(objBen));
         
     }
     
