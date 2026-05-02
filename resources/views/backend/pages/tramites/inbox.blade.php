@@ -225,12 +225,18 @@
                             <a class="nav-link active" data-toggle="tab" href="#datos">Datos</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#documentacionAdicional">Documentación Adicional</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#trazabilidad">Trazabilidad</a>
                         </li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane container active" id="datos">
                             <div id="detalleTramite"></div>
+                        </div>
+                        <div class="tab-pane container fade" id="documentacionAdicional">
+                            <div id="detalleDocumentacionAdicional"></div>
                         </div>
                         <div class="tab-pane container fade" id="trazabilidad">
                             <div id="detalleTrazabilidad"></div>
@@ -741,6 +747,7 @@
         let tramite = [];
         let datos = [];
         let trazabilidad = [];
+        let documentosAdicionales = [];
         let files = [];
         let numero_tramite = '{{ isset($_GET["numeroTramite"]) ? $_GET["numeroTramite"] : "" }}';
 
@@ -751,6 +758,7 @@
 
             $("#overlay").fadeIn(300);
             $("#detalleTramite").empty();
+            $("#detalleDocumentacionAdicional").empty();
             $("#detalleTrazabilidad").empty();
             html_components = '';
             $.ajax({
@@ -773,6 +781,11 @@
 
                     trazabilidad = response.trazabilidad;
                     construirTrazabilidad(trazabilidad);
+
+                    documentosAdicionales = response.documentosAdicionales;
+                    console.log('documentosAdicionales');
+                    console.log(documentosAdicionales);
+                    //construirDocumentosAdicionales(documentosAdicionales);
 
                     html_components += '<div class="accordion" id="accordion">';
             

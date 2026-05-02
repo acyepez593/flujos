@@ -607,7 +607,7 @@ Editar Trámite - Admin Panel
                         if(campo.editable){
                             html_components += '<i onclick="event.preventDefault(); deleteFile(\''+seccion+'\',\''+campo.configuracion.file_field_name+'\',\''+id+'\')" class="fa fa-trash fa-2x" title="Borrar" style="margin-left: 5px; margin-right:5px; cursor: pointer;"></i>';
                         }
-                        html_components += '<a href="'+rutaDownloadFiles+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a>';
+                        html_components += '<a href="'+rutaDownloadFiles+file.tramite_id+'/'+file.name+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a>';
                         html_components += '</div>';
                     }else{
                         html_components += '<div class="form-group col-md-6 col-sm-12">';

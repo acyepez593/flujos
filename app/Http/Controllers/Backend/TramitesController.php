@@ -1481,10 +1481,13 @@ class TramitesController extends Controller
         $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
         $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
         $secuenciasProceso = $secuenciaProceso->get();
+        $procesos = Proceso::where('estatus','ACTIVO')->get();
 
         $data['listaCampos'] = $listaCampos;
 
-        $trazabilidad_tramite = TrazabilidadTramite::where('tramite_id', $tramiteId)->whereIn('tipo',['CREACION','CAMBIO SECCION','CONDICINAL','FINALIZACION'])->get(["id","secuencia_proceso_id","funcionario_actual_id","estatus","tipo","created_at"]);
+        $trazabilidadTramite = TrazabilidadTramite::where('tramite_id', $tramiteId)->whereIn('tipo',['CREACION','CAMBIO SECCION','CONDICINAL','FINALIZACION'])->get(["id","secuencia_proceso_id","funcionario_actual_id","estatus","tipo","created_at"]);
+
+        $documentosAdicionales = AdicionalesTramite::where('tramite_id', $tramiteId)->get();
 
         $files = File::where('tramite_id', $tramiteId)->get(['proceso_id','tramite_id','seccion_campo','variable','name']);
 
@@ -1500,12 +1503,23 @@ class TramitesController extends Controller
             $funcionarios_temp[$creador->id] = $creador->name;
         }
 
-        foreach($trazabilidad_tramite as $trazabilidad){
+        $procesos_temp = [];
+        foreach($procesos as $proceso){
+            $procesos_temp[$proceso->id] = $proceso->nombre;
+        }
+
+        foreach($trazabilidadTramite as $trazabilidad){
             $trazabilidad->secuencia_proceso_nombre = array_key_exists($trazabilidad->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$trazabilidad->secuencia_proceso_id] : "";
             $trazabilidad->funcionario_actual_nombre = array_key_exists($trazabilidad->funcionario_actual_id, $funcionarios_temp) ? $funcionarios_temp[$trazabilidad->funcionario_actual_id] : "";
         }
 
-        $data['trazabilidad'] = $trazabilidad_tramite;
+        foreach($documentosAdicionales as $adicional){
+            $adicional->proceso_nombre = array_key_exists($adicional->proceso_id, $procesos_temp) ? $procesos_temp[$adicional->proceso_id] : "";
+            $adicional->creador_nombre = array_key_exists($adicional->creado_por, $funcionarios_temp) ? $funcionarios_temp[$adicional->creado_por] : "";
+        }
+
+        $data['trazabilidad'] = $trazabilidadTramite;
+        $data['documentosAdicionales'] = $documentosAdicionales;
         $data['files'] = $files;
 
         return response()->json($data);
