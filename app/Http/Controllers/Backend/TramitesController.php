@@ -730,6 +730,18 @@ class TramitesController extends Controller
             }
         }
 
+        $storedFiles = File::where('tramite_id', $tramite->id)->where('catalogo_id', 413)->get();
+        $tramiteDataField = json_decode($datos, true);
+        foreach ($storedFiles as $file) {
+            $tramiteDataField['data'][$file->seccion_campo][$file->variable] = $file->name;
+        }
+
+        $modifiedData = json_encode($tramiteDataField);
+
+        $documentacionAdicionalTramiteMod = AdicionalesTramite::find($documentacionAdicionalTramite->id);
+        $documentacionAdicionalTramiteMod->datos = $modifiedData;
+        $documentacionAdicionalTramiteMod->save();
+
         session()->flash('success', __('La documentacion adicional al trámite ha sido creado satisfactoriamente.'));
         if(!empty($request->crearFun)){
             if($request->crearFun == 'SI'){
@@ -1482,6 +1494,7 @@ class TramitesController extends Controller
         $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
         $secuenciasProceso = $secuenciaProceso->get();
         $procesos = Proceso::where('estatus','ACTIVO')->get();
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get();
 
         $data['listaCampos'] = $listaCampos;
 
@@ -1508,14 +1521,26 @@ class TramitesController extends Controller
             $procesos_temp[$proceso->id] = $proceso->nombre;
         }
 
+        $catalogos_temp = [];
+        foreach($catalogos as $catalogo){
+            $catalogos_temp[$catalogo->id] = $catalogo->nombre;
+        }
+
         foreach($trazabilidadTramite as $trazabilidad){
             $trazabilidad->secuencia_proceso_nombre = array_key_exists($trazabilidad->secuencia_proceso_id, $secuencias_proceso_temp) ? $secuencias_proceso_temp[$trazabilidad->secuencia_proceso_id] : "";
             $trazabilidad->funcionario_actual_nombre = array_key_exists($trazabilidad->funcionario_actual_id, $funcionarios_temp) ? $funcionarios_temp[$trazabilidad->funcionario_actual_id] : "";
         }
 
-        foreach($documentosAdicionales as $adicional){
-            $adicional->proceso_nombre = array_key_exists($adicional->proceso_id, $procesos_temp) ? $procesos_temp[$adicional->proceso_id] : "";
-            $adicional->creador_nombre = array_key_exists($adicional->creado_por, $funcionarios_temp) ? $funcionarios_temp[$adicional->creado_por] : "";
+        $usuario_actual_id = Auth::id();
+
+        foreach($documentosAdicionales as $documento){
+            $datos = json_decode($documento->datos, true);
+            $tipoExpedienteId = $datos['data']['RECEPCION']['tipo_expediente_id'];
+
+            $documento->proceso_nombre = array_key_exists($documento->proceso_id, $procesos_temp) ? $procesos_temp[$documento->proceso_id] : "";
+            $documento->tipo_expediente_nombre = array_key_exists($tipoExpedienteId, $catalogos_temp) ? $catalogos_temp[$tipoExpedienteId] : "";
+            $documento->creado_por_nombre = array_key_exists($documento->creado_por, $funcionarios_temp) ? $funcionarios_temp[$documento->creado_por] : "";
+            $documento->esCreadorRegistro = $usuario_actual_id == $documento->creado_por ? true : false;
         }
 
         $data['trazabilidad'] = $trazabilidadTramite;

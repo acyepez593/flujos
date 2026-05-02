@@ -211,7 +211,7 @@
         <!-- data table end -->
         <!-- Modal Ver Detalle -->
         <div class="modal fade" id="modalVerDetalle" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">Detalle Trámite</h5>
@@ -236,7 +236,16 @@
                             <div id="detalleTramite"></div>
                         </div>
                         <div class="tab-pane container fade" id="documentacionAdicional">
-                            <div id="detalleDocumentacionAdicional"></div>
+                            <div id="detalleDocumentacionAdicional">
+                                <table id="dataTableDocumentacionAdicional" class="text-center" style="margin-top: 15px;">
+                                    <thead class="bg-light text-capitalize">
+                                        
+                                    </thead>
+                                    <tbody>
+                                    
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane container fade" id="trazabilidad">
                             <div id="detalleTrazabilidad"></div>
@@ -334,6 +343,9 @@
         let table = "";
         let tableRef = "";
         let tableHeaderRef = "";
+        let tableDocumentosAdicionales = "";
+        let tableRefDocumentosAdicionales = "";
+        let tableHeaderRefDocumentosAdicionales = "";
         let tramites = [];
         let secuencia = [];
         let configuracion_secuencia = [];
@@ -758,9 +770,16 @@
 
             $("#overlay").fadeIn(300);
             $("#detalleTramite").empty();
-            $("#detalleDocumentacionAdicional").empty();
             $("#detalleTrazabilidad").empty();
             html_components = '';
+
+            $('#dataTableDocumentacionAdicional').empty();
+
+            var tabla = $('#dataTableDocumentacionAdicional');
+            var thead = $('<thead></thead>').appendTo(tabla);
+            var tbody = $('<tbody><tbody/>').appendTo(tabla);
+            table = "";
+
             $.ajax({
                 url: "{{url('/getListaCamposByTramite')}}",
                 method: "POST",
@@ -783,9 +802,7 @@
                     construirTrazabilidad(trazabilidad);
 
                     documentosAdicionales = response.documentosAdicionales;
-                    console.log('documentosAdicionales');
-                    console.log(documentosAdicionales);
-                    //construirDocumentosAdicionales(documentosAdicionales);
+                    construirDocumentosAdicionales(tramite_id, documentosAdicionales);
 
                     html_components += '<div class="accordion" id="accordion">';
             
@@ -843,6 +860,87 @@
                 error: function(jqXHR, textoEstado, errorEncontrado) {
                     console.error('Error en la solicitud, por favor vuelva a intentar.');
                 }
+            });
+        }
+
+        function construirDocumentosAdicionales(tramite_id, documentosAdicionales){
+            debugger;
+            tableHeaderRefDocumentosAdicionales = document.getElementById('dataTableDocumentacionAdicional').getElementsByTagName('thead')[0];
+
+            let htmlTable = 
+                "<th>#</th>"+
+                "<th>Proceso</th>"+
+                "<th>Tipo Expediente</th>"+
+                "<th>Observaciones</th>"+
+                "<th>Creado Por</th>"+
+                "<th>Creado En</th>"+
+                "<th>Ver Archivo</th>"+
+                "<th>Acción</th>";
+
+            tableHeaderRefDocumentosAdicionales.insertRow().innerHTML = htmlTable;
+
+            tableRefDocumentosAdicionales = document.getElementById('dataTableDocumentacionAdicional').getElementsByTagName('tbody')[0];
+
+            let contador = 1;
+            for (let documento of documentosAdicionales) {
+                
+                let datos = JSON.parse(documento.datos);
+
+                let documentos_digitalizados_file = datos.data['RECEPCION'].documentos_digitalizados_file;
+                let file = files.find(f => f.seccion_campo === 'RECEPCION' && f.name === documentos_digitalizados_file);
+
+                let urlFile = '';
+                if(file != undefined){
+                    urlFile += '<p><a href="'+rutaDownloadFiles+tramite_id+'/'+documentos_digitalizados_file+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></p>';
+                }
+
+                let rutaView ="";
+                let rutaEdit = "{{url('admin')}}"+"/tramites/"+documento.id+"/edit";
+                let innerHTML = "";
+                let htmlView = "";
+                let htmlEdit = "";
+                let htmlCheck = "";
+                let identificadorProteccion = "";
+
+                if(documento.proceso_id == 1){
+                    identificadorProteccion += 'PRO-FAL-';
+                }else if(documento.proceso_id == 2){
+                    identificadorProteccion += 'PRO-FUN-';
+                }else if(documento.proceso_id == 3){
+                    identificadorProteccion += 'PRO-DIS-';
+                }
+                identificadorProteccion += documento.tramite_id;
+                
+                htmlView +=@if (auth()->user()->can('tramite.createAdditional')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalleDocumentacionAdicional('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
+                htmlEdit +=@if (auth()->user()->can('tramite.editAdditional')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
+
+                innerHTML += 
+                    "<td>"+ identificadorProteccion + "</td>"+
+                    "<td>"+ documento.proceso_nombre+ "</td>"+
+                    "<td>"+ documento.tipo_expediente_nombre +"</td>"+
+                    "<td>"+ datos.data['RECEPCION'].observaciones_recepcion +"</td>"+
+                    "<td>"+ documento.creado_por_nombre+ "</td>"+
+                    "<td>"+ moment(documento.created_at).format("YYYY-MM-DD HH:mm") + "</td>"+
+                    "<td>"+ urlFile + "</td>";
+                    if(documento.esCreadorRegistro){
+                        innerHTML +="<td>" + htmlView + "</td>";
+                    }else{
+                        innerHTML += "<td></td>";
+                    }
+
+                    tableRefDocumentosAdicionales.insertRow().innerHTML = innerHTML;
+                    contador += 1;
+            }
+
+            tableDocumentosAdicionales = $('#dataTableDocumentacionAdicional').DataTable( {
+                scrollX: true,
+                orderCellsTop: true,
+                fixedHeader: true,
+                destroy: true,
+                paging: true,
+                searching: true,
+                autoWidth: true,
+                responsive: false,
             });
         }
 
