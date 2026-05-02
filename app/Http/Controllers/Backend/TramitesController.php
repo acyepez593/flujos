@@ -221,7 +221,14 @@ class TramitesController extends Controller
                         
                         $file = $request->file($activeFile);
                         $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                        $file->move(public_path('uploads/tramites'), $fileName);
+
+                        $path = public_path('uploads/tramites/'.$tramite->id);
+
+                        if (!FileFacade::isDirectory($path)) {
+                            FileFacade::makeDirectory($path, 0777, true, true);
+                        }
+
+                        $file->move($path, $fileName);
                         $filesBen[] = ['name' => $fileName];
                     }
             
@@ -242,7 +249,13 @@ class TramitesController extends Controller
                     if ($request->hasFile($activeFile)){
                         $file = $request->file($activeFile);
                         $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                        $file->move(public_path('uploads/tramites'), $fileName);
+                        $path = public_path('uploads/tramites/'.$tramite->id);
+
+                        if (!FileFacade::isDirectory($path)) {
+                            FileFacade::makeDirectory($path, 0777, true, true);
+                        }
+
+                        $file->move($path, $fileName);
                         $files[] = ['name' => $fileName];
                     }
             
@@ -484,7 +497,13 @@ class TramitesController extends Controller
                                 
                                 $file = $request->file($activeFile);
                                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                                $file->move(public_path('uploads/tramites'), $fileName);
+                                $path = public_path('uploads/tramites/'.$id);
+
+                                if (!FileFacade::isDirectory($path)) {
+                                    FileFacade::makeDirectory($path, 0777, true, true);
+                                }
+
+                                $file->move($path, $fileName);
                                 $filesBen[] = ['name' => $fileName];
                             }
                     
@@ -506,7 +525,13 @@ class TramitesController extends Controller
                         if ($request->hasFile($activeFile)){
                             $file = $request->file($activeFile);
                             $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                            $file->move(public_path('uploads/tramites'), $fileName);
+                            $path = public_path('uploads/tramites/'.$id);
+
+                            if (!FileFacade::isDirectory($path)) {
+                                FileFacade::makeDirectory($path, 0777, true, true);
+                            }
+
+                            $file->move($path, $fileName);
                             $files[] = ['name' => $fileName];
                         }
                 
@@ -688,7 +713,7 @@ class TramitesController extends Controller
                         FileFacade::makeDirectory($path, 0777, true, true);
                     }
 
-                    $file->move(public_path('uploads/tramites/'.$tramite_id), $fileName);
+                    $file->move($path, $fileName);
                     $files[] = ['name' => $fileName];
                 }
         
@@ -967,25 +992,28 @@ class TramitesController extends Controller
         }
     }
 
-    public function download(string $fileName)
+    public function download(int $tramite_id, string $fileName)
     {
         //$this->checkAuthorization(auth()->user(), ['tramite.download']);
-        if(public_path('uploads/tramites/'.$fileName)){
-            $myFile = public_path('uploads/tramites/'.$fileName);
+
+        $path = public_path('uploads/tramites/'.$tramite_id.'/'.$fileName);
+                              
+        if($path){
 
             $headers = ['Content-Type: application/pdf'];
     
             $newName = $fileName;
     
-            return response()->download($myFile, $newName, $headers);
+            return response()->download($path, $newName, $headers);
         }
     }
 
     public function deleteFile(Request $request): JsonResponse
     {
         $fileName = $request->file_name;
-        if(isset($fileName) && !empty($fileName)){
-            $file = File::where('name', $fileName)->first();
+        $tramiteId = $request->tramite_id;
+        if(isset($fileName) && !empty($fileName) && isset($tramiteId) && !empty($tramiteId)){
+            $file = File::where('tramite_id', $tramiteId)->where('name', $fileName)->first();
             $file->delete();
             
             return response()->json(['status' => 200, 'message' => '¡Archivo borrado exitosamente!'], 200);

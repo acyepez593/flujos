@@ -318,6 +318,8 @@ Editar Trámite - Admin Panel
     datos = datos.replace(/\\/g , '\\\\');
     datos = JSON.parse(datos);
 
+    let tramiteId = '{{$tramite->id}}';
+
     let catalogosRelacionadosByTipoCatalogo = '{{$catalogosRelacionadosByTipoCatalogo}}';
     catalogosRelacionadosByTipoCatalogo = catalogosRelacionadosByTipoCatalogo.replace(/&quot;/g, '"');
     catalogosRelacionadosByTipoCatalogo = JSON.parse(catalogosRelacionadosByTipoCatalogo);
@@ -825,6 +827,7 @@ Editar Trámite - Admin Panel
                         method: "POST",
                         data: {
                             file_name: fileName,
+                            tramite_id: tramiteId,
                             _token: '{{csrf_token()}}'
                         },
                         dataType: 'json',

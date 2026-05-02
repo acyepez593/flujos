@@ -86,7 +86,7 @@ Route::post('/generarReporteAsignacionesByTipoReporte',[ReportesController::clas
 Route::get('/consultaCiudadanaTramites', [ConsultaCiudadanaTramitesController::class, 'index'])->name('consultaCiudadanaTramites.index');
 Route::post('/consultaTramiteSppat',[ConsultaCiudadanaTramitesController::class, 'getTrazabilidadByTramite']);
 
-Route::get('files/{fileName}', [TramitesController::class, 'download'])->name('download')->middleware('auth:admin');
+Route::get('files/{tramite_id}/{fileName}', [TramitesController::class, 'download'])->name('download')->middleware('auth:admin');
 Route::post('/deleteFile', [TramitesController::class, 'deleteFile'])->name('deleteFile')->middleware('auth:admin');
 
 Route::post('/getNormativaDiscapacidadesByFilters',[NormativaDiscapacidadesController::class, 'getNormativaDiscapacidadesByFilters'])->middleware('auth:admin');
