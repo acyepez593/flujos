@@ -214,7 +214,7 @@
         <!-- data table end -->
         <!-- Modal Ver Detalle -->
         <div class="modal fade" id="modalVerDetalle" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">Detalle Trámite</h5>
@@ -228,12 +228,27 @@
                             <a class="nav-link active" data-toggle="tab" href="#datos">Datos</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#documentacionAdicional">Documentación Adicional</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#trazabilidad">Trazabilidad</a>
                         </li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane container active" id="datos">
                             <div id="detalleTramite"></div>
+                        </div>
+                        <div class="tab-pane container fade" id="documentacionAdicional">
+                            <div id="detalleDocumentacionAdicional" style="margin-top: 15px;">
+                                <table id="dataTableDocumentacionAdicional" class="text-center">
+                                    <thead class="bg-light text-capitalize">
+                                        
+                                    </thead>
+                                    <tbody>
+                                    
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="tab-pane container fade" id="trazabilidad">
                             <div id="detalleTrazabilidad"></div>
@@ -267,6 +282,9 @@
         let table = "";
         let tableRef = "";
         let tableHeaderRef = "";
+        let tableDocumentosAdicionales = "";
+        let tableRefDocumentosAdicionales = "";
+        let tableHeaderRefDocumentosAdicionales = "";
         let tramites = [];
         let creadores = [];
         let rutaDownloadFiles = "{{url('/files')}}"+"/";
@@ -420,6 +438,7 @@
         let tramite = [];
         let datos = [];
         let trazabilidad = [];
+        let documentosAdicionales = [];
         let files = [];
 
         function mostrarDetalle(tramite_id){
@@ -428,6 +447,13 @@
             $("#detalleTramite").empty();
             $("#detalleTrazabilidad").empty();
             html_components = '';
+             $('#dataTableDocumentacionAdicional').empty();
+
+            var tabla = $('#dataTableDocumentacionAdicional');
+            var thead = $('<thead></thead>').appendTo(tabla);
+            var tbody = $('<tbody><tbody/>').appendTo(tabla);
+            table = "";
+
             $.ajax({
                 url: "{{url('/getListaCamposByTramite')}}",
                 method: "POST",
@@ -448,6 +474,9 @@
 
                     trazabilidad = response.trazabilidad;
                     construirTrazabilidad(trazabilidad);
+
+                    documentosAdicionales = response.documentosAdicionales;
+                    construirDocumentosAdicionales(tramite_id, documentosAdicionales);
 
                     html_components += '<div class="accordion" id="accordion">';
             
@@ -505,6 +534,90 @@
                 error: function(jqXHR, textoEstado, errorEncontrado) {
                     console.error('Error en la solicitud, por favor vuelva a intentar.');
                 }
+            });
+        }
+
+        function construirDocumentosAdicionales(tramite_id, documentosAdicionales){
+            debugger;
+            tableHeaderRefDocumentosAdicionales = document.getElementById('dataTableDocumentacionAdicional').getElementsByTagName('thead')[0];
+
+            let htmlTable = 
+                "<th>#</th>"+
+                "<th>Proceso</th>"+
+                "<th>Tipo Expediente</th>"+
+                "<th>Tipo Recepción</th>"+
+                "<th>Fecha Recepción</th>"+
+                "<th>Observaciones</th>"+
+                "<th>Número Documento Reclamante</th>"+
+                "<th>Nombre Reclamante</th>"+
+                "<th>Parentesco</th>"+
+                "<th>Correo Electrónico</th>"+
+                "<th>Teléfonos</th>"+
+                "<th>Dirección Domiciliaria</th>"+
+                "<th>Creado Por</th>"+
+                "<th>Creado En</th>"+
+                "<th>Ver Archivo</th>";
+
+            tableHeaderRefDocumentosAdicionales.insertRow().innerHTML = htmlTable;
+
+            tableRefDocumentosAdicionales = document.getElementById('dataTableDocumentacionAdicional').getElementsByTagName('tbody')[0];
+
+            let contador = 1;
+            for (let documento of documentosAdicionales) {
+                
+                let datos = JSON.parse(documento.datos);
+
+                let documentos_digitalizados_file = datos.data['RECEPCION'].documentos_digitalizados_file;
+                let file = files.find(f => f.seccion_campo === 'RECEPCION' && f.name === documentos_digitalizados_file);
+
+                let urlFile = '';
+                if(file != undefined){
+                    urlFile += '<p><a href="'+rutaDownloadFiles+tramite_id+'/'+documentos_digitalizados_file+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></p>';
+                }
+
+                let innerHTML = "";
+                let htmlCheck = "";
+                let identificadorProteccion = "";
+
+                if(documento.proceso_id == 1){
+                    identificadorProteccion += 'PRO-FAL-';
+                }else if(documento.proceso_id == 2){
+                    identificadorProteccion += 'PRO-FUN-';
+                }else if(documento.proceso_id == 3){
+                    identificadorProteccion += 'PRO-DIS-';
+                }
+                identificadorProteccion += documento.tramite_id;
+
+                innerHTML += 
+                    "<td>"+ identificadorProteccion + "</td>"+
+                    "<td>"+ documento.proceso_nombre+ "</td>"+
+                    "<td>"+ documento.tipo_expediente_nombre +"</td>"+
+                    "<td>"+ documento.tipo_recepcion_nombre +"</td>"+
+                    "<td>"+ moment(datos.data['RECEPCION'].fecha_recepcion).format("YYYY-MM-DD") + "</td>"+
+                    "<td>"+ datos.data['RECEPCION'].observaciones_recepcion +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].numero_documento +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].nombre_completo +"</td>"+
+                    "<td>"+ documento.parentesco_victima_nombre +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].email +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].telefonos +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].direccion_domiciliaria +"</td>"+
+                    "<td>"+ documento.creado_por_nombre+ "</td>"+
+                    "<td>"+ moment(documento.created_at).format("YYYY-MM-DD HH:mm") + "</td>"+
+                    "<td>"+ urlFile + "</td>";
+
+                    tableRefDocumentosAdicionales.insertRow().innerHTML = innerHTML;
+                    contador += 1;
+            }
+
+            tableDocumentosAdicionales = $('#dataTableDocumentacionAdicional').DataTable( {
+                scrollX: true,
+                orderCellsTop: true,
+                fixedHeader: true,
+                destroy: true,
+                paging: true,
+                searching: true,
+                autoWidth: true,
+                responsive: false,
             });
         }
 

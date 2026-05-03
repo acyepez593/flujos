@@ -236,8 +236,8 @@
                             <div id="detalleTramite"></div>
                         </div>
                         <div class="tab-pane container fade" id="documentacionAdicional">
-                            <div id="detalleDocumentacionAdicional">
-                                <table id="dataTableDocumentacionAdicional" class="text-center" style="margin-top: 15px;">
+                            <div id="detalleDocumentacionAdicional" style="margin-top: 15px;">
+                                <table id="dataTableDocumentacionAdicional" class="text-center">
                                     <thead class="bg-light text-capitalize">
                                         
                                     </thead>
@@ -871,7 +871,15 @@
                 "<th>#</th>"+
                 "<th>Proceso</th>"+
                 "<th>Tipo Expediente</th>"+
+                "<th>Tipo Recepción</th>"+
+                "<th>Fecha Recepción</th>"+
                 "<th>Observaciones</th>"+
+                "<th>Número Documento Reclamante</th>"+
+                "<th>Nombre Reclamante</th>"+
+                "<th>Parentesco</th>"+
+                "<th>Correo Electrónico</th>"+
+                "<th>Teléfonos</th>"+
+                "<th>Dirección Domiciliaria</th>"+
                 "<th>Creado Por</th>"+
                 "<th>Creado En</th>"+
                 "<th>Ver Archivo</th>"+
@@ -915,7 +923,15 @@
                     "<td>"+ identificadorProteccion + "</td>"+
                     "<td>"+ documento.proceso_nombre+ "</td>"+
                     "<td>"+ documento.tipo_expediente_nombre +"</td>"+
+                    "<td>"+ documento.tipo_recepcion_nombre +"</td>"+
+                    "<td>"+ moment(datos.data['RECEPCION'].fecha_recepcion).format("YYYY-MM-DD") + "</td>"+
                     "<td>"+ datos.data['RECEPCION'].observaciones_recepcion +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].numero_documento +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].nombre_completo +"</td>"+
+                    "<td>"+ documento.parentesco_victima_nombre +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].email +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].telefonos +"</td>"+
+                    "<td>"+ datos.data['RECLAMANTE'].direccion_domiciliaria +"</td>"+
                     "<td>"+ documento.creado_por_nombre+ "</td>"+
                     "<td>"+ moment(documento.created_at).format("YYYY-MM-DD HH:mm") + "</td>"+
                     "<td>"+ urlFile + "</td>";

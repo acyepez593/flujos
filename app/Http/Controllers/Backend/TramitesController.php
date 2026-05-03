@@ -820,20 +820,23 @@ class TramitesController extends Controller
             }
 
             $documentacionAdicionalTramite = AdicionalesTramite::findOrFail($id);
+            $tramite = Tramite::find($documentacionAdicionalTramite->tramite_id);
 
-            $secuenciaProceso = SecuenciaProceso::find($tramite->secuencia_proceso_id);
+            $secuenciaProceso = SecuenciaProceso::where('proceso_id',$documentacionAdicionalTramite->proceso_id)->where('estatus','ACTIVO')->first();
             $configuracionSecuencia = $secuenciaProceso->configuracion;
             $listaCampos = $secuenciaProceso->configuracion_campos;
 
             $camposDeTipoArchivo = [];
             $listaCampos = json_decode($listaCampos, true);
             foreach($listaCampos as $lista){
-                $obj = [];
-                if($lista['tipo_campo'] == 'file'){
-                    $obj['id'] = $lista['id'];
-                    $obj['seccion_campo'] = $lista['seccion_campo'];
-                    $obj['variable'] = $lista['variable'];
-                    $camposDeTipoArchivo[] = $obj;
+                if($lista['seccion_campo'] == 'RECEPCION' || $lista['seccion_campo'] == 'RECLAMANTE'){
+                    $obj = [];
+                    if($lista['tipo_campo'] == 'file'){
+                        $obj['id'] = $lista['id'];
+                        $obj['seccion_campo'] = $lista['seccion_campo'];
+                        $obj['variable'] = $lista['variable'];
+                        $camposDeTipoArchivo[] = $obj;
+                    }
                 }
             }
 
@@ -841,53 +844,31 @@ class TramitesController extends Controller
 
             foreach($camposDeTipoArchivo as $campo){
                 $files = [];
-                if($campo['seccion_campo'] == 'BENEFICIARIOS'){
-                    //$datosBen = json_decode($request->datosBen, true);
-                    //$datosBenef = $datosBen;
-                    foreach($datosBen as $index => $ben){
-                        $filesBen = [];
-                        
-                        if(isset($ben['variable'])){
-                            $activeFile = $ben['variable'];
-                            if ($request->hasFile($activeFile)){
-                                
-                                $file = $request->file($activeFile);
-                                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                                $file->move(public_path('uploads/tramites'), $fileName);
-                                $filesBen[] = ['name' => $fileName];
-                            }
-                    
-                            foreach ($filesBen as $fileData) {
-                                $file = new File();
-                                $file->name = $fileData['name'];
-                                $file->proceso_id = $tramite->proceso_id;
-                                $file->tramite_id = $id;
-                                $file->beneficiario_id = intval($ben['ben_id']);
-                                $file->variable = $campo['variable'];
-                                $file->seccion_campo = $campo['seccion_campo'];
-                                $file->save();
-                            }
+
+                if($data[$campo['seccion_campo']][$campo['variable']] != ""){
+                    $activeFile = $campo['variable'];
+                    if ($request->hasFile($activeFile)){
+                        $file = $request->file($activeFile);
+                        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $path = public_path('uploads/tramites/'.$tramite->id);
+
+                        if (!FileFacade::isDirectory($path)) {
+                            FileFacade::makeDirectory($path, 0777, true, true);
                         }
+
+                        $file->move($path, $fileName);
+                        $files[] = ['name' => $fileName];
                     }
-                }else{
-                    if($data[$campo['seccion_campo']][$campo['variable']] != ""){
-                        $activeFile = $campo['variable'];
-                        if ($request->hasFile($activeFile)){
-                            $file = $request->file($activeFile);
-                            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                            $file->move(public_path('uploads/tramites'), $fileName);
-                            $files[] = ['name' => $fileName];
-                        }
-                
-                        foreach ($files as $fileData) {
-                            $file = new File();
-                            $file->name = $fileData['name'];
-                            $file->proceso_id = $tramite->proceso_id;
-                            $file->tramite_id = $id;
-                            $file->variable = $activeFile;
-                            $file->seccion_campo = $campo['seccion_campo'];
-                            $file->save();
-                        }
+            
+                    foreach ($files as $fileData) {
+                        $file = new File();
+                        $file->name = $fileData['name'];
+                        $file->proceso_id = $tramite->proceso_id;
+                        $file->tramite_id = $tramite->id;
+                        $file->variable = $activeFile;
+                        $file->seccion_campo = $campo['seccion_campo'];
+                        $file->catalogo_id = 413;
+                        $file->save();
                     }
                 }
                 
@@ -896,39 +877,16 @@ class TramitesController extends Controller
             $storedFiles = File::where('tramite_id', $id)->get();
             $tramiteDataField = json_decode($datos, true);
             foreach ($storedFiles as $file) {
-                if($file->seccion_campo == 'BENEFICIARIOS'){
-                    $index = array_search($file->beneficiario_id, $benIds);
-                    $tramiteDataField['data'][$file->seccion_campo][$index][$file->variable] = $file->name;
-                }else{
-                    $tramiteDataField['data'][$file->seccion_campo][$file->variable] = $file->name;
-                }
-            }
-
-            $beneficiarios = Beneficiario::where('tramite_id', $id)->get();
-            foreach ($beneficiarios as $ben) {
-                $index = array_search($ben->id, $benIds);
-                $tramiteDataField['data']['BENEFICIARIOS'][$index]['id'] = $ben->id;
-                $ben->datos = json_encode($tramiteDataField['data']['BENEFICIARIOS'][$index]);
-                $ben->save();
+                $tramiteDataField['data'][$file->seccion_campo][$file->variable] = $file->name;
             }
 
             $modifiedData = json_encode($tramiteDataField);
 
-            $tramite->datos = $modifiedData;
-            $tramite->save();
+            $documentacionAdicionalTramiteMod = AdicionalesTramite::find($documentacionAdicionalTramite->id);
+            $documentacionAdicionalTramiteMod->datos = $modifiedData;
+            $documentacionAdicionalTramiteMod->save();
 
-            $trazabilidad_tramite = new TrazabilidadTramite();
-            $trazabilidad_tramite->tramite_id = $id;
-            $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
-            $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
-            $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
-            $trazabilidad_tramite->datos = $modifiedData;
-            $trazabilidad_tramite->estatus = $tramite->estatus;
-            $trazabilidad_tramite->creado_por = $tramite->creado_por;
-            $trazabilidad_tramite->tipo = 'MODIFICACION';
-            $trazabilidad_tramite->save();
-
-            session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente.');
+            session()->flash('success', 'La documentación del Trámite ha sido actualizado satisfactoriamente.');
             return redirect()->route('admin.tramites.inbox');
         } catch (FileException $e) {
             session()->flash('error', 'Trámite ha sido actualizado satisfactoriamente.'.$e);
@@ -1468,9 +1426,13 @@ class TramitesController extends Controller
         foreach($documentosAdicionales as $documento){
             $datos = json_decode($documento->datos, true);
             $tipoExpedienteId = $datos['data']['RECEPCION']['tipo_expediente_id'];
+            $tipoRecepcionId = $datos['data']['RECEPCION']['tipo_recepcion_id'];
+            $parentescoVictimaId = $datos['data']['RECLAMANTE']['parentesco_victima_id'];
 
             $documento->proceso_nombre = array_key_exists($documento->proceso_id, $procesos_temp) ? $procesos_temp[$documento->proceso_id] : "";
             $documento->tipo_expediente_nombre = array_key_exists($tipoExpedienteId, $catalogos_temp) ? $catalogos_temp[$tipoExpedienteId] : "";
+            $documento->tipo_recepcion_nombre = array_key_exists($tipoRecepcionId, $catalogos_temp) ? $catalogos_temp[$tipoRecepcionId] : "";
+            $documento->parentesco_victima_nombre = array_key_exists($parentescoVictimaId, $catalogos_temp) ? $catalogos_temp[$parentescoVictimaId] : "";
             $documento->creado_por_nombre = array_key_exists($documento->creado_por, $funcionarios_temp) ? $funcionarios_temp[$documento->creado_por] : "";
             $documento->esCreadorRegistro = $usuario_actual_id == $documento->creado_por ? true : false;
         }
