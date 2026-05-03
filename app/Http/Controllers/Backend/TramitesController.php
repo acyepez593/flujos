@@ -755,21 +755,28 @@ class TramitesController extends Controller
 
     }
 
-    public function editAdditional(int $id): Renderable
+    public function editAdditional(Request $request, int $id): Renderable
     {
         $this->checkAuthorization(auth()->user(), ['tramite.editAdditional']);
 
-        $tramite = Tramite::findOrFail($id);
-        $proceso_id = $tramite->proceso_id;
-        $secuenciaProceso = SecuenciaProceso::findOrFail($tramite->secuencia_proceso_id);
+        $documentacionAdicionalTramite = AdicionalesTramite::findOrFail($id);
+        //$tramite = Tramite::findOrFail($id);
+        $tramiteId = $documentacionAdicionalTramite->tramite_id;
+        $proceso_id = $documentacionAdicionalTramite->proceso_id;
+        $secuenciaProceso = SecuenciaProceso::where('proceso_id',$proceso_id)->where('estatus','ACTIVO')->first();
         $secuenciaProcesoId = $secuenciaProceso->id;
         $campos = CamposPorProceso::where('proceso_id', $proceso_id)->where('estatus','ACTIVO')->get(["nombre", "id"])->pluck('nombre','id');
         $configuracionSecuencia = $secuenciaProceso->configuracion;
-        $listaCampos = collect($secuenciaProceso->configuracion_campos)->sortBy('seccion_campo');
+        $itemsCollection = collect(json_decode($secuenciaProceso->configuracion_campos, true))->whereIn('seccion_campo', ['RECEPCION','RECLAMANTE'])->sortBy('seccion_campo');
+        $listaCampos = [];
+
+        foreach($itemsCollection as $item){
+            array_push($listaCampos, $item);
+        }
+
         $tiposCatalogos = TipoCatalogo::where('estatus','ACTIVO')->get(["nombre", "id","tipo_catalogo_relacionado_id"]);
         $catalogos = Catalogo::where('estatus','ACTIVO')->get(["tipo_catalogo_id","id","nombre","catalogo_id"]);
-        $beneficiarios = Beneficiario::where('tramite_id',$tramite->id)->get();
-        $files = File::where('tramite_id', $id)->get(['proceso_id','tramite_id','seccion_campo','variable','name']);
+        $files = File::where('tramite_id', $tramiteId)->where('catalogo_id', 413)->get(['proceso_id','tramite_id','seccion_campo','variable','name']);
 
         $tiposCatalogosRelacionadosIds = [];
         $tiposCatalogosIds = [];
@@ -784,13 +791,12 @@ class TramitesController extends Controller
 
         $catalogosByCatalogoId = Catalogo::where('estatus','ACTIVO')->whereNotNull('catalogo_id')->get(['id','tipo_catalogo_id','catalogo_id','nombre'])->groupBy('catalogo_id');
 
-        return view('backend.pages.tramites.edit', [
-            'tramite' => $tramite,
-            'beneficiarios' => $beneficiarios,
+        return view('backend.pages.tramites.editAdditional', [
+            'documentacionAdicionalTramite' => $documentacionAdicionalTramite,
             'secuenciaProcesoId' => $secuenciaProcesoId,
             'campos' => $campos,
             'configuracionSecuencia' => $configuracionSecuencia,
-            'listaCampos' => $listaCampos[0],
+            'listaCampos' => json_encode($listaCampos),
             'tiposCatalogos' => $tiposCatalogos,
             'catalogos' => $catalogos->groupBy('tipo_catalogo_id'),
             'catalogosRelacionadosByTipoCatalogo' => $catalogosRelacionadosByTipoCatalogo,
@@ -800,7 +806,7 @@ class TramitesController extends Controller
         ]);
     }
 
-    public function updateAdditional(TramiteRequest $request, int $id): RedirectResponse
+    public function updateAdditional(AdicionalesTramiteRequest $request, int $id): RedirectResponse
     {
         $this->checkAuthorization(auth()->user(), ['tramite.editAdditional']);
 
@@ -813,81 +819,7 @@ class TramitesController extends Controller
                 $datos = $request->datos;
             }
 
-            $tramite = Tramite::findOrFail($id);
-
-            $beneficiarios = json_decode($datos, true)['data']['BENEFICIARIOS'];
-            $datosBen = json_decode($request->datosBen, true);
-            $datosBenOri = json_decode($request->datosBen, true);
-
-            $indexIdsNuevos=[];
-            foreach($datosBen as $index => $ben){
-                if($ben['ben_id'] == ''){
-                    array_push($indexIdsNuevos, $index);
-                }
-            }
-
-            $beneficiariosIdsActuales = Beneficiario::where('tramite_id', $id)->get(['id'])->pluck('id')->toArray();
-            $beneficiariosIdsNuevos=[];
-            $benIds=[];
-            $benIdsNuevos=[];
-            
-            $indexBenefIdsNuevos=[];
-            foreach($beneficiarios as $index => $ben){
-                if($ben['id'] == ''){
-                    array_push($indexBenefIdsNuevos, $index);
-                }
-            }
-
-            $indexEquivalente = [];
-            foreach($indexBenefIdsNuevos as $index => $ide){
-                $ide = intval($ide);
-                if (!empty($indexIdsNuevos)) {
-                    $indexEquivalente[$ide] =  $indexIdsNuevos[$index];
-                }
-            }
-
-            //$key = array_search(2, $indexEquivalente);
-
-            /*session()->flash('success', 'Trámite ha sido actualizado satisfactoriamente. indexBenefIdsNuevos: ' .json_encode($indexBenefIdsNuevos) . '--indexIdsNuevos:--' . json_encode($indexIdsNuevos). '--indexEquivalente:--' . json_encode($indexEquivalente). '--datosBen:--' . json_encode($datosBen));
-            return redirect()->route('admin.tramites.inbox');*/
-
-            foreach($beneficiarios as $index => $ben){
-                if($ben['id'] != ''){
-                    $beneficiariosIdsNuevos[] = $ben['id'];
-                    array_push($benIds, $ben['id']);
-                    //$datosBen[$index]['ben_id'] = intval($ben['id']);
-                }else{
-                    $beneficiario = new Beneficiario();
-                    $beneficiario->tramite_id = $id;
-                    $beneficiario->datos =json_encode($ben);
-                    $beneficiario->creado_por = $creado_por;
-                    $beneficiario->save();
-                    $benTmp = $ben;
-                    $benTmp['id'] = $beneficiario->id;
-                    $beneficiario->datos =json_encode($benTmp);
-                    $beneficiario->save();
-                    array_push($benIds, $beneficiario->id);
-                    array_push($benIdsNuevos, $beneficiario->id);
-    
-                    //if (!empty($indexIdsNuevos)) {
-                        //$datosBen[$indexIdsNuevos[$index]]['ben_id'] = $beneficiario->id;
-                        $datosBen[$index]['ben_id'] = $beneficiario->id;
-                        $beneficiariosIdsNuevos[] = $beneficiario->id;
-                    //}
-                }
-            }
-            
-            $benIdsAEliminar = [];
-            $benIdsAEliminar = array_diff($beneficiariosIdsActuales, $beneficiariosIdsNuevos);
-
-            foreach($benIdsAEliminar as $ben){
-                $beneficiario = Beneficiario::findOrFail($ben);
-                $beneficiario->delete();
-                $files = File::where('tramite_id', $id)->where('beneficiario_id', $ben)->first();
-                if($files){
-                    $files->delete();
-                }
-            }
+            $documentacionAdicionalTramite = AdicionalesTramite::findOrFail($id);
 
             $secuenciaProceso = SecuenciaProceso::find($tramite->secuencia_proceso_id);
             $configuracionSecuencia = $secuenciaProceso->configuracion;

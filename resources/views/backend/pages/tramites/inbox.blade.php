@@ -894,10 +894,8 @@
                     urlFile += '<p><a href="'+rutaDownloadFiles+tramite_id+'/'+documentos_digitalizados_file+'" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>'+file.name+'</a></p>';
                 }
 
-                let rutaView ="";
-                let rutaEdit = "{{url('admin')}}"+"/tramites/"+documento.id+"/edit";
+                let rutaEdit = "{{url('admin')}}"+"/tramites/"+documento.id+"/editAdditional";
                 let innerHTML = "";
-                let htmlView = "";
                 let htmlEdit = "";
                 let htmlCheck = "";
                 let identificadorProteccion = "";
@@ -911,7 +909,6 @@
                 }
                 identificadorProteccion += documento.tramite_id;
                 
-                htmlView +=@if (auth()->user()->can('tramite.createAdditional')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalleDocumentacionAdicional('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                 htmlEdit +=@if (auth()->user()->can('tramite.editAdditional')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
 
                 innerHTML += 
@@ -923,7 +920,7 @@
                     "<td>"+ moment(documento.created_at).format("YYYY-MM-DD HH:mm") + "</td>"+
                     "<td>"+ urlFile + "</td>";
                     if(documento.esCreadorRegistro){
-                        innerHTML +="<td>" + htmlView + "</td>";
+                        innerHTML +="<td>" + htmlEdit + "</td>";
                     }else{
                         innerHTML += "<td></td>";
                     }

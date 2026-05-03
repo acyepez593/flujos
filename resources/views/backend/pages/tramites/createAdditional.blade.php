@@ -194,7 +194,6 @@ Agregar Documentación al Trámite - Admin Panel
         }else{
             renderFormAdicional();
         }
-        
 
         $('.datepicker').datepicker({
             language: 'es',
