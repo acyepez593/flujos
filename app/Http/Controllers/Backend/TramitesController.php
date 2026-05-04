@@ -1425,9 +1425,9 @@ class TramitesController extends Controller
 
         foreach($documentosAdicionales as $documento){
             $datos = json_decode($documento->datos, true);
-            $tipoExpedienteId = $datos['data']['RECEPCION']['tipo_expediente_id'];
-            $tipoRecepcionId = $datos['data']['RECEPCION']['tipo_recepcion_id'];
-            $parentescoVictimaId = $datos['data']['RECLAMANTE']['parentesco_victima_id'];
+            $tipoExpedienteId = isset($datos['data']['RECEPCION']['tipo_expediente_id']) ? $datos['data']['RECEPCION']['tipo_expediente_id'] : 0;
+            $tipoRecepcionId = isset($datos['data']['RECEPCION']['tipo_recepcion_id']) ? $datos['data']['RECEPCION']['tipo_recepcion_id'] : 0;
+            $parentescoVictimaId = isset($datos['data']['RECLAMANTE']['parentesco_victima_id']) ? $datos['data']['RECLAMANTE']['parentesco_victima_id'] : 0;
 
             $documento->proceso_nombre = array_key_exists($documento->proceso_id, $procesos_temp) ? $procesos_temp[$documento->proceso_id] : "";
             $documento->tipo_expediente_nombre = array_key_exists($tipoExpedienteId, $catalogos_temp) ? $catalogos_temp[$tipoExpedienteId] : "";

@@ -587,6 +587,10 @@
                     identificadorProteccion += 'PRO-DIS-';
                 }
                 identificadorProteccion += documento.tramite_id;
+                let observaciones = (documento.proceso_id == 3) ? datos.data['RECEPCION'].observaciones : datos.data['RECEPCION'].observaciones_recepcion;
+                let email = (documento.proceso_id == 3) ? datos.data['RECLAMANTE'].correo_electronico : datos.data['RECLAMANTE'].email;
+                let telefonos = (documento.proceso_id == 3) ? datos.data['RECLAMANTE'].celular : datos.data['RECLAMANTE'].telefonos;
+                let direccion_domiciliaria = (documento.proceso_id == 3) ? '' : datos.data['RECLAMANTE'].direccion_domiciliaria;
 
                 innerHTML += 
                     "<td>"+ identificadorProteccion + "</td>"+
@@ -594,13 +598,13 @@
                     "<td>"+ documento.tipo_expediente_nombre +"</td>"+
                     "<td>"+ documento.tipo_recepcion_nombre +"</td>"+
                     "<td>"+ moment(datos.data['RECEPCION'].fecha_recepcion).format("YYYY-MM-DD") + "</td>"+
-                    "<td>"+ datos.data['RECEPCION'].observaciones_recepcion +"</td>"+
+                    "<td>"+ observaciones +"</td>"+
                     "<td>"+ datos.data['RECLAMANTE'].numero_documento +"</td>"+
                     "<td>"+ datos.data['RECLAMANTE'].nombre_completo +"</td>"+
                     "<td>"+ documento.parentesco_victima_nombre +"</td>"+
-                    "<td>"+ datos.data['RECLAMANTE'].email +"</td>"+
-                    "<td>"+ datos.data['RECLAMANTE'].telefonos +"</td>"+
-                    "<td>"+ datos.data['RECLAMANTE'].direccion_domiciliaria +"</td>"+
+                    "<td>"+ email +"</td>"+
+                    "<td>"+ telefonos +"</td>"+
+                    "<td>"+ direccion_domiciliaria +"</td>"+
                     "<td>"+ documento.creado_por_nombre+ "</td>"+
                     "<td>"+ moment(documento.created_at).format("YYYY-MM-DD HH:mm") + "</td>"+
                     "<td>"+ urlFile + "</td>";
