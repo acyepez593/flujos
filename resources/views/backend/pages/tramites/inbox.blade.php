@@ -864,7 +864,7 @@
         }
 
         function construirDocumentosAdicionales(tramite_id, documentosAdicionales){
-            debugger;
+            
             tableHeaderRefDocumentosAdicionales = document.getElementById('dataTableDocumentacionAdicional').getElementsByTagName('thead')[0];
 
             let htmlTable = 
