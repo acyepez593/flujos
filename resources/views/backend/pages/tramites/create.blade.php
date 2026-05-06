@@ -162,6 +162,7 @@ Crear Trámite - Admin Panel
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
 <script>
     let selectorPadre = '';
     let selectorHijo = '';
@@ -285,6 +286,18 @@ Crear Trámite - Admin Panel
             
         });
 
+        $.mask.definitions['~']='[0]';
+        $.mask.definitions['+']='[9]';
+        $('input[name="telefonos"]').mask("~+99999999");
+        $('input[name="celular"]').mask("~+99999999");
+        $('input[name="telefono_fijo"]').mask("~99999999");
+
+        $('input[name="fecha_accidente"]').datepicker('setEndDate', 'today');
+        $('input[name="fecha_siniestro"]').datepicker('setEndDate', 'today');
+        $('input[name="fecha_recepcion"]').datepicker('setEndDate', 'today');
+        $('input[name="fecha_nacimiento"]').datepicker('setEndDate', 'today');
+        $('input[name="fecha_defuncion"]').datepicker('setEndDate', 'today');
+
     });
 
     let proceso_id = '{{$proceso_id}}';
@@ -355,6 +368,9 @@ Crear Trámite - Admin Panel
             let long = camposPorSeccion[seccion].filter(campo => campo.visible === true).length;
             let nombre_seccion = seccion;
             if(seccion == 'BENEFICIARIOS'){
+                //nombre_seccion = 'SOLICITANTE';
+            }
+            if(proceso_id == 3 && seccion == 'RECLAMANTE'){
                 nombre_seccion = 'SOLICITANTE';
             }
             
@@ -411,6 +427,9 @@ Crear Trámite - Admin Panel
             
             if(proceso_id == 3 && seccion == 'BENEFICIARIOS'){
                 nombre_seccion = 'BENEFICIARIO AUTORIZADO';
+            }
+            if(proceso_id == 3 && seccion == 'RECLAMANTE'){
+                nombre_seccion = 'SOLICITANTE';
             }
 
             if(long > 0){
@@ -1317,6 +1336,18 @@ Crear Trámite - Admin Panel
                         $('#' + seccion + ' input[name="fecha_nacimiento"]').datepicker("setDate",fecha_nacimiento);
 
                         $('#' + seccion + ' input[name="edad"]').val(edad);
+
+                        if(edad < 18){
+                            $('#' + seccion + ' select[name="es_menor_edad_id"] option').filter(function() {
+                                return $(this).text() === 'SI';
+                            }).prop('selected', true);
+                            $('#' + seccion + ' select[name="es_menor_edad_id"]').trigger("change");
+                        }else{
+                            $('#' + seccion + ' select[name="es_menor_edad_id"] option').filter(function() {
+                                return $(this).text() === 'NO';
+                            }).prop('selected', true);
+                            $('#' + seccion + ' select[name="es_menor_edad_id"]').trigger("change");
+                        }
                     }
                 }
             });

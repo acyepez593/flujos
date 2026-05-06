@@ -161,6 +161,7 @@ Agregar Documentación al Trámite - Admin Panel
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
 <script>
     let selectorPadre = '';
     let selectorHijo = '';
@@ -278,6 +279,18 @@ Agregar Documentación al Trámite - Admin Panel
             
         });
 
+        $.mask.definitions['~']='[0]';
+        $.mask.definitions['+']='[9]';
+        $('input[name="telefonos"]').mask("~+99999999");
+        $('input[name="celular"]').mask("~+99999999");
+        $('input[name="telefono_fijo"]').mask("~99999999");
+
+        $('input[name="fecha_accidente"]').datepicker('setEndDate', 'today');
+        $('input[name="fecha_siniestro"]').datepicker('setEndDate', 'today');
+        $('input[name="fecha_recepcion"]').datepicker('setEndDate', 'today');
+        $('input[name="fecha_nacimiento"]').datepicker('setEndDate', 'today');
+        $('input[name="fecha_defuncion"]').datepicker('setEndDate', 'today');
+
     });
 
     let proceso_id = '{{$proceso_id}}';
@@ -330,7 +343,7 @@ Agregar Documentación al Trámite - Admin Panel
         let listaCampos = '{{$listaCampos}}';
         listaCampos = listaCampos.replace(/&quot;/g, '"');
         listaCampos = JSON.parse(listaCampos);
-debugger;
+
         camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
         console.log(camposPorSeccion);
 
