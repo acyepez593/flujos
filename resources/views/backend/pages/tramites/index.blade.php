@@ -366,7 +366,7 @@
                         }else if(tramite.proceso_id == 3){
                             identificadorProteccion += 'PRO-DIS-';
                         }
-                        identificadorProteccion += tramite.id;
+                        identificadorProteccion += tramite.secuencial_tramite_id;
                         
                         htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                         htmlCreateAdditional +=@if (auth()->user()->can('tramite.createAdditional')) '<a class="icon-margin" title="Agregar Documentación Adicional" style="color: #007bff; cursor:pointer;margin:5px;" href="'+rutacreateAdditional+'"><i class="fa fa-plus-square fa-2x"></i></a>' @else '' @endif;
@@ -586,7 +586,7 @@
                 }else if(documento.proceso_id == 3){
                     identificadorProteccion += 'PRO-DIS-';
                 }
-                identificadorProteccion += documento.tramite_id;
+                identificadorProteccion += documento.secuencial_tramite_id;
                 let observaciones = (documento.proceso_id == 3) ? datos.data['RECEPCION'].observaciones : datos.data['RECEPCION'].observaciones_recepcion;
                 let email = (documento.proceso_id == 3) ? datos.data['RECLAMANTE'].correo_electronico : datos.data['RECLAMANTE'].email;
                 let telefonos = (documento.proceso_id == 3) ? datos.data['RECLAMANTE'].celular : datos.data['RECLAMANTE'].telefonos;

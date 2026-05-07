@@ -160,7 +160,14 @@ class TramitesController extends Controller
             $secuencia_proceso_id = $request->secuencia_proceso_id;
         }
 
+        $ultimo_secuencial_tramite = Tramite::where('proceso_id', $proceso_id)->orderBy('secuencial_tramite_id', 'desc')->first();
+        $ultimo_secuencial_tramite_id = 1;
+        if($ultimo_secuencial_tramite){
+            $ultimo_secuencial_tramite_id = $ultimo_secuencial_tramite->secuencial_tramite_id+1;
+        }
+
         $tramite = new Tramite();
+        $tramite->secuencial_tramite_id = $ultimo_secuencial_tramite_id;
         $tramite->proceso_id = $proceso_id;
         $tramite->secuencia_proceso_id = $secuencia_proceso_id;
         $tramite->funcionario_actual_id = $funcionario_actual_id;
@@ -182,6 +189,7 @@ class TramitesController extends Controller
 
         $trazabilidad_tramite = new TrazabilidadTramite();
         $trazabilidad_tramite->tramite_id = $tramite->id;
+        $trazabilidad_tramite->secuencial_tramite_id = $tramite->secuencial_tramite_id;
         $trazabilidad_tramite->proceso_id = $proceso_id;
         $trazabilidad_tramite->secuencia_proceso_id = $secuencia_proceso_id;
         $trazabilidad_tramite->funcionario_actual_id = $funcionario_actual_id;
@@ -308,13 +316,13 @@ class TramitesController extends Controller
         $numeroTramite = '';
         switch ($proceso_id) {
             case 1:
-                $numeroTramite = 'PRO-FAL-' . $tramite->id;
+                $numeroTramite = 'PRO-FAL-' . $tramite->secuencial_tramite_id;
                 break;
             case 2:
-                $numeroTramite = 'PRO-FUN-' . $tramite->id;
+                $numeroTramite = 'PRO-FUN-' . $tramite->secuencial_tramite_id;
                 break;
             case 3:
-                $numeroTramite = 'PRO-DIS-' . $tramite->id;
+                $numeroTramite = 'PRO-DIS-' . $tramite->secuencial_tramite_id;
                 break;
         }
 
@@ -575,6 +583,7 @@ class TramitesController extends Controller
 
             $trazabilidad_tramite = new TrazabilidadTramite();
             $trazabilidad_tramite->tramite_id = $id;
+            $trazabilidad_tramite->secuencial_tramite_id = $tramite->secuencial_tramite_id;
             $trazabilidad_tramite->proceso_id = $tramite->proceso_id;
             $trazabilidad_tramite->secuencia_proceso_id = $tramite->secuencia_proceso_id;
             $trazabilidad_tramite->funcionario_actual_id = $tramite->funcionario_actual_id;
@@ -940,7 +949,7 @@ class TramitesController extends Controller
             $tramites = $tramites->where('proceso_id', $filtroProcesoIdSearch);
         }
         if(isset($filtroIdentificadorProteccionSearch) && !empty($filtroIdentificadorProteccionSearch)){
-            $tramites = $tramites->where('id', $filtroIdentificadorProteccionSearch);
+            $tramites = $tramites->where('secuencial_tramite_id', $filtroIdentificadorProteccionSearch);
         }
         if(isset($filtroSecuenciaIdProcesoSearch) && !empty($filtroSecuenciaIdProcesoSearch)){
             $tramites = $tramites->where('secuencia_proceso_id', $filtroSecuenciaIdProcesoSearch);
@@ -1325,7 +1334,7 @@ class TramitesController extends Controller
             $tramites = $tramites->where('proceso_id', $filtroProcesoSearch);
         }
         if(isset($filtroIdentificadorProteccionSearch) && !empty($filtroIdentificadorProteccionSearch)){
-            $tramites = $tramites->where('id', $filtroIdentificadorProteccionSearch);
+            $tramites = $tramites->where('secuencial_tramite_id', $filtroIdentificadorProteccionSearch);
         }
         /*if(isset($filtroEstatus) && !empty($filtroEstatus)){
             $tramites = $tramites->whereIn('estatus', $filtroEstatus);
