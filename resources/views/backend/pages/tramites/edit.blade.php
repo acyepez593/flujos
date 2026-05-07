@@ -247,6 +247,22 @@ Editar Trámite - Admin Panel
             }
         }*/
 
+        $('#VICTIMA input[name="fecha_nacimiento"]').on("change", function() {
+            let fn =$('#VICTIMA input[name="fecha_nacimiento"]').val();    
+            let fd =$('#VICTIMA input[name="fecha_defuncion"]').val();    
+            if(fn != '' && fd != ''){
+                calcularEdad(fn, fd);
+            }
+        });
+
+        $('#VICTIMA input[name="fecha_defuncion"]').on("change", function() {
+            let fn =$('#VICTIMA input[name="fecha_nacimiento"]').val();    
+            let fd =$('#VICTIMA input[name="fecha_defuncion"]').val();    
+            if(fn != '' && fd != ''){
+                calcularEdad(fn, fd);
+            }
+        });
+
         $('#guardar').click(function(){
             //validar
 
@@ -316,6 +332,7 @@ Editar Trámite - Admin Panel
     let id_beneficiario = 0;
     let count = 0;
     let objBen = [];
+    let fecha_nacimiento = '';
 
     let tiposCatalogos = '{{$tiposCatalogos}}';
     tiposCatalogos = tiposCatalogos.replace(/&quot;/g, '"');
@@ -379,7 +396,7 @@ Editar Trámite - Admin Panel
             if(proceso_id == 3 && seccion == 'BENEFICIARIOS'){
                 nombre_seccion = 'BENEFICIARIO AUTORIZADO';
             }
-            if(proceso_id == 3 && seccion == 'RECLAMANTE'){
+            if(seccion == 'RECLAMANTE'){
                 nombre_seccion = 'SOLICITANTE';
             }
 
@@ -962,9 +979,8 @@ Editar Trámite - Admin Panel
                     let estado_civil = respuestaWS.find(dato => dato.campo === 'estadoCivil').valor;
                     let sexo = respuestaWS.find(dato => dato.campo === 'sexo').valor;
                     let genero = '';
-                    let fecha_nacimiento = respuestaWS.find(dato => dato.campo === 'fechaNacimiento').valor;
+                    fecha_nacimiento = respuestaWS.find(dato => dato.campo === 'fechaNacimiento').valor;
                     fecha_nacimiento = moment(fecha_nacimiento,'DD/MM/YYYY').format("YYYY-MM-DD");
-                    let edad = calcularEdad(fecha_nacimiento);
 
                     if(seccion == 'BENEFICIARIOS'){
                         $('#' + id_beneficiario + ' input[name="nombre_completo"]').val(nombre_completo);
@@ -1008,16 +1024,20 @@ Editar Trámite - Admin Panel
 
                         $('#' + seccion + ' input[name="edad"]').val(edad);
 
-                        if(edad < 18){
-                            $('#' + seccion + ' select[name="es_menor_edad_id"] option').filter(function() {
-                                return $(this).text() === 'SI';
-                            }).prop('selected', true);
-                            $('#' + seccion + ' select[name="es_menor_edad_id"]').trigger("change");
-                        }else{
-                            $('#' + seccion + ' select[name="es_menor_edad_id"] option').filter(function() {
-                                return $(this).text() === 'NO';
-                            }).prop('selected', true);
-                            $('#' + seccion + ' select[name="es_menor_edad_id"]').trigger("change");
+                        if(proceso_id == 3){
+                            let fecha_actual = moment();
+                            let edad = calcularEdad(fecha_nacimiento, fecha_actual);
+                            if(edad < 18){
+                                $('#' + seccion + ' select[name="es_menor_edad_id"] option').filter(function() {
+                                    return $(this).text() === 'SI';
+                                }).prop('selected', true);
+                                $('#' + seccion + ' select[name="es_menor_edad_id"]').trigger("change");
+                            }else{
+                                $('#' + seccion + ' select[name="es_menor_edad_id"] option').filter(function() {
+                                    return $(this).text() === 'NO';
+                                }).prop('selected', true);
+                                $('#' + seccion + ' select[name="es_menor_edad_id"]').trigger("change");
+                            }
                         }
                     }
                 }
@@ -1026,12 +1046,28 @@ Editar Trámite - Admin Panel
         
     }
 
-    function calcularEdad(fecha_de_nacimiento) {
-        let fecha_actual = moment();
+    function calcularEdad(fecha_de_nacimiento, fecha_de_defuncion) {
         let fecha_nacimiento = moment(fecha_de_nacimiento,'YYYY-MM-DD');
-        let edad = moment.duration(fecha_actual.diff(fecha_nacimiento));
+        let fecha_actual = moment();
+        let fecha_defuncion = moment(fecha_de_defuncion,'YYYY-MM-DD');
+        let edad = moment.duration(fecha_defuncion.diff(fecha_nacimiento));
 
-        return edad.years();
+        edad = edad.years();
+
+        $('#VICTIMA input[name="edad"]').val(edad);
+
+        if(edad < 18){
+            $('#VICTIMA select[name="es_menor_edad_id"] option').filter(function() {
+                return $(this).text() === 'SI';
+            }).prop('selected', true);
+            $('#VICTIMA select[name="es_menor_edad_id"]').trigger("change");
+        }else{
+            $('#VICTIMA select[name="es_menor_edad_id"] option').filter(function() {
+                return $(this).text() === 'NO';
+            }).prop('selected', true);
+            $('#VICTIMA select[name="es_menor_edad_id"]').trigger("change");
+        }
+        return edad;
     }
 
     function calcularMontoPagoDiscapacidad(fecha_accidente, porcentaje_avalado_discapacidad){

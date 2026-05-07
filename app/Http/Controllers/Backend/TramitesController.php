@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File as FileFacade;
 use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
@@ -1521,6 +1522,57 @@ class TramitesController extends Controller
         $data['valor_a_pagar'] = $valor_cobertura[0]['valor_cobertura'];
         
         return response()->json($data);
+    }
+
+    public function generarPlantillaTramite(Request $request)
+    {
+        $this->checkAuthorization(auth()->user(), ['tramite.view']);
+
+        if(!$request->tramite_id || !isset($request->tramite_id) || empty($request->tramite_id || is_null($request->tramite_id))){
+            $tramite_id = "";
+        }else{
+            $tramite_id = $request->tramite_id;
+        }
+
+        $tramite = Tramite::findOrFail($tramite_id);
+        $proceso = Proceso::findOrFail($tramite->proceso_id);
+        $user = Admin::findOrFail($tramite->creado_por);
+        $agencia = Catalogo::findOrFail($user->catalogo_id);
+    
+        $datos = json_decode($tramite->datos, true);
+
+        $victima = $datos['data']['VICTIMA'];
+        $reclamante = $datos['data']['RECLAMANTE'];
+        $siniestro = $datos['data']['SINIESTRO'];
+
+        $fechaCreacion = Carbon::createFromFormat('Y-m-d', $tramite->created_at)->startOfDay();
+
+        $identificadorTramite = '';
+        $proteccion = $proceso->nombre;
+
+        if($tramite->proceso_id == 1){
+            $identificadorTramite .= 'PRO-FAL-';
+        } else if($tramite->proceso_id == 2){
+            $identificadorTramite .= 'PRO-FUN-';
+        } else if($tramite->proceso_id == 3){
+            $identificadorTramite .= 'PRO-DIS-';
+        }
+
+        $identificadorTramite .= $identificadorTramite . $tramite->secuencial_tramite_id;
+
+        $data = [
+            'identificadorTramite' => $identificadorTramite,
+            'proteccion' => $proteccion,
+            'victima' => $victima,
+            'reclamante' => $reclamante,
+            'siniestro' => $siniestro,
+            'fechaCreacion' => $fechaCreacion,
+            'agencia'=> $agencia
+        ];
+
+        $pdf = PDF::loadView('myPDF', $data);
+       
+        return $pdf->download('plantilla.pdf');
     }
 
 }
