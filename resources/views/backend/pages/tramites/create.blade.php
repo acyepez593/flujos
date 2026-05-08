@@ -275,6 +275,16 @@ Crear Trámite - Admin Panel
             }
         });
 
+        $('#VICTIMA select[name="tipo_fallecimiento_id"]').on("change", function() {
+            if(proceso_id == 1 || proceso_id == 2){
+                if($(this).val() == 27){
+                    $('#RECEPCION input[name="historia_clinica"]').parent().show();
+                }else{
+                    $('#RECEPCION input[name="historia_clinica"]').parent().hide();
+                }
+            }
+        });
+
         $('#guardar').click(function(){
             //validar
 
@@ -313,6 +323,8 @@ Crear Trámite - Admin Panel
         $('input[name="fecha_recepcion"]').datepicker('setEndDate', 'today');
         $('input[name="fecha_nacimiento"]').datepicker('setEndDate', 'today');
         $('input[name="fecha_defuncion"]').datepicker('setEndDate', 'today');
+
+        $('#VICTIMA select[name="tipo_fallecimiento_id"]').trigger("change");
 
     });
 
