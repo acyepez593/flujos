@@ -37,6 +37,9 @@ use Illuminate\Support\Facades\File as FileFacade;
 use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+//use Barryvdh\DomPDF\Facade\Pdf as PDF;
+//use Barryvdh\DomPDF\Facade\Pdf;
+//use PDF;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
@@ -1547,28 +1550,35 @@ class TramitesController extends Controller
         return response()->json($data);
     }
 
-    public function generarPlantillaTramite(Request $request)
+    public function generarCaratulaTramite(int $numeroTramite, Request $request)
     {
         $this->checkAuthorization(auth()->user(), ['tramite.view']);
 
         if(!$request->tramite_id || !isset($request->tramite_id) || empty($request->tramite_id || is_null($request->tramite_id))){
-            $tramite_id = "";
+            $tramite_id = $numeroTramite;
         }else{
             $tramite_id = $request->tramite_id;
         }
 
         $tramite = Tramite::findOrFail($tramite_id);
         $proceso = Proceso::findOrFail($tramite->proceso_id);
-        $user = Admin::findOrFail($tramite->creado_por);
-        $agencia = Catalogo::findOrFail($user->catalogo_id);
+        $user = Admin::where('id', $tramite->creado_por)->first();
+        $agencia = Catalogo::findOrFail($user->agencia_id);
+              
     
         $datos = json_decode($tramite->datos, true);
 
         $victima = $datos['data']['VICTIMA'];
         $reclamante = $datos['data']['RECLAMANTE'];
         $siniestro = $datos['data']['SINIESTRO'];
+        $catalogos = Catalogo::where('estatus','ACTIVO')->get();
+        $listaCatalogos = [];
+        foreach($catalogos as $catalogo){
+            $listaCatalogos[$catalogo->id] = $catalogo->nombre;
+        }
 
-        $fechaCreacion = Carbon::createFromFormat('Y-m-d', $tramite->created_at)->startOfDay();
+        
+        $fechaCreacion = Carbon::createFromFormat('Y-m-d H:m:s', $tramite->created_at)->startOfDay()->format('Y-m-d');
 
         $identificadorTramite = '';
         $proteccion = $proceso->nombre;
@@ -1581,7 +1591,9 @@ class TramitesController extends Controller
             $identificadorTramite .= 'PRO-DIS-';
         }
 
-        $identificadorTramite .= $identificadorTramite . $tramite->secuencial_tramite_id;
+        $identificadorTramite .= $tramite->secuencial_tramite_id;
+
+        
 
         $data = [
             'identificadorTramite' => $identificadorTramite,
@@ -1590,7 +1602,9 @@ class TramitesController extends Controller
             'reclamante' => $reclamante,
             'siniestro' => $siniestro,
             'fechaCreacion' => $fechaCreacion,
-            'agencia'=> $agencia
+            'agencia'=> $agencia,
+            'listaCatalogos' => $listaCatalogos,
+            'user' => $user
         ];
 
         $pdf = PDF::loadView('myPDF', $data);

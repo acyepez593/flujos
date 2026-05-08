@@ -315,6 +315,7 @@
                 </div>
                 <div class="modal-body">
                     <p style="font-size: 25px;"></p>
+                    <p><a href="" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>Descargar Carátula</a></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -762,6 +763,7 @@
         let documentosAdicionales = [];
         let files = [];
         let numero_tramite = '{{ isset($_GET["numeroTramite"]) ? $_GET["numeroTramite"] : "" }}';
+        let rutaCaratula = "{{url('admin')}}/generarCaratulaTramite/"+numero_tramite;
 
         let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
         let campos_por_proceso = [];
