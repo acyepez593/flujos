@@ -717,7 +717,13 @@ Crear Trámite - Admin Panel
 
                         if(campo.editable && campo.requerido){
                             html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required>';
+                            let contTemp = 0;
                             for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                
+                                if(contTemp == 0){
+                                    html_components += '<option value="">Seleccione una opción</option>';
+                                }
+
                                 if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
                                     if(campo.configuracion.select_field_default_value == catalogo.id){
                                         html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
@@ -727,11 +733,19 @@ Crear Trámite - Admin Panel
                                 }else{
                                     html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                 }
+                                contTemp++;
                             }
+                           
                             html_components += '</select>';
                         }else if(campo.editable && !campo.requerido){
                             html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true">';
+                            let contTemp = 0;
                             for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                
+                                if(contTemp == 0){
+                                    html_components += '<option value="">Seleccione una opción</option>';
+                                }
+
                                 if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
                                     if(campo.configuracion.select_field_default_value == catalogo.id){
                                         html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
@@ -741,11 +755,19 @@ Crear Trámite - Admin Panel
                                 }else{
                                     html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                 }
+                                contTemp++;
                             }
+                            
                             html_components += '</select>';
                         }else if(!campo.editable && campo.requerido){
                             html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" required readonly>';
+                            let contTemp = 0;
                             for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                
+                                if(contTemp == 0){
+                                    html_components += '<option value="">Seleccione una opción</option>';
+                                }
+
                                 if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
                                     if(campo.configuracion.select_field_default_value == catalogo.id){
                                         html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
@@ -755,11 +777,18 @@ Crear Trámite - Admin Panel
                                 }else{
                                     html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                 }
+                                contTemp++;
                             }
+                            
                             html_components += '</select>';
                         }else if(!campo.editable && !campo.requerido){
                             html_components += '<select name="' + campo.configuracion.select_field_name + '" class="' + campo.configuracion.select_field_class + '" data-live-search="true" readonly>';
+                            let contTemp = 0;
                             for (let catalogo of catalogos[campo.configuracion.select_field_tipo_catalogo]) {
+                                
+                                if(contTemp == 0){
+                                    html_components += '<option value="">Seleccione una opción</option>';
+                                }
                                 if(typeof campo.configuracion.select_field_default_value !== 'undefined' && campo.configuracion.select_field_default_value !== null){
                                     if(campo.configuracion.select_field_default_value == catalogo.id){
                                         html_components += '<option selected value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
@@ -769,7 +798,9 @@ Crear Trámite - Admin Panel
                                 }else{
                                     html_components += '<option value="' + catalogo.id + '">' + catalogo.nombre + '</option>';
                                 }
+                                contTemp++;
                             }
+                            
                             html_components += '</select>';
                         }
 
