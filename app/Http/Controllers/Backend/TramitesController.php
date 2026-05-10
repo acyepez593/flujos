@@ -37,9 +37,6 @@ use Illuminate\Support\Facades\File as FileFacade;
 use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
-//use Barryvdh\DomPDF\Facade\Pdf as PDF;
-//use Barryvdh\DomPDF\Facade\Pdf;
-//use PDF;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
@@ -1550,22 +1547,30 @@ class TramitesController extends Controller
         return response()->json($data);
     }
 
-    public function generarCaratulaTramite(int $numeroTramite, Request $request)
+    public function generarCaratulaTramite(string $numeroTramite, Request $request)
     {
         $this->checkAuthorization(auth()->user(), ['tramite.view']);
 
+        $proceso_id = 0;
+        $tramite_id = 0;
         if(!$request->tramite_id || !isset($request->tramite_id) || empty($request->tramite_id || is_null($request->tramite_id))){
-            $tramite_id = $numeroTramite;
-        }else{
-            $tramite_id = $request->tramite_id;
+            $arrayTemp = explode("-", $numeroTramite);
+           
+            if($arrayTemp[1] == 'FAL'){
+                $proceso_id = 1;
+            }else if($arrayTemp[1] == 'FUN'){
+                $proceso_id = 2;
+            }else if($arrayTemp[1] == 'DIS'){
+                $proceso_id = 3;
+            }
+            $tramite_id = $arrayTemp[2];
         }
 
-        $tramite = Tramite::findOrFail($tramite_id);
-        $proceso = Proceso::findOrFail($tramite->proceso_id);
+        $tramite = Tramite::where('secuencial_tramite_id', $tramite_id)->where('proceso_id', $proceso_id)->first();
+        $proceso = Proceso::findOrFail($proceso_id);
         $user = Admin::where('id', $tramite->creado_por)->first();
         $agencia = Catalogo::findOrFail($user->agencia_id);
               
-    
         $datos = json_decode($tramite->datos, true);
 
         $victima = $datos['data']['VICTIMA'];
@@ -1577,25 +1582,27 @@ class TramitesController extends Controller
             $listaCatalogos[$catalogo->id] = $catalogo->nombre;
         }
 
-        
         $fechaCreacion = Carbon::createFromFormat('Y-m-d H:m:s', $tramite->created_at)->startOfDay()->format('Y-m-d');
 
-        $identificadorTramite = '';
+        $identificadorTramite = $numeroTramite;
         $proteccion = $proceso->nombre;
 
-        if($tramite->proceso_id == 1){
-            $identificadorTramite .= 'PRO-FAL-';
-        } else if($tramite->proceso_id == 2){
-            $identificadorTramite .= 'PRO-FUN-';
-        } else if($tramite->proceso_id == 3){
-            $identificadorTramite .= 'PRO-DIS-';
+        $proteccionImg = '';
+        if($proceso_id == 1){
+            $proteccionImg = public_path('images/icon_fallecimiento.png');
+        }else if($proceso_id == 2){
+            $proteccionImg = public_path('images/icon_funerario.png');
+        }else if($proceso_id == 3){
+            $proteccionImg = public_path('images/icon_discapacidad.png');
         }
-
-        $identificadorTramite .= $tramite->secuencial_tramite_id;
-
         
+        $headerImg = public_path('images/header.png');
+        $footerImg = public_path('images/footer.png');
 
         $data = [
+            'headerImg' => $headerImg,
+            'footerImg' => $footerImg,
+            'proteccionImg' => $proteccionImg,
             'identificadorTramite' => $identificadorTramite,
             'proteccion' => $proteccion,
             'victima' => $victima,
@@ -1604,12 +1611,13 @@ class TramitesController extends Controller
             'fechaCreacion' => $fechaCreacion,
             'agencia'=> $agencia,
             'listaCatalogos' => $listaCatalogos,
-            'user' => $user
+            'user' => $user,
+            'procesoId' => $proceso_id
         ];
 
-        $pdf = PDF::loadView('myPDF', $data);
-       
-        return $pdf->download('plantilla.pdf');
+        $pdf = Pdf::loadView('backend.pages.tramites.caratula', $data);
+
+        return $pdf->download('caratula.pdf');
     }
 
 }

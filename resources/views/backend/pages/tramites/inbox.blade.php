@@ -315,7 +315,9 @@
                 </div>
                 <div class="modal-body">
                     <p style="font-size: 25px;"></p>
-                    <p><a href="" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>Descargar Carátula</a></p>
+                    <div id="caratula">
+                        <a href="" target="_blank" download> <i class="fa fa-file-pdf-o" aria-hidden="true"></i>Descargar Carátula</a>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -545,6 +547,7 @@
 
             if(numero_tramite != ""){
                 $("#modalNumeroTramite .modal-body p").append('El número de tramite es: <b>' + numero_tramite + '</b>');
+                $("#modalNumeroTramite .modal-body a").attr("href", rutaCaratula);
                 $('#modalNumeroTramite').modal('show');
             }
             
@@ -619,11 +622,13 @@
                         let rutaView ="";
                         let rutaEdit = "{{url('admin')}}"+"/tramites/"+tramite.id+"/edit";
                         let rutaDelete = "{{url('admin')}}"+"/tramites/"+tramite.id;
+                        
                         let innerHTML = "";
                         let htmlView = "";
                         let htmlEdit = "";
                         let htmlDelete = "";
                         let htmlCheck = "";
+                        
                         let identificadorProteccion = "";
 
                         if(tramite.proceso_id == 1){
@@ -634,11 +639,15 @@
                             identificadorProteccion += 'PRO-DIS-';
                         }
                         identificadorProteccion += tramite.secuencial_tramite_id;
+
+                        let rutaDescargaCaratula = "{{url('/generarCaratulaTramite')}}/"+identificadorProteccion;
+                        let htmlCaratula = "";
                         
                         htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                         htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="icon-margin" title="Editar" href="'+rutaEdit+'"><i class="fa fa-edit fa-2x"></i></a>' @else '' @endif;
                         htmlDelete += @if (auth()->user()->can('tramite.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tramite.id+')">Borrar</a> <form id="delete-form-'+tramite.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
                         htmlCheck += @if (auth()->user()->can('tramite.edit')) '<input type="checkbox" id="'+ tramite.id +'" name="select" class="checkSingle" onclick="toggle('+tramite.id+');">' @else '' @endif;
+                        htmlCaratula +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" target="_blank" title="Descargar Carátula" href="'+rutaDescargaCaratula+'"><i class="fa fa-file-pdf-o fa-2x"></i></a>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ identificadorProteccion + "</td>";
@@ -660,7 +669,7 @@
                             "<td>"+ tramite.creado_por_nombre+ "</td>"+
                             "<td>"+ moment(tramite.created_at).format("YYYY-MM-DD HH:mm") + "</td>";
                             if(tramite.esEditorRegistro){
-                                innerHTML +="<td>" + htmlView + htmlEdit + "</td>";
+                                innerHTML +="<td>" + htmlView + htmlEdit + htmlCaratula + "</td>";
                             }else{
                                 innerHTML += "<td></td>";
                             }
@@ -763,7 +772,7 @@
         let documentosAdicionales = [];
         let files = [];
         let numero_tramite = '{{ isset($_GET["numeroTramite"]) ? $_GET["numeroTramite"] : "" }}';
-        let rutaCaratula = "{{url('admin')}}/generarCaratulaTramite/"+numero_tramite;
+        let rutaCaratula = "{{url('/generarCaratulaTramite')}}/"+numero_tramite;
 
         let camposPorSeccion = Object.groupBy(listaCampos, (campo) => campo.seccion_campo);
         let campos_por_proceso = [];
