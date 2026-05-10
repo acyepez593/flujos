@@ -74,7 +74,7 @@
             </tr>
         </tbody>
     </table>
-    <h3 style="text-align: center;">DISCAPACIDAD</h3>
+    <h3 style="text-align: center;">{{ $proceso->nombre }}</h3>
     
     <table width="400">
         <tbody>
@@ -95,7 +95,7 @@
     <table width="400">
         <tbody>
             <tr>
-                <td style="width: 400px;" colspan="4">
+                <td style="width: 400px; text-align: center;" colspan="4">
                     <p>{{ $victima['nombre_completo'] }}</p>
                 </td>
             </tr>
@@ -123,7 +123,7 @@
                     <p><strong>SOLICITANTE:</strong></p>
                 </td>
                 <td style="width: 300px;">
-                    <p>{{ $victima['nombre_completo'] }}</p>
+                    <p>{{ $reclamante['nombre_completo'] }}</p>
                 </td>
             </tr>
             <tr>
@@ -131,7 +131,7 @@
                     <p><strong>NUI:</strong></p>
                 </td>
                 <td style="width: 300px;">
-                    <p>{{ $victima['numero_documento'] }}</p>
+                    <p>{{ $reclamante['numero_documento'] }}</p>
                 </td>
             </tr>
         </tbody>
@@ -155,7 +155,7 @@
             </tr>
             <tr>
                 <td style="width: 80px;">
-                    <p>{{ $siniestro['fecha_accidente'] }}</p>
+                    <p>{{ ($proceso->id == 3) ? $siniestro['fecha_accidente'] : $siniestro['fecha_siniestro']  }}</p>
                 </td>
                 <td style="width: 130px;">
                     <p>{{ $listaCatalogos[$siniestro['provincia_accidente_id']] }}</p>

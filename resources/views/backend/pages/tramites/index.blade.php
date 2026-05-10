@@ -367,11 +367,15 @@
                             identificadorProteccion += 'PRO-DIS-';
                         }
                         identificadorProteccion += tramite.secuencial_tramite_id;
+
+                        let rutaDescargaCaratula = "{{url('/generarCaratulaTramite')}}/"+identificadorProteccion;
+                        let htmlCaratula = "";
                         
                         htmlView +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" title="Ver" style="color: #007bff; cursor:pointer;margin:5px;" onclick="javascript:void(0);mostrarDetalle('+ tramite.id +')"><i class="fa fa-eye fa-2x"></i></a>' @else '' @endif;
                         htmlCreateAdditional +=@if (auth()->user()->can('tramite.createAdditional')) '<a class="icon-margin" title="Agregar Documentación Adicional" style="color: #007bff; cursor:pointer;margin:5px;" href="'+rutacreateAdditional+'"><i class="fa fa-plus-square fa-2x"></i></a>' @else '' @endif;
                         htmlEdit +=@if (auth()->user()->can('tramite.edit')) '<a class="btn btn-success text-white" href="'+rutaEdit+'">Editar</a>' @else '' @endif;
                         htmlDelete += @if (auth()->user()->can('tramite.delete')) '<a class="btn btn-danger text-white" href="javascript:void(0);" onclick="event.preventDefault(); deleteDialog('+tramite.id+')">Borrar</a> <form id="delete-form-'+tramite.id+'" action="'+rutaDelete+'" method="POST" style="display: none;">@method('DELETE')@csrf</form>' @else '' @endif;
+                        htmlCaratula +=@if (auth()->user()->can('tramite.view')) '<a class="icon-margin" target="_blank" title="Descargar Carátula" href="'+rutaDescargaCaratula+'"><i class="fa fa-file-pdf-o fa-2x"></i></a>' @else '' @endif;
 
                         innerHTML += 
                             "<td>"+ identificadorProteccion+ "</td>"+
@@ -381,7 +385,7 @@
                             "<td>"+ tramite.estatus+ "</td>"+
                             "<td>"+ tramite.creado_por_nombre+ "</td>"+
                             "<td>"+ moment(tramite.created_at).format("YYYY-MM-DD HH:mm")+ "</td>"+
-                            "<td>" + htmlView + htmlCreateAdditional + "</td>";
+                            "<td>" + htmlView + htmlCreateAdditional + htmlCaratula + "</td>";
                             /*if(tramite.esCreadorRegistro){
                                 innerHTML +="<td>" + htmlView + "</td>";
                             }else{

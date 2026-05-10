@@ -1612,7 +1612,7 @@ class TramitesController extends Controller
             'agencia'=> $agencia,
             'listaCatalogos' => $listaCatalogos,
             'user' => $user,
-            'procesoId' => $proceso_id
+            'proceso' => $proceso
         ];
 
         $pdf = Pdf::loadView('backend.pages.tramites.caratula', $data);
