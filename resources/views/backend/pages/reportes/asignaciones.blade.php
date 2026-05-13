@@ -366,7 +366,7 @@
                         method: "POST",
                         data: {
                             proceso_id_search: $('#proceso_id_search').val(),
-                            secuencia_proceso_id_search: JSON.stringify($('#secuencia_proceso_id_search').val()),
+                            secuencia_proceso_id_search: $('#secuencia_proceso_id_search').val(),
                             funcionario_actual_id_search: $('#funcionario_actual_id_search').val(),
                             estatus_id_search: JSON.stringify($('#estatus_id_search').val()),
                             fecha_creacion_tramite_desde_search: $('#fecha_creacion_tramite_desde_search').val(),

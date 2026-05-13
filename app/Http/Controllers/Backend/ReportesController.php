@@ -383,7 +383,7 @@ class ReportesController extends Controller
         ini_set('memory_limit', '-1'); // anula el limite 
 
         $filtroProcesoIdSearch = $request->proceso_id_search;
-        //$filtroSecuenciaProcesoIdSearch = json_decode($request->secuencia_proceso_id_search, true);
+        $filtroSecuenciaProcesoIdSearch = $request->secuencia_proceso_id_search;
         $filtroFuncionarioActualIdSearch = $request->funcionario_actual_id_search;
         //$filtroEstatusSearch = json_decode($request->estatus_id_search, true);
         $filtroFechaCreacionDesdeSearch = $request->fecha_creacion_tramite_desde_search;
@@ -426,7 +426,9 @@ class ReportesController extends Controller
         }else if(intval($filtroProcesoIdSearch) == 2){
             $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 20);
         }else if(intval($filtroProcesoIdSearch) == 3){
-            $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 7);
+            //$trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 7);
+            //$trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', 4);
+            $trazabilidadTramites = TrazabilidadTramite::where('tipo', 'CAMBIO SECCION')->where('secuencia_proceso_id', intval($filtroSecuenciaProcesoIdSearch));
         }
         
 
@@ -469,7 +471,7 @@ class ReportesController extends Controller
         }
 
         if(isset($filtroSecuenciaProcesoIdSearch) && !empty($filtroSecuenciaProcesoIdSearch)){
-            $tramites = $tramites->whereIn('secuencia_proceso_id', $filtroSecuenciaProcesoIdSearch);
+            //$tramites = $tramites->where('secuencia_proceso_id', $filtroSecuenciaProcesoIdSearch);
         }
 
         /*if(isset($filtroFuncionarioActualIdSearch) && !empty($filtroFuncionarioActualIdSearch)){
