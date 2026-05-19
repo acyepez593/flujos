@@ -730,15 +730,15 @@ class RemesasController extends Controller
 
         $secuencia = SecuenciaProceso::find($secuencia_proceso_id);        
 
-        $data['tramites'] = $tramites;
+        $data['remesas'] = $remesas;
         $data['secuencia'] = $secuencia;
   
         return response()->json($data);
     }
 
-    public function procesarTramites(Request $request): JsonResponse
+    public function procesarRemesas(Request $request): JsonResponse
     {
-        $this->checkAuthorization(auth()->user(), ['tramite.edit']);
+        $this->checkAuthorization(auth()->user(), ['remesa.edit']);
 
         try {
             $proceso_id = $request->proceso_id;
