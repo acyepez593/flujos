@@ -875,9 +875,9 @@ class RemesasController extends Controller
 
     }
 
-    public function reasignarTramites(Request $request): JsonResponse
+    public function reasignarRemesas(Request $request): JsonResponse
     {
-        $this->checkAuthorization(auth()->user(), ['tramite.reassign']);
+        $this->checkAuthorization(auth()->user(), ['remesa.reassign']);
         
         $proceso_id = $request->proceso_id;
         $tramites_ids = json_decode($request->tramites_ids, true);
@@ -936,7 +936,7 @@ class RemesasController extends Controller
         }
     }
 
-    public function getTramitesByFilters(Request $request): JsonResponse
+    public function getRemesasByFilters(Request $request): JsonResponse
     {
         $this->checkAuthorization(auth()->user(), ['tramite.view']);
 
